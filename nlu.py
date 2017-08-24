@@ -1,3 +1,5 @@
+from functools import lru_cache
+
 import pymorphy2
 from nltk.tokenize import sent_tokenize, word_tokenize
 import numpy as np
@@ -35,10 +37,11 @@ class PyMorphyPreproc(Preprocessor):
         res = []
         for w in words:
             p = self.morph.parse(w['_text'])
+            w['normal'] = p[0].normal_form.replace('ё', 'е')
             v = np.zeros(len(self.tagmap))
             # TODO: Note index getter p[0] -- we need better disambiguation
             for tag in str(p[0].tag).replace(' ', ',').split(','):
-                w[tag] = 1
+                w['t_' + tag] = 1
                 v[self.tagmap[tag]] = 1
             if self.vectorize:
                 w['_vec'].append(v)
@@ -66,6 +69,7 @@ class Pipeline:
         self.feature_gens = feature_gens
         self.embedder = embedder
 
+    @lru_cache()
     def feed(self, raw_input: str) -> ('embedding', List[str]):
         # TODO: is it OK to merge words from sentences?
         words = []
@@ -75,13 +79,19 @@ class Pipeline:
                 ws = fg.process(ws)
             words.extend(ws)
 
-        return self.embedder([w['_vec'] for w in words]), [w['_text'] for w in words]
+        return self.embedder([w['_vec'] for w in words]), words
 
 
 if __name__ == '__main__':
     pmp = PyMorphyPreproc(vectorize=False)
-    assert pmp.process([{'_text': 'Разлетелся'}, {'_text': 'градиент'}]) == [{'VERB': 1, '_text': 'Разлетелся', 'indc': 1, 'past': 1, 'perf': 1, 'sing': 1, 'intr': 1 , 'masc': 1},
-                                                                           {'inan': 1, '_text': 'градиент', 'masc': 1, 'sing': 1, 'nomn': 1, 'NOUN': 1}]
+    assert pmp.process([{'_text': 'Разлетелся'}, {'_text': 'градиент'}]) == [{'t_intr': 1, 't_VERB': 1, 't_indc': 1,
+                                                                              'normal': 'разлететься', 't_past': 1,
+                                                                              't_sing': 1, '_text': 'Разлетелся',
+                                                                              't_perf': 1, 't_masc': 1},
+                                                                             {'t_sing': 1, 't_NOUN': 1,
+                                                                              'normal': 'градиент', '_text': 'градиент',
+                                                                              't_nomn': 1, 't_inan': 1, 't_masc': 1}]
+
     lower = Lower()
     assert lower.process([{'_text': 'Разлетелся'}]) == [{'_text': 'разлетелся'}]
 
@@ -89,9 +99,7 @@ if __name__ == '__main__':
     # pipe = Pipeline(sent_tokenize, word_tokenize, [PyMorphyPreproc(), Lower(), Fasttext(FASTTEXT_MODEL)], embedder=np.vstack)
     pipe = Pipeline(sent_tokenize, word_tokenize, [PyMorphyPreproc(), Lower()], embedder=np.vstack)
     emb, text = pipe.feed('Добрый день! Могу ли я открыть отдельный счет по 275ФЗ и что для этого нужно? ')
+    # print(text)
 
-    print(text)
-    print(emb)
-
-
-
+    assert [w['_text'] for w in text] == ['добрый', 'день', '!', 'могу', 'ли', 'я', 'открыть', 'отдельный', 'счет', 'по', '275фз', 'и', 'что', 'для', 'этого', 'нужно', '?']
+    assert emb.shape[0] == 17, 120
