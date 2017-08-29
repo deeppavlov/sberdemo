@@ -185,8 +185,7 @@ if __name__ == '__main__':
         bot.send_message(chat_id=chat_id, text=bot_resp)
 
 
-
-    updater = Updater(token=os.path.expandvars('SBER_DEMO_BOT_TOKEN'))
+    updater = Updater(token=os.environ['SBER_DEMO_BOT_TOKEN'])
     dispatcher = updater.dispatcher
     start_handler = CommandHandler('start', start)
     msg_handler = MessageHandler(Filters.text, user_client)
