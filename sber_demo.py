@@ -144,8 +144,8 @@ class Dialog:
 def _assert(expected, actual):
     assert expected == actual, 'Expected "{}", but was "{}"'.format(expected, actual)
 
-if __name__ == '__main__':
-    pipe = Pipeline(sent_tokenize, word_tokenize, [PyMorphyPreproc(), Lower()], embedder=np.vstack)
+
+def test_dialog(pipe):
     dialog = Dialog(pipe, RuleBasedSberdemoNLU(), RuleBasedSberdemoPolicy())
 
     resp = dialog.generate_response('Добрый день! Могу ли я открыть отдельный счет по 275ФЗ и что для этого нужно?')
@@ -164,8 +164,10 @@ if __name__ == '__main__':
     resp = dialog.generate_response('да')
     _assert('НачатьРезервированиеCчёта()\nВсего хорошего, до свидания!', resp)
 
-    dialog = Dialog(pipe, RuleBasedSberdemoNLU(), RuleBasedSberdemoPolicy())
-    bot_resp = 'Добрый день, человек. В чём ваша проблема?'
+
+if __name__ == '__main__':
+    pipe = Pipeline(sent_tokenize, word_tokenize, [PyMorphyPreproc(), Lower()], embedder=np.vstack)
+    # test_dialog(pipe)
 
     humans = {}
 
