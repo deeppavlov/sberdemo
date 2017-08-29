@@ -1,4 +1,9 @@
+import os
+
 from nlu import *
+import telegram
+from telegram.ext import Updater
+from telegram.ext import CommandHandler, MessageHandler, Filters
 
 SLOT_ACCOUNT_RESERVATION = 'account_reservation'
 SLOT_ACCOUNT_CURRENCY = 'account_currency'
@@ -15,7 +20,7 @@ def some_starts_with(words_list, *prefixi_to_check):
 
 
 class RuleBasedSberdemoNLU:
-    def forward(self, embedding, text):
+    def forward(self, embedding, text: List[Dict]):
         res = {'slots': {}}
 
         normals = {w['normal'] for w in text}
@@ -126,7 +131,7 @@ class Dialog:
         self.nlu_model = nlu_model
         self.policy_model = policy_model
 
-    def forward(self, client_utterance):
+    def generate_response(self, client_utterance: str) -> str:
         print('>>>', client_utterance)
         emb, text = self.pipeline.feed(client_utterance)
         nlu_result = self.nlu_model.forward(emb, text)
@@ -143,18 +148,55 @@ if __name__ == '__main__':
     pipe = Pipeline(sent_tokenize, word_tokenize, [PyMorphyPreproc(), Lower()], embedder=np.vstack)
     dialog = Dialog(pipe, RuleBasedSberdemoNLU(), RuleBasedSberdemoPolicy())
 
-    resp = dialog.forward('Добрый день! Могу ли я открыть отдельный счет по 275ФЗ и что для этого нужно?')
+    resp = dialog.generate_response('Добрый день! Могу ли я открыть отдельный счет по 275ФЗ и что для этого нужно?')
     _assert('В какой валюте хотите открыть счёт?', resp)
-    resp = dialog.forward('Российский рубль!')
+    resp = dialog.generate_response('Российский рубль!')
     _assert('Вы хотели бы ознакомиться с необходимым перечнем документов и тарифами на обслуживание?', resp)
-    resp = dialog.forward('Конечно!')
+    resp = dialog.generate_response('Конечно!')
     _assert('Вы являетесь резидентом РФ?', resp)
-    resp = dialog.forward('да')
+    resp = dialog.generate_response('да')
     _assert('Уточните Вашу форму собственности?', resp)
-    resp = dialog.forward('ООО')
+    resp = dialog.generate_response('ООО')
     _assert('''ПоказатьПереченьДокументов(resident=True,forma_sobstv=ооо)
 Предлагаю Вам прямо сейчас зарезервировать счёт в режиме диалога. <одно из преимуществ>
 Для этого нужно предоставить ОГРН (ОГРИН), ИНН, КПП (ЮЛ), данные документа, удостоверяющего личность, дату рождения руководителя и так же имеется на данный момент доступ к электронной почте?
 Вы хотели бы сейчас произвести онлайн резервирование счёта?''', resp)
-    resp = dialog.forward('да')
+    resp = dialog.generate_response('да')
     _assert('НачатьРезервированиеCчёта()\nВсего хорошего, до свидания!', resp)
+
+    dialog = Dialog(pipe, RuleBasedSberdemoNLU(), RuleBasedSberdemoPolicy())
+    bot_resp = 'Добрый день, человек. В чём ваша проблема?'
+
+    humans = {}
+
+    def start(bot, update):
+        chat_id = update.message.chat_id
+        humans[chat_id] = Dialog(pipe, RuleBasedSberdemoNLU(), RuleBasedSberdemoPolicy())
+        bot.send_message(chat_id=chat_id, text='Добрый день, человек. В чём ваша проблема?')
+
+    def user_client(bot, update):
+
+        chat_id = update.message.chat_id
+        user_msg = update.message.text
+        print('{} >>> {}'.format(chat_id, user_msg))
+        dialog = humans[chat_id]
+        bot_resp = dialog.generate_response(user_msg)
+        print('{} <<< {}'.format(chat_id, bot_resp))
+        bot.send_message(chat_id=chat_id, text=bot_resp)
+
+
+
+    updater = Updater(token=os.path.expandvars('SBER_DEMO_BOT_TOKEN'))
+    dispatcher = updater.dispatcher
+    start_handler = CommandHandler('start', start)
+    msg_handler = MessageHandler(Filters.text, user_client)
+
+    dispatcher.add_handler(start_handler)
+    dispatcher.add_handler(msg_handler)
+
+    updater.start_polling()
+    updater.idle()
+
+    # while bot_resp != 'Всего доброго!':
+    #     user_input = input(bot_resp)
+    #     bot_resp = dialog.forward(user_input)
