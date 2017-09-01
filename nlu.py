@@ -93,6 +93,9 @@ class Slot:
     def ask(self) -> str:
         return self.ask_sentence
 
+    def filter(self, value: str) -> bool:
+        raise NotImplemented()
+
 
 class DictionarySlot(Slot):
     def __init__(self, dictionary: Dict[str, str], slot_id: str, ask_sentence: str):
