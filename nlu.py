@@ -123,7 +123,7 @@ class ClassifierSlot(Slot):
 
 
 if __name__ == '__main__':
-    with open('/home/marat/Downloads/ШаблоныФраз - SlotNames.tsv') as f:
+    with open('templates.tsv') as f:
         slot_name = None
         slot_class = None
         slot_values = {}
