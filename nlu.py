@@ -82,6 +82,32 @@ class Pipeline:
         return self.embedder([w['_vec'] for w in words]), words
 
 
+class Slot:
+    def __init__(self, slot_id: str, ask_sentence: str):
+        self.id = slot_id
+        self.ask_sentence = ask_sentence
+
+    def infer(self, sentence):
+        raise NotImplemented()
+
+    def ask(self) -> str:
+        return self.ask_sentence
+
+
+class DictionarySlot(Slot):
+    def __init__(self, dictionary: Dict[str, str], slot_id: str, ask_sentence: str):
+        super().__init__(slot_id, ask_sentence)
+        self.dict = dictionary
+
+    def infer(self, sentence):
+        pass
+
+
+class ClassifierSlot(Slot):
+    def __init__(self, slot_id: str, ask_sentence: str):
+        super().__init__(slot_id, ask_sentence)
+
+
 if __name__ == '__main__':
     pmp = PyMorphyPreproc(vectorize=False)
     assert pmp.process([{'_text': 'Разлетелся'}, {'_text': 'градиент'}]) == [{'t_intr': 1, 't_VERB': 1, 't_indc': 1,
