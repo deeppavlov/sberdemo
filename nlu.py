@@ -1,6 +1,7 @@
 from functools import lru_cache
 
 import pymorphy2
+import sys
 from nltk.tokenize import sent_tokenize, word_tokenize
 import numpy as np
 from typing import List, Dict, Callable
@@ -83,9 +84,10 @@ class Pipeline:
 
 
 class Slot:
-    def __init__(self, slot_id: str, ask_sentence: str):
+    def __init__(self, slot_id: str, ask_sentence: str, dictionary: Dict[str, str]):
         self.id = slot_id
         self.ask_sentence = ask_sentence
+        self.dict = dictionary
 
     def infer(self, sentence):
         raise NotImplemented()
@@ -98,20 +100,64 @@ class Slot:
 
 
 class DictionarySlot(Slot):
-    def __init__(self, dictionary: Dict[str, str], slot_id: str, ask_sentence: str):
-        super().__init__(slot_id, ask_sentence)
-        self.dict = dictionary
+    def __init__(self, slot_id: str, ask_sentence: str, dictionary: Dict[str, str]):
+        super().__init__(slot_id, ask_sentence, dictionary)
+
 
     def infer(self, sentence):
         pass
 
 
 class ClassifierSlot(Slot):
-    def __init__(self, slot_id: str, ask_sentence: str):
-        super().__init__(slot_id, ask_sentence)
+    def __init__(self, slot_id: str, ask_sentence: str, dictionary: Dict[str, str]):
+        super().__init__(slot_id, ask_sentence, dictionary)
+
+# def read_slots_from_tsv(filename):
+#     with open(filename) as f:
+#         slot_name = None
+#         slot_class = None
+#         slot_values = {}
+#         for line in f:
+#             if slot_name is None:
+
 
 
 if __name__ == '__main__':
+    with open('/home/marat/Downloads/ШаблоныФраз - SlotNames.tsv') as f:
+        slot_name = None
+        slot_class = None
+        slot_values = {}
+
+        D = '\t'
+        slots = []
+        for line in f:
+            line = line.strip()
+            if slot_name is None:
+                slot_name, slot_class = line.split()[0].split('.')
+
+            elif line:
+                syns = []
+                if len(line.split(D)) == 1:
+                    normal_name = line.split(D)[0]
+                elif len(line.split(D)) == 2:
+                    normal_name, syns = line.split(D)
+                    syns = syns.replace(', ', ',').replace('“', '').replace('”', '').replace('"', '').split(',')
+                else:
+                    raise Exception()
+                slot_values[normal_name] = normal_name
+                for s in syns:
+                    # print(s)
+                    slot_values[s] = normal_name
+            else:
+
+                SlotClass = getattr(sys.modules[__name__], slot_class)
+                slot = SlotClass(slot_name, 'asdsad', slot_values)
+                print(slot)
+
+                slot_name = None
+                slot_values = {}
+
+    0/0
     pmp = PyMorphyPreproc(vectorize=False)
     assert pmp.process([{'_text': 'Разлетелся'}, {'_text': 'градиент'}]) == [{'t_intr': 1, 't_VERB': 1, 't_indc': 1,
                                                                               'normal': 'разлететься', 't_past': 1,
@@ -132,3 +178,5 @@ if __name__ == '__main__':
 
     assert [w['_text'] for w in text] == ['добрый', 'день', '!', 'могу', 'ли', 'я', 'открыть', 'отдельный', 'счет', 'по', '275фз', 'и', 'что', 'для', 'этого', 'нужно', '?']
     assert emb.shape[0] == 17, 120
+
+
