@@ -1,0 +1,48 @@
+{
+  "new_acc_intent": [
+    [
+      "NEW_ACC_CURRENCY",
+      [
+        {"true": "NEW_ACC_SHOW_DOCS"},
+        "CLIENT_RF_RESIDENT",
+        "NEW_ACC_OWNERSHIP_FORM",
+        "NEW_ACC_REGION",
+        {"action": "say: new_acc_documents_list"}
+      ],
+
+      [
+        {"true": "NEW_ACC_SHOW_RATES"},
+        "CLIENT_RF_RESIDENT",
+        "NEW_ACC_OWNERSHIP_FORM",
+        "NEW_ACC_REGION",
+        {"action": "say: new_acc_rates_list"}
+      ]
+    ],
+
+    [
+      {
+        "slot": "NEW_ACC_CURRENCY",
+        "condition": "not_eq",
+        "value": "RUB"
+      },
+      {"action": "say: send_to_bank; goto: find_vsp"}
+    ],
+
+    [
+      {
+        "slot": "NEW_ACC_CURRENCY",
+        "condition": "eq",
+        "value": "RUB"
+      },
+      {"true": "NEW_ACC_RESERVE_ONLINE"},
+      {"action": "say: reserve_new_acc_online"}
+    ],
+
+    [
+      {"false": "NEW_ACC_RESERVE_ONLINE"},
+      {"action": "say: send_to_bank"}
+    ],
+
+    {"action": "say: weird_route; goto: None"}
+  ]
+}
