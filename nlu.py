@@ -195,7 +195,7 @@ if __name__ == '__main__':
     slots = read_slots_from_tsv()
 
     for s in slots:
-        print(s.infer(text))
+        print(s.infer_from_request(text))
         print('----------')
 
     assert len(slots) == 9
