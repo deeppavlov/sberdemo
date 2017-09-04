@@ -84,36 +84,16 @@ class Pipeline:
         return self.embedder([w['_vec'] for w in words]), words
 
 
-class Slot:
+class DictionarySlot:
     def __init__(self, slot_id: str, ask_sentence: str, dictionary: Dict[str, str]):
         self.id = slot_id
         self.ask_sentence = ask_sentence
         self.dict = dictionary
 
-    def infer_complex(self, text):
-        raise NotImplemented()
-
-    def infer_simple(self, text):
-        raise NotImplemented()
-
-    def ask(self) -> str:
-        return self.ask_sentence
-
-    def filter(self, value: str) -> bool:
-        raise NotImplemented()
-
-    def __repr__(self):
-        return '{}(name={}, len(dict)={})'.format(self.__class__.__name__, self.id, len(self.dict))
-
-
-class DictionarySlot(Slot):
-    def __init__(self, slot_id: str, ask_sentence: str, dictionary: Dict[str, str]):
-        super().__init__(slot_id, ask_sentence, dictionary)
-
-    def infer_complex(self, text):
+    def infer_from_request(self, text):
         return self._infer(text)
 
-    def infer_simple(self, text):
+    def infer_from_inform(self, text):
         return self._infer(text)
 
     def _infer(self, text):
@@ -129,12 +109,21 @@ class DictionarySlot(Slot):
         else:
             return ()
 
+    def __repr__(self):
+        return '{}(name={}, len(dict)={})'.format(self.__class__.__name__, self.id, len(self.dict))
+
+    def filter(self, value: str) -> bool:
+        raise NotImplemented()
+
+    def ask(self) -> str:
+        return self.ask_sentence
+
 
 class ClassifierSlot(DictionarySlot):
     def __init__(self, slot_id: str, ask_sentence: str, dictionary: Dict[str, str]):
         super().__init__(slot_id, ask_sentence, dictionary)
 
-    def infer_complex(self, text):
+    def infer_from_request(self, text):
         raise NotImplemented()
 
 
