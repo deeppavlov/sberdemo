@@ -142,7 +142,9 @@ def read_slots_from_tsv(filename=None):
         for line in f:
             line = line.strip()
             if slot_name is None:
-                slot_name, slot_class = line.split()[0].split('.')
+                first_cell, second_cell = line.split(D)
+                slot_name, slot_class = first_cell.split()[0].split('.')
+                info_question = second_cell.strip()
 
             elif line:
                 syns = []
@@ -159,14 +161,14 @@ def read_slots_from_tsv(filename=None):
             else:
 
                 SlotClass = getattr(sys.modules[__name__], slot_class)
-                slot = SlotClass(slot_name, 'asdsad', slot_values)
+                slot = SlotClass(slot_name, info_question, slot_values)
                 result_slots.append(slot)
 
                 slot_name = None
                 slot_values = {}
         if slot_name:
             SlotClass = getattr(sys.modules[__name__], slot_class)
-            slot = SlotClass(slot_name, 'asdsad', slot_values)
+            slot = SlotClass(slot_name, info_question, slot_values)
             result_slots.append(slot)
 
     return result_slots
