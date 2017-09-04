@@ -6,7 +6,6 @@ from nltk.tokenize import sent_tokenize, word_tokenize
 import numpy as np
 from typing import List, Dict, Callable
 import csv
-import fasttext
 from fuzzywuzzy import process
 
 # fasttext_file = '/home/marat/data/rusfasttext_on_news/model_yalen_sg_300.bin'
@@ -20,6 +19,7 @@ class Preprocessor:
 
 class Fasttext(Preprocessor):
     def __init__(self, model_path):
+        import fasttext
         self.model = fasttext.load_model(model_path)
 
     def process(self, words: List[Dict]):
