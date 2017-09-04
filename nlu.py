@@ -98,6 +98,9 @@ class Slot:
     def filter(self, value: str) -> bool:
         raise NotImplemented()
 
+    def __repr__(self):
+        return '{}(name={}, len(dict)={})'.format(self.__class__.__name__, self.id, len(self.dict))
+
 
 class DictionarySlot(Slot):
     def __init__(self, slot_id: str, ask_sentence: str, dictionary: Dict[str, str]):
@@ -112,24 +115,18 @@ class ClassifierSlot(Slot):
     def __init__(self, slot_id: str, ask_sentence: str, dictionary: Dict[str, str]):
         super().__init__(slot_id, ask_sentence, dictionary)
 
-# def read_slots_from_tsv(filename):
-#     with open(filename) as f:
-#         slot_name = None
-#         slot_class = None
-#         slot_values = {}
-#         for line in f:
-#             if slot_name is None:
 
-
-
-if __name__ == '__main__':
-    with open('templates.tsv') as f:
+def read_slots_from_tsv(filename=None):
+    if filename is None:
+        filename = 'templates.tsv'
+    with open(filename) as f:
         slot_name = None
         slot_class = None
         slot_values = {}
 
+        result_slots = []
+
         D = '\t'
-        slots = []
         for line in f:
             line = line.strip()
             if slot_name is None:
@@ -146,18 +143,25 @@ if __name__ == '__main__':
                     raise Exception()
                 slot_values[normal_name] = normal_name
                 for s in syns:
-                    # print(s)
                     slot_values[s] = normal_name
             else:
 
                 SlotClass = getattr(sys.modules[__name__], slot_class)
                 slot = SlotClass(slot_name, 'asdsad', slot_values)
-                print(slot)
+                result_slots.append(slot)
 
                 slot_name = None
                 slot_values = {}
+        if slot_name:
+            SlotClass = getattr(sys.modules[__name__], slot_class)
+            slot = SlotClass(slot_name, 'asdsad', slot_values)
+            result_slots.append(slot)
 
-    0/0
+    return result_slots
+
+
+if __name__ == '__main__':
+
     pmp = PyMorphyPreproc(vectorize=False)
     assert pmp.process([{'_text': 'Разлетелся'}, {'_text': 'градиент'}]) == [{'t_intr': 1, 't_VERB': 1, 't_indc': 1,
                                                                               'normal': 'разлететься', 't_past': 1,
@@ -178,5 +182,11 @@ if __name__ == '__main__':
 
     assert [w['_text'] for w in text] == ['добрый', 'день', '!', 'могу', 'ли', 'я', 'открыть', 'отдельный', 'счет', 'по', '275фз', 'и', 'что', 'для', 'этого', 'нужно', '?']
     assert emb.shape[0] == 17, 120
+
+    slots = read_slots_from_tsv()
+    from pprint import pprint
+    pprint(slots)
+
+    assert len(slots) == 9
 
 
