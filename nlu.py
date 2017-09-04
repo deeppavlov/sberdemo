@@ -89,6 +89,13 @@ class DictionarySlot:
         self.id = slot_id
         self.ask_sentence = ask_sentence
         self.dict = dictionary
+        self.filters = {
+            'any': lambda x, _: True,
+            'eq': lambda x, y: x == y,
+            'not_eq': lambda x, y: x != y,
+            'true': lambda x, _: bool(x),
+            'false': lambda x, _: not bool(x)
+        }
 
     def infer_from_request(self, text):
         return self._infer(text)

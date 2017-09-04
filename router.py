@@ -12,7 +12,21 @@ NEW_ACC_RESERVE_ONLINE = 'NEW_ACC_RESERVE_ONLINE'
 NEW_ACC_CURRENCY = 'NEW_ACC_CURRENCY'
 CLIENT_RF_RESIDENT = 'CLIENT_RF_RESIDENT'
 NEW_ACC_SHOW_DOCS = 'NEW_ACC_SHOW_DOCS'
+NEW_ACC_SHOW_RATES = 'NEW_ACC_SHOW_RATES'
 NEW_ACC_OWNERSHIP_FORM = 'NEW_ACC_OWNERSHIP_FORM'
+NEW_ACC_REGION = 'NEW_ACC_REGION'
+
+slot_objects = {
+    NEW_ACC_RESERVE_ONLINE: ClassifierSlot(NEW_ACC_RESERVE_ONLINE, 'Хотите зарезервировать онлайн?', dict()),
+    NEW_ACC_CURRENCY: DictionarySlot(NEW_ACC_CURRENCY, 'В какой валюте?', dict()),
+    CLIENT_RF_RESIDENT: ClassifierSlot(CLIENT_RF_RESIDENT, 'Вы резидент РФ?', dict()),
+    NEW_ACC_SHOW_DOCS: ClassifierSlot(NEW_ACC_SHOW_DOCS, 'Хотите на документы посмотреть??', dict()),
+    NEW_ACC_SHOW_RATES: ClassifierSlot(NEW_ACC_SHOW_RATES, 'Хотите на тарифы посмотреть??', dict()),
+    NEW_ACC_OWNERSHIP_FORM: DictionarySlot(NEW_ACC_OWNERSHIP_FORM, 'Какая форма собственности?', dict()),
+    NEW_ACC_REGION: DictionarySlot(NEW_ACC_REGION, 'В каком регионе живёте?', dict())
+}
+
+slot_objects[NEW_ACC_CURRENCY].filters['supported_currency'] = lambda x, _: x in ['RUB', 'EUR', 'USD']
 
 
 def format_route(route):
@@ -149,8 +163,7 @@ class GraphBasedSberdemoPolicy(object):
                         actions.append(['ask', str(branch['slot'])])
                         done = True
                         break
-                    # slot_filter = self.slots_objects[branch['slot']].filters[branch['condition']]
-                    slot_filter = lambda _, __: True
+                    slot_filter = self.slots_objects[branch['slot']].filters[branch['condition']]
                     if not slot_filter(self.slots[branch['slot']], branch.get('value')):
                         break
                 elif 'action' in branch:
@@ -176,6 +189,7 @@ class GraphBasedSberdemoPolicy(object):
         self.slots.update(client_nlu['slots'])
 
         actions, _ = self.get_actions(self.intent)
+        print(actions)
         if not actions:
             actions = [['say', 'no intent']]
 
@@ -184,7 +198,7 @@ class GraphBasedSberdemoPolicy(object):
         for action, value in actions:
             if action == 'ask':
                 expect = value
-                responses.append('Скажите мне, пжлст, %s' % value)
+                responses.append(self.slots_objects[value].ask())
             elif action == 'say':
                 responses.append(value)
             elif action == 'goto':
@@ -203,7 +217,7 @@ def main():
 
     def start(bot, update):
         chat_id = update.message.chat_id
-        humans[chat_id] = Dialog(pipe, GraphBasedSberdemoNLU(), GraphBasedSberdemoPolicy(data, None))
+        humans[chat_id] = Dialog(pipe, GraphBasedSberdemoNLU(), GraphBasedSberdemoPolicy(data, slot_objects))
         bot.send_message(chat_id=chat_id, text='Здрасте. Чего хотели?')
 
     def user_client(bot, update):
