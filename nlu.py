@@ -7,7 +7,7 @@ import numpy as np
 from typing import List, Dict, Callable
 import csv
 import fasttext
-
+from fuzzywuzzy import process
 
 # fasttext_file = '/home/marat/data/rusfasttext_on_news/model_yalen_sg_300.bin'
 FASTTEXT_MODEL = '/home/marat/data/rusfasttext_on_news/ft_0.8.3_yalen_sg_300.bin'
@@ -90,7 +90,7 @@ class Slot:
         self.ask_sentence = ask_sentence
         self.dict = dictionary
 
-    def infer(self, sentence):
+    def infer(self, text):
         raise NotImplemented()
 
     def ask(self) -> str:
@@ -107,14 +107,26 @@ class DictionarySlot(Slot):
     def __init__(self, slot_id: str, ask_sentence: str, dictionary: Dict[str, str]):
         super().__init__(slot_id, ask_sentence, dictionary)
 
-
-    def infer(self, sentence):
-        pass
+    def infer(self, text):
+        """
+        :param text: 
+        :return: (match_norm, score)
+        
+        """
+        norm_sent = [w['normal'] for w in text]
+        matched = process.extractOne(query=' '.join(norm_sent), choices=self.dict.keys())
+        if len(matched) > 0:
+            return self.dict[matched[0]], matched[1]
+        else:
+            return ()
 
 
 class ClassifierSlot(Slot):
     def __init__(self, slot_id: str, ask_sentence: str, dictionary: Dict[str, str]):
         super().__init__(slot_id, ask_sentence, dictionary)
+
+    def infer(self, text):
+        pass
 
 
 def read_slots_from_tsv(filename=None):
@@ -162,7 +174,6 @@ def read_slots_from_tsv(filename=None):
 
 
 if __name__ == '__main__':
-
     pmp = PyMorphyPreproc(vectorize=False)
     assert pmp.process([{'_text': 'Разлетелся'}, {'_text': 'градиент'}]) == [{'t_intr': 1, 't_VERB': 1, 't_indc': 1,
                                                                               'normal': 'разлететься', 't_past': 1,
@@ -175,19 +186,18 @@ if __name__ == '__main__':
     lower = Lower()
     assert lower.process([{'_text': 'Разлетелся'}]) == [{'_text': 'разлетелся'}]
 
-
     # pipe = Pipeline(sent_tokenize, word_tokenize, [PyMorphyPreproc(), Lower(), Fasttext(FASTTEXT_MODEL)], embedder=np.vstack)
     pipe = Pipeline(sent_tokenize, word_tokenize, [PyMorphyPreproc(), Lower()], embedder=np.vstack)
     emb, text = pipe.feed('Добрый день! Могу ли я открыть отдельный счет по 275ФЗ и что для этого нужно? ')
-    # print(text)
 
-    assert [w['_text'] for w in text] == ['добрый', 'день', '!', 'могу', 'ли', 'я', 'открыть', 'отдельный', 'счет', 'по', '275фз', 'и', 'что', 'для', 'этого', 'нужно', '?']
+    assert [w['_text'] for w in text] == ['добрый', 'день', '!', 'могу', 'ли', 'я', 'открыть', 'отдельный', 'счет',
+                                          'по', '275фз', 'и', 'что', 'для', 'этого', 'нужно', '?']
     assert emb.shape[0] == 17, 120
 
     slots = read_slots_from_tsv()
-    from pprint import pprint
-    pprint(slots)
+
+    for s in slots:
+        print(s.infer(text))
+        print('----------')
 
     assert len(slots) == 9
-
-
