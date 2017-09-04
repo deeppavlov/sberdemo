@@ -90,7 +90,10 @@ class Slot:
         self.ask_sentence = ask_sentence
         self.dict = dictionary
 
-    def infer(self, text):
+    def infer_complex(self, text):
+        raise NotImplemented()
+
+    def infer_simple(self, text):
         raise NotImplemented()
 
     def ask(self) -> str:
@@ -107,7 +110,13 @@ class DictionarySlot(Slot):
     def __init__(self, slot_id: str, ask_sentence: str, dictionary: Dict[str, str]):
         super().__init__(slot_id, ask_sentence, dictionary)
 
-    def infer(self, text):
+    def infer_complex(self, text):
+        return self._infer(text)
+
+    def infer_simple(self, text):
+        return self._infer(text)
+
+    def _infer(self, text):
         """
         :param text: 
         :return: (match_norm, score)
@@ -121,12 +130,12 @@ class DictionarySlot(Slot):
             return ()
 
 
-class ClassifierSlot(Slot):
+class ClassifierSlot(DictionarySlot):
     def __init__(self, slot_id: str, ask_sentence: str, dictionary: Dict[str, str]):
         super().__init__(slot_id, ask_sentence, dictionary)
 
-    def infer(self, text):
-        pass
+    def infer_complex(self, text):
+        raise NotImplemented()
 
 
 def read_slots_from_tsv(filename=None):
