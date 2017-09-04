@@ -35,12 +35,12 @@
         "value": "RUB"
       },
       {"true": "NEW_ACC_RESERVE_ONLINE"},
-      {"action": "say: reserve_new_acc_online"}
+      {"action": "say: reserve_new_acc_online; goto:"}
     ],
 
     [
       {"false": "NEW_ACC_RESERVE_ONLINE"},
-      {"action": "say: send_to_bank"}
+      {"action": "say: send_to_bank; goto: find_vsp"}
     ],
 
     {"action": "say: weird_route; goto: None"}

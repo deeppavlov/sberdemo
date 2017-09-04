@@ -1,6 +1,7 @@
 import json
 import os
 import copy
+import time
 
 from nlu import *
 
@@ -130,44 +131,43 @@ class GraphBasedSberdemoPolicy(object):
             raise RuntimeError('Unknown intent' + str(intent))
         self.intent = copy.deepcopy(self.routes[intent])
 
-    def get_action(self, tree):
+    def get_actions(self, tree):
         if not tree:
-            return None, True
-
-        action = None
+            return [], False
+        actions = []
         done = False
-        to_remove = 0
         for i in range(len(tree)):
             branch = tree[i]
             if isinstance(branch, list):
-                action, fork_done = self.get_action(branch)
-                if fork_done:
-                    to_remove += 1
-                if action:
+                branch_actions, done = self.get_actions(branch)
+                actions += branch_actions
+                if done:
                     break
             elif isinstance(branch, dict):
                 if 'slot' in branch:
                     if branch['slot'] not in self.slots:
-                        action = 'ask: ' + str(branch['slot'])
-                        break
-                    # slot_filter = self.slots_objects[branch['slot']].filters[branch['filter']]
-                    slot_filter = lambda _, __: True
-                    if not slot_filter(self.slots[branch['slot']], branch.get('value')):
-                        action = None
+                        actions.append(['ask', str(branch['slot'])])
                         done = True
                         break
-                    continue
-                if 'action' in branch:
+                    # slot_filter = self.slots_objects[branch['slot']].filters[branch['condition']]
+                    slot_filter = lambda _, __: True
+                    if not slot_filter(self.slots[branch['slot']], branch.get('value')):
+                        break
+                elif 'action' in branch:
                     if branch.get('executed'):
                         continue
-                    action = branch['action']
+                    branch_actions = [[x.strip() for x in action.split(':')] for action in branch['action'].split(';') if action]
+                    for act, _ in branch_actions:
+                        if 'say' != act:
+                            done = True
+                            break
+                    actions += branch_actions
                     branch['executed'] = True
-                    break
-                raise RuntimeError('Node does not have slot nor action')
-        del tree[:to_remove]
-        if action is None:
-            done = True
-        return action, done
+                    if done:
+                        break
+                else:
+                    raise RuntimeError('Node does not have slot nor action')
+        return actions, done
 
     def forward(self, client_nlu):
         print('nlu: ', client_nlu)
@@ -175,17 +175,22 @@ class GraphBasedSberdemoPolicy(object):
             self.set_intent(client_nlu['intent'])
         self.slots.update(client_nlu['slots'])
 
-        actions, done = self.get_action(self.intent)
+        actions, _ = self.get_actions(self.intent)
         if not actions:
-            actions = 'say: no intent'
-        actions = [[x.strip() for x in action.split(':')] for action in actions.split(';') if action]
+            actions = [['say', 'no intent']]
 
         expect = None
+        responses = []
         for action, value in actions:
             if action == 'ask':
                 expect = value
+                responses.append('Скажите мне, пжлст, %s' % value)
+            elif action == 'say':
+                responses.append(value)
+            elif action == 'goto':
+                responses.append('Меняем интент на %s' % value)
 
-        return 'Action: ' + str(actions) + '; done: ' + str(done), expect
+        return responses, expect
 
 
 def main():
@@ -207,10 +212,11 @@ def main():
         user_msg = update.message.text
         print('{} >>> {}'.format(chat_id, user_msg))
         dialog = humans[chat_id]
-        bot_resp = dialog.generate_response(user_msg)
-        print('{} <<< {}'.format(chat_id, bot_resp))
-        bot.send_message(chat_id=chat_id, text=bot_resp)
-
+        bot_responses = dialog.generate_response(user_msg)
+        for bot_resp in bot_responses:
+            print('{} <<< {}'.format(chat_id, bot_resp))
+            bot.send_message(chat_id=chat_id, text=bot_resp)
+            time.sleep(0.7)
 
     updater = Updater(token=os.environ['SBER_DEMO_BOT_TOKEN'])
     dispatcher = updater.dispatcher
