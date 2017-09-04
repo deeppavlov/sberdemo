@@ -5,6 +5,7 @@ import sys
 from nltk.tokenize import sent_tokenize, word_tokenize
 import numpy as np
 from typing import List, Dict, Callable
+import csv
 import fasttext
 
 
@@ -117,29 +118,27 @@ class ClassifierSlot(Slot):
 
 
 def read_slots_from_tsv(filename=None):
+    D = '\t'
     if filename is None:
         filename = 'templates.tsv'
     with open(filename) as f:
+        csv_rows = csv.reader(f, delimiter=D, quotechar='"')
         slot_name = None
         slot_class = None
+        info_question = None
         slot_values = {}
 
         result_slots = []
-
-        D = '\t'
-        for line in f:
-            line = line.strip()
+        for row in csv_rows:
             if slot_name is None:
-                first_cell, second_cell = line.split(D)
-                slot_name, slot_class = first_cell.split()[0].split('.')
-                info_question = second_cell.strip()
-
-            elif line:
+                slot_name, slot_class = row[0].split()[0].split('.')
+                info_question = row[1].strip()
+            elif ''.join(row):
                 syns = []
-                if len(line.split(D)) == 1:
-                    normal_name = line.split(D)[0]
-                elif len(line.split(D)) == 2:
-                    normal_name, syns = line.split(D)
+                if len(row) == 1:
+                    normal_name = row[0]
+                elif len(row) == 2:
+                    normal_name, syns = row
                     syns = syns.replace(', ', ',').replace('“', '').replace('”', '').replace('"', '').split(',')
                 else:
                     raise Exception()
