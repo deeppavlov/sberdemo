@@ -84,30 +84,19 @@ class Pipeline:
         return self.embedder([w['_vec'] for w in words]), words
 
 
-class Slot:
+class DictionarySlot:
     def __init__(self, slot_id: str, ask_sentence: str, dictionary: Dict[str, str]):
         self.id = slot_id
         self.ask_sentence = ask_sentence
         self.dict = dictionary
 
-    def infer(self, text):
-        raise NotImplemented()
+    def infer_from_request(self, text):
+        return self._infer(text)
 
-    def ask(self) -> str:
-        return self.ask_sentence
+    def infer_from_inform(self, text):
+        return self._infer(text)
 
-    def filter(self, value: str) -> bool:
-        raise NotImplemented()
-
-    def __repr__(self):
-        return '{}(name={}, len(dict)={})'.format(self.__class__.__name__, self.id, len(self.dict))
-
-
-class DictionarySlot(Slot):
-    def __init__(self, slot_id: str, ask_sentence: str, dictionary: Dict[str, str]):
-        super().__init__(slot_id, ask_sentence, dictionary)
-
-    def infer(self, text):
+    def _infer(self, text):
         """
         :param text: 
         :return: (match_norm, score)
@@ -120,13 +109,22 @@ class DictionarySlot(Slot):
         else:
             return ()
 
+    def __repr__(self):
+        return '{}(name={}, len(dict)={})'.format(self.__class__.__name__, self.id, len(self.dict))
 
-class ClassifierSlot(Slot):
+    def filter(self, value: str) -> bool:
+        raise NotImplemented()
+
+    def ask(self) -> str:
+        return self.ask_sentence
+
+
+class ClassifierSlot(DictionarySlot):
     def __init__(self, slot_id: str, ask_sentence: str, dictionary: Dict[str, str]):
         super().__init__(slot_id, ask_sentence, dictionary)
 
-    def infer(self, text):
-        pass
+    def infer_from_request(self, text):
+        raise NotImplemented()
 
 
 def read_slots_from_tsv(filename=None):
@@ -197,7 +195,7 @@ if __name__ == '__main__':
     slots = read_slots_from_tsv()
 
     for s in slots:
-        print(s.infer(text))
+        print(s.infer_from_request(text))
         print('----------')
 
     assert len(slots) == 9
