@@ -26,7 +26,9 @@ slot_objects = {
     NEW_ACC_REGION: DictionarySlot(NEW_ACC_REGION, 'В каком регионе живёте?', dict())
 }
 
-slot_objects[NEW_ACC_CURRENCY].filters['supported_currency'] = lambda x, _: x in ['RUB', 'EUR', 'USD']
+SUPPORTED_CURRENCIES = ['RUB', 'EUR', 'USD']
+slot_objects[NEW_ACC_CURRENCY].filters['supported_currency'] = lambda x, _: x in SUPPORTED_CURRENCIES
+slot_objects[NEW_ACC_CURRENCY].filters['not_supported_currency'] = lambda x, _: x not in SUPPORTED_CURRENCIES
 
 
 def format_route(route):
@@ -160,6 +162,8 @@ class GraphBasedSberdemoPolicy(object):
             elif isinstance(branch, dict):
                 if 'slot' in branch:
                     if branch['slot'] not in self.slots:
+                        if not branch.get('not_ask'):
+                            break
                         actions.append(['ask', str(branch['slot'])])
                         done = True
                         break

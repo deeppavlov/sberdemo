@@ -1,7 +1,18 @@
 {
   "new_acc_intent": [
     [
-      "NEW_ACC_CURRENCY",
+      {
+        "slot": "NEW_ACC_CURRENCY",
+        "condition": "supported_currency"
+      },
+      [
+        {
+          "slot": "NEW_ACC_RESERVE_ONLINE",
+          "condition": "true",
+          "not_ask": 1
+        },
+        {"action": "say: cant_reserve"}
+      ],
       [
         {"true": "NEW_ACC_SHOW_DOCS"},
         "CLIENT_RF_RESIDENT",
@@ -17,6 +28,21 @@
         "NEW_ACC_REGION",
         {"action": "say: new_acc_rates_list"}
       ]
+    ],
+
+    [
+      {
+        "slot": "NEW_ACC_CURRENCY",
+        "condition": "supported_currency"
+      }
+    ],
+
+    [
+      {
+        "slot": "NEW_ACC_CURRENCY",
+        "condition": "not_supported_currency"
+      },
+      {"action": "say: not_supported; goto: new_acc_intent"}
     ],
 
     [
@@ -43,6 +69,6 @@
       {"action": "say: send_to_bank; goto: find_vsp"}
     ],
 
-    {"action": "say: weird_route; goto: None"}
+    {"action": "say: weird_route; goto:"}
   ]
 }
