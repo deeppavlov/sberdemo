@@ -79,7 +79,8 @@ class Pipeline:
             ws = [{'_text': w, '_vec': []} for w in self.word_tokenizer(s)]
             for fg in self.feature_gens:
                 ws = fg.process(ws)
-            words.extend(ws)
+            if ws:
+                words.extend(ws)
 
         return self.embedder([w['_vec'] for w in words]), words
 
@@ -137,7 +138,7 @@ class ClassifierSlot(DictionarySlot):
 def read_slots_from_tsv(filename=None):
     D = '\t'
     if filename is None:
-        filename = 'templates.tsv'
+        filename = 'slots_definitions.tsv'
     with open(filename) as f:
         csv_rows = csv.reader(f, delimiter=D, quotechar='"')
         slot_name = None
