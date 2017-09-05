@@ -54,6 +54,10 @@ if __name__ == '__main__':
                 t = re_label.sub('{}', row[1])
                 for vals in generate_all_values(20, *[slots[s] for s in slot_vals]):
                     msg = sample(greetings, 1)[0] + t.format(*[vals[s] for s in slots_order])
+                    if row[2]:
+                        classifiers = [x.strip() for x in row[2].split(',')]
+                        for x in classifiers:
+                            vals[slots[x]] = 'YES'
                     print(msg, *[vals.get(s, '') for s in slots_global_order], sep='\t', file=f)
 
 
