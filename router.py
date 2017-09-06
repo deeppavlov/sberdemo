@@ -16,6 +16,9 @@ NEW_ACC_SHOW_RATES = 'NEW_ACC_SHOW_RATES'
 NEW_ACC_OWNERSHIP_FORM = 'NEW_ACC_OWNERSHIP_FORM'
 NEW_ACC_REGION = 'NEW_ACC_REGION'
 
+SEARCH_VSP = 'search_vsp'
+METHOD_LOCATION = 'method_location'
+
 slot_objects = {
     NEW_ACC_RESERVE_ONLINE: ClassifierSlot(NEW_ACC_RESERVE_ONLINE, 'Хотите зарезервировать онлайн?', dict()),
     NEW_ACC_CURRENCY: DictionarySlot(NEW_ACC_CURRENCY, 'В какой валюте?', dict()),
@@ -23,7 +26,10 @@ slot_objects = {
     NEW_ACC_SHOW_DOCS: ClassifierSlot(NEW_ACC_SHOW_DOCS, 'Хотите на документы посмотреть??', dict()),
     NEW_ACC_SHOW_RATES: ClassifierSlot(NEW_ACC_SHOW_RATES, 'Хотите на тарифы посмотреть??', dict()),
     NEW_ACC_OWNERSHIP_FORM: DictionarySlot(NEW_ACC_OWNERSHIP_FORM, 'Какая форма собственности?', dict()),
-    NEW_ACC_REGION: DictionarySlot(NEW_ACC_REGION, 'В каком регионе живёте?', dict())
+    NEW_ACC_REGION: DictionarySlot(NEW_ACC_REGION, 'В каком регионе живёте?', dict()),
+
+    SEARCH_VSP: ClassifierSlot(SEARCH_VSP, 'Найти тебе отделение?', dict()),
+    METHOD_LOCATION: DictionarySlot(METHOD_LOCATION, 'Где найти? Можешь указать метро, ближайший адрес или координаты', dict())
 }
 
 SUPPORTED_CURRENCIES = ['RUB', 'EUR', 'USD']
@@ -145,7 +151,10 @@ class GraphBasedSberdemoPolicy(object):
         self.slots = dict()
 
     def set_intent(self, intent):
-        # self.slots = dict()
+        self.slots = dict()
+        if not intent:
+            self.intent = None
+            return
         if intent not in self.routes:
             raise RuntimeError('Unknown intent: ' + str(intent))
         self.intent = copy.deepcopy(self.routes[intent])
@@ -220,7 +229,7 @@ class GraphBasedSberdemoPolicy(object):
 
 
 def main():
-    fname = 'new_acc.json'
+    fname = 'routes.json'
     data = parse_route(fname)
 
     pipe = Pipeline(sent_tokenize, word_tokenize, [PyMorphyPreproc(), Lower()], embedder=np.vstack)
