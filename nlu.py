@@ -98,10 +98,10 @@ class DictionarySlot:
             'false': lambda x, _: not bool(x)
         }
 
-    def infer_from_request(self, text):
+    def infer_from_composional_request(self, text):
         return self._infer(text)
 
-    def infer_from_inform(self, text):
+    def infer_from_single_slot(self, text):
         return self._infer(text)
 
     def _infer(self, text):
@@ -131,7 +131,7 @@ class ClassifierSlot(DictionarySlot):
     def __init__(self, slot_id: str, ask_sentence: str, dictionary: Dict[str, str]):
         super().__init__(slot_id, ask_sentence, dictionary)
 
-    def infer_from_request(self, text):
+    def infer_from_composional_request(self, text):
         raise NotImplemented()
 
 
@@ -203,7 +203,7 @@ if __name__ == '__main__':
     slots = read_slots_from_tsv()
 
     for s in slots:
-        print(s.infer_from_request(text))
+        print(s.infer_from_composional_request(text))
         print('----------')
 
     assert len(slots) == 9
