@@ -1,6 +1,6 @@
 import csv
 from itertools import product
-from random import choice, sample
+from random import sample
 
 from nltk import sent_tokenize, word_tokenize
 
@@ -16,7 +16,7 @@ greetings = ['Добрый день. ', 'Добрый день! ', 'Здравс
 
 
 def generate_all_values(max_count, *slots):
-    values = [list(s.dict) for s in slots]
+    values = [list(s.gen_dict) for s in slots]
     data = list(product(*values))
     data = sample(data, min(len(data), max_count))
     for vals in data:

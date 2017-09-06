@@ -86,10 +86,11 @@ class Pipeline:
 
 
 class DictionarySlot:
-    def __init__(self, slot_id: str, ask_sentence: str, dictionary: Dict[str, str]):
+    def __init__(self, slot_id: str, ask_sentence: str, generative_dict: Dict[str, str], nongenerative_dict: Dict[str, str]):
         self.id = slot_id
         self.ask_sentence = ask_sentence
-        self.dict = dictionary
+        self.gen_dict = generative_dict
+        self.nongen_dict = nongenerative_dict
         self.filters = {
             'any': lambda x, _: True,
             'eq': lambda x, y: x == y,
@@ -111,14 +112,14 @@ class DictionarySlot:
         
         """
         norm_sent = [w['normal'] for w in text]
-        matched = process.extractOne(query=' '.join(norm_sent), choices=self.dict.keys())
+        matched = process.extractOne(query=' '.join(norm_sent), choices=self.gen_dict.keys())
         if len(matched) > 0:
-            return self.dict[matched[0]], matched[1]
+            return self.gen_dict[matched[0]], matched[1]
         else:
             return ()
 
     def __repr__(self):
-        return '{}(name={}, len(dict)={})'.format(self.__class__.__name__, self.id, len(self.dict))
+        return '{}(name={}, len(dict)={})'.format(self.__class__.__name__, self.id, len(self.gen_dict))
 
     def filter(self, value: str) -> bool:
         raise NotImplemented()
@@ -128,11 +129,26 @@ class DictionarySlot:
 
 
 class ClassifierSlot(DictionarySlot):
-    def __init__(self, slot_id: str, ask_sentence: str, dictionary: Dict[str, str]):
-        super().__init__(slot_id, ask_sentence, dictionary)
+    def __init__(self, slot_id: str, ask_sentence: str, generative_dict: Dict[str, str], nongenerative_dict: Dict[str, str]):
+        super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict)
 
     def infer_from_composional_request(self, text):
         raise NotImplemented()
+
+
+class CompositionalSlot(DictionarySlot):
+    def __init__(self, slot_id: str, ask_sentence: str, generative_dict: Dict[str, str], nongenerative_dict: Dict[str, str]):
+        super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict)
+
+
+class TomitaSlot(DictionarySlot):
+    def __init__(self, slot_id: str, ask_sentence: str, generative_dict: Dict[str, str], nongenerative_dict: Dict[str, str]):
+        super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict)
+
+
+class GeoSlot(DictionarySlot):
+    def __init__(self, slot_id: str, ask_sentence: str, generative_dict: Dict[str, str], nongenerative_dict: Dict[str, str]):
+        super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict)
 
 
 def read_slots_from_tsv(filename=None):
@@ -144,36 +160,56 @@ def read_slots_from_tsv(filename=None):
         slot_name = None
         slot_class = None
         info_question = None
-        slot_values = {}
+        generative_slot_values = {}
+        nongenerative_slot_values = {}
 
         result_slots = []
         for row in csv_rows:
             if slot_name is None:
-                slot_name, slot_class = row[0].split()[0].split('.')
+                slot_name, slot_class, *args = row[0].split()[0].split('.')
                 info_question = row[1].strip()
             elif ''.join(row):
-                syns = []
+                nongenerative_syns = ''
+                generative_syns = ''
                 if len(row) == 1:
                     normal_name = row[0]
                 elif len(row) == 2:
-                    normal_name, syns = row
-                    syns = syns.replace(', ', ',').replace('“', '').replace('”', '').replace('"', '').split(',')
+                    normal_name, generative_syns = row
+                elif len(row) == 3:
+                    normal_name, generative_syns, nongenerative_syns = row
                 else:
                     raise Exception()
-                slot_values[normal_name] = normal_name
-                for s in syns:
-                    slot_values[s] = normal_name
-            else:
 
+                if generative_syns:
+                    generative_syns = generative_syns.replace(', ', ',').replace('“', '').replace('”', '').replace('"', '').split(',')
+                else:
+                    generative_syns = []
+
+                if nongenerative_syns:
+                    nongenerative_syns = nongenerative_syns.replace(', ', ',').replace('“', '').replace('”', '').replace('"', '').split(',')
+                else:
+                    nongenerative_syns = []
+
+                if nongenerative_syns and generative_syns:
+                    assert not (set(nongenerative_syns).intersection(set(generative_syns))), [nongenerative_syns, generative_syns]
+
+                for s in nongenerative_syns:
+                    nongenerative_slot_values[s] = normal_name
+
+                generative_slot_values[normal_name] = normal_name
+                for s in generative_syns:
+                    generative_slot_values[s] = normal_name
+            else:
                 SlotClass = getattr(sys.modules[__name__], slot_class)
-                slot = SlotClass(slot_name, info_question, slot_values)
+                slot = SlotClass(slot_name, info_question, generative_slot_values, nongenerative_slot_values)
                 result_slots.append(slot)
 
                 slot_name = None
-                slot_values = {}
+                generative_slot_values = {}
+                nongenerative_slot_values = {}
         if slot_name:
             SlotClass = getattr(sys.modules[__name__], slot_class)
-            slot = SlotClass(slot_name, info_question, slot_values)
+            slot = SlotClass(slot_name, info_question, generative_slot_values, nongenerative_slot_values)
             result_slots.append(slot)
 
     return result_slots
@@ -201,9 +237,18 @@ if __name__ == '__main__':
     assert emb.shape[0] == 17, 120
 
     slots = read_slots_from_tsv()
+    assert len(slots) == 14, len(slots)
 
-    for s in slots:
-        print(s.infer_from_composional_request(text))
-        print('----------')
+    slotmap = {s.id:s for s in slots}
 
-    assert len(slots) == 9
+    assert 'евро' in slotmap['currency'].gen_dict
+    assert 'библиотека' in slotmap['client_metro'].gen_dict
+
+    # slotmap['client_metro'].infer_from_composional_request(pipe.feed('Есть рядом с метро савеловская какое-нибудь отделение поблизости?')[1])
+    slotmap['client_metro'].infer_from_single_slot(pipe.feed('рядом с метро савеловская')[1])
+
+    # for s in slots:
+    #     print(s.infer_from_composional_request(text))
+    #     print('----------')
+
+
