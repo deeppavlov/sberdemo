@@ -20,7 +20,6 @@ def generate_all_values(max_count, *slots):
     for vals in data:
         yield {k: v for k, v in zip(slots, vals)}
 
-
 if __name__ == '__main__':
     slots = {s.id: s for s in read_slots_from_tsv()}
     slots_global_order = sorted(slots.values(), key=lambda s: s.id)
@@ -31,9 +30,9 @@ if __name__ == '__main__':
 
     with open('generative_templates.tsv') as fcsv:
         with open('generated_dataset.tsv', 'w') as f:
-            print('request', *[s.id for s in slots_global_order], sep='\t', file=f)
+            print('template_id', 'request', *[s.id for s in slots_global_order], sep='\t', file=f)
             csv_rows = csv.reader(fcsv, delimiter='\t')
-            for row in csv_rows:
+            for template_id, row in enumerate(csv_rows):
                 if row[0] != '1':
                     continue
                 print(row[1])
@@ -58,7 +57,4 @@ if __name__ == '__main__':
                         classifiers = [x.strip() for x in row[2].split(',')]
                         for x in classifiers:
                             vals[slots[x]] = 'YES'
-                    print(msg, *[vals.get(s, '') for s in slots_global_order], sep='\t', file=f)
-
-
-
+                    print(template_id, msg, *[vals.get(s, '') for s in slots_global_order], sep='\t', file=f)
