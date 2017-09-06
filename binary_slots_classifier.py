@@ -2,6 +2,8 @@ import pandas as pd
 from collections import defaultdict, Counter
 import numpy as np
 from sklearn.svm import SVC
+from sklearn.metrics import confusion_matrix, roc_auc_score, f1_score
+from sklearn.model_selection import GroupKFold
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.model_selection import cross_val_score
 from sklearn.manifold.t_sne import TSNE
@@ -12,6 +14,7 @@ import nlu
 
 slot_names = ['cost_of_service', 'show_docs', 'online_reserving']
 pipe = nlu.Pipeline(sent_tokenize, word_tokenize, [nlu.PyMorphyPreproc(), nlu.Lower()], embedder=np.vstack)
+
 
 def tokenize(text, pipe=pipe):
     _, normed = pipe.feed(text)
@@ -87,40 +90,53 @@ def extract_features(sents, train=True, save_model=True, filenames=None, tokeniz
         raise Exception("Undefined vectorizers!")
 
 
-#------------ making train data ---------------#
+# ------------ making train data ---------------#
 
 data = pd.read_csv("./generated_dataset.tsv", sep='\t')
 sents = []
-y = defaultdict(list)
+targets = defaultdict(list)
 
 for i, row in data.iterrows():
     sents.append(row['request'])
 
     # add targets
     for slot in slot_names:
-        y[slot].append(not pd.isnull(row[slot]))
+        targets[slot].append(not pd.isnull(row[slot]))
 
 X = extract_features(sents, train=True, save_model=True, filenames=None, tokenizer=tokenize)
 
-#---------------- validate --------------------#
+# ---------------- validate --------------------#
 
+kf = GroupKFold(n_splits=3)
+scores = []
+groups = data['template_id']
 for slot in slot_names:
-    print("SLOT: ", slot)
-    x_tmp, y_tmp = oversample(X, y[slot])
     svm = SVC()
-    scores = cross_val_score(svm, x_tmp, y_tmp, scoring='f1')
-    print("For slot: {} cv f1 score: {}".format(slot, scores))
-    joblib.dump(svm.fit(x_tmp, y_tmp), '{}_svm_{}.model'.format(slot, np.round(np.mean(scores), 2)))
-    print('==Model dumped==')
+    print("SLOT: ", slot)
+    y = np.array(targets[slot])
+    for train_index, test_index in kf.split(X, y, groups):
+        X_train, y_train = X[train_index], y[train_index]
+        X_test, y_test = X[test_index], y[test_index]
+        X_tmp, y_tmp = oversample(X_train, y_train)
+        svm.fit(X_tmp, y_tmp)
+        pred = svm.predict(X_test)
+        score = f1_score(y_test, y_pred=pred)
+        scores.append(score)
+        print("f1: ", score)
+        print("Confusion matrix:\n", confusion_matrix(y_test, pred))
 
+    print("For slot: {} cv mean f1 score: {}".format(slot, np.mean(scores)))
+    print('--------------')
+    # joblib.dump(svm.fit(X, y), '{}_svm_{}.model'.format(slot, np.round(np.mean(scores), 2)))
+    # print('==Model dumped==')
 
-#---------------- visualize --------------------#
+# ---------------- visualize --------------------#
 
 
 tsne = TSNE()
 data_tsne = tsne.fit_transform(X=X)
-plt.figure(figsize=(6,5))
+plt.figure(figsize=(6, 5))
 for slot in slot_names:
-    plt.scatter(data_tsne[y[slot], 0], data_tsne[y[slot], 1], alpha=0.3, label=slot)
+    plt.scatter(data_tsne[targets[slot], 0], data_tsne[targets[slot], 1], alpha=0.3, label=slot)
 plt.legend()
 plt.savefig("tsne.png")
