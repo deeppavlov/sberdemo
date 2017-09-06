@@ -7,6 +7,8 @@ from nltk import sent_tokenize, word_tokenize
 from nlu import read_slots_from_tsv, Pipeline, PyMorphyPreproc, Lower
 import re
 
+REPLICATION_FACTOR = 10
+
 re_label_template = r'#[\w\s\d\.]+#\w+#'
 re_label = re.compile(re_label_template)
 
@@ -51,7 +53,7 @@ if __name__ == '__main__':
                     print(slot_name, slot.infer_from_inform(text), sep='=')
 
                 t = re_label.sub('{}', row[1])
-                for vals in generate_all_values(20, *[slots[s] for s in slot_vals]):
+                for vals in generate_all_values(REPLICATION_FACTOR, *[slots[s] for s in slot_vals]):
                     msg = sample(greetings, 1)[0] + t.format(*[vals[s] for s in slots_order])
                     if row[2]:
                         classifiers = [x.strip() for x in row[2].split(',')]
