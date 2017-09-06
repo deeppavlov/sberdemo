@@ -20,16 +20,16 @@ SEARCH_VSP = 'search_vsp'
 METHOD_LOCATION = 'method_location'
 
 slot_objects = {
-    NEW_ACC_RESERVE_ONLINE: ClassifierSlot(NEW_ACC_RESERVE_ONLINE, 'Хотите зарезервировать онлайн?', dict()),
-    NEW_ACC_CURRENCY: DictionarySlot(NEW_ACC_CURRENCY, 'В какой валюте?', dict()),
-    CLIENT_RF_RESIDENT: ClassifierSlot(CLIENT_RF_RESIDENT, 'Вы резидент РФ?', dict()),
-    NEW_ACC_SHOW_DOCS: ClassifierSlot(NEW_ACC_SHOW_DOCS, 'Хотите на документы посмотреть??', dict()),
-    NEW_ACC_SHOW_RATES: ClassifierSlot(NEW_ACC_SHOW_RATES, 'Хотите на тарифы посмотреть??', dict()),
-    NEW_ACC_OWNERSHIP_FORM: DictionarySlot(NEW_ACC_OWNERSHIP_FORM, 'Какая форма собственности?', dict()),
-    NEW_ACC_REGION: DictionarySlot(NEW_ACC_REGION, 'В каком регионе живёте?', dict()),
+    NEW_ACC_RESERVE_ONLINE: ClassifierSlot(NEW_ACC_RESERVE_ONLINE, 'Хотите зарезервировать онлайн?', dict(), dict()),
+    NEW_ACC_CURRENCY: DictionarySlot(NEW_ACC_CURRENCY, 'В какой валюте?', dict(), dict()),
+    CLIENT_RF_RESIDENT: ClassifierSlot(CLIENT_RF_RESIDENT, 'Вы резидент РФ?', dict(), dict()),
+    NEW_ACC_SHOW_DOCS: ClassifierSlot(NEW_ACC_SHOW_DOCS, 'Хотите на документы посмотреть??', dict(), dict()),
+    NEW_ACC_SHOW_RATES: ClassifierSlot(NEW_ACC_SHOW_RATES, 'Хотите на тарифы посмотреть??', dict(), dict()),
+    NEW_ACC_OWNERSHIP_FORM: DictionarySlot(NEW_ACC_OWNERSHIP_FORM, 'Какая форма собственности?', dict(), dict()),
+    NEW_ACC_REGION: DictionarySlot(NEW_ACC_REGION, 'В каком регионе живёте?', dict(), dict()),
 
-    SEARCH_VSP: ClassifierSlot(SEARCH_VSP, 'Найти тебе отделение?', dict()),
-    METHOD_LOCATION: DictionarySlot(METHOD_LOCATION, 'Где найти? Можешь указать метро, ближайший адрес или координаты', dict())
+    SEARCH_VSP: ClassifierSlot(SEARCH_VSP, 'Найти тебе отделение?', dict(), dict()),
+    METHOD_LOCATION: DictionarySlot(METHOD_LOCATION, 'Где найти? Можешь указать метро, ближайший адрес или координаты', dict(), dict())
 }
 
 SUPPORTED_CURRENCIES = ['RUB', 'EUR', 'USD']
