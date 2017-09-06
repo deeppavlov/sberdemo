@@ -88,7 +88,8 @@ def extract_features(sents, train=True, save_model=True, filenames=None, tokeniz
         mtx_words = words_vectorizer.transform(sents).toarray()
         mtx_chars = chars_vectorizer.transform(sents).toarray()
 
-        return np.hstack((mtx_words, mtx_chars))
+        # return np.hstack((mtx_words, mtx_chars))
+        return mtx_words
     else:
         raise Exception("Undefined vectorizers!")
 

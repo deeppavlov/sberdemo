@@ -48,9 +48,9 @@ if __name__ == '__main__':
                     slot = slots[slot_name]
 
                     slots_order.append(slot)
-                    slot_vals[slot_name] = slot.infer_from_inform(text)
+                    slot_vals[slot_name] = slot.infer_from_single_slot(text)
 
-                    print(slot_name, slot.infer_from_inform(text), sep='=')
+                    print(slot_name, slot.infer_from_single_slot(text), sep='=')
 
                 t = re_label.sub('{}', row[1])
                 for vals in generate_all_values(REPLICATION_FACTOR, *[slots[s] for s in slot_vals]):
