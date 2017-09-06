@@ -127,7 +127,10 @@ class Dialog:
         emb, text = self.pipeline.feed(client_utterance)
         nlu_result = self.nlu_model.forward(emb, text)
         print(nlu_result)
-        response, expect = self.policy_model.forward(nlu_result)
+        try:
+            response, expect = self.policy_model.forward(nlu_result)
+        except Exception as e:
+            return ['ERROR: {}'.format(str(e))]
         self.nlu_model.set_expectation(expect)
         print('<<<', response)
         return response
@@ -142,9 +145,9 @@ class GraphBasedSberdemoPolicy(object):
         self.slots = dict()
 
     def set_intent(self, intent):
-        self.slots = dict()
+        # self.slots = dict()
         if intent not in self.routes:
-            raise RuntimeError('Unknown intent' + str(intent))
+            raise RuntimeError('Unknown intent: ' + str(intent))
         self.intent = copy.deepcopy(self.routes[intent])
 
     def get_actions(self, tree):
@@ -162,7 +165,7 @@ class GraphBasedSberdemoPolicy(object):
             elif isinstance(branch, dict):
                 if 'slot' in branch:
                     if branch['slot'] not in self.slots:
-                        if not branch.get('not_ask'):
+                        if branch.get('not_ask'):
                             break
                         actions.append(['ask', str(branch['slot'])])
                         done = True
@@ -206,7 +209,12 @@ class GraphBasedSberdemoPolicy(object):
             elif action == 'say':
                 responses.append(value)
             elif action == 'goto':
-                responses.append('Меняем интент на %s' % value)
+                if not value:
+                    self.intent = None
+                    continue
+                client_nlu['intent'] = value
+                new_intent_responses, expect = self.forward(client_nlu)
+                responses += new_intent_responses
 
         return responses, expect
 

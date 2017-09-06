@@ -33,16 +33,9 @@
     [
       {
         "slot": "NEW_ACC_CURRENCY",
-        "condition": "supported_currency"
-      }
-    ],
-
-    [
-      {
-        "slot": "NEW_ACC_CURRENCY",
         "condition": "not_supported_currency"
       },
-      {"action": "say: not_supported; goto: new_acc_intent"}
+      {"action": "say: not_supported; goto: "}
     ],
 
     [
