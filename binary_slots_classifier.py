@@ -21,7 +21,7 @@ def tokenize(text, pipe=pipe):
     return [w['normal'] for w in normed]
 
 
-def oversample(X, y):
+def oversample(X, y, verbose=False):
     """
     :param X: features
     :param y: labels
@@ -29,13 +29,16 @@ def oversample(X, y):
             with oversampled minor class 
     
     """
-    print('Oversampling...')
+    if verbose:
+        print('Oversampling...')
     c = Counter(y)
     labels = list(set(y))
     minor_label = min(labels, key=lambda x: c[x])
-    print("minor: ", minor_label)
+    if verbose:
+        print("minor: ", minor_label)
     offset = np.abs(list(c.values())[0] - list(c.values())[1])
-    print("offset: ", offset)
+    if verbose:
+        print("offset: ", offset)
 
     y_new = np.hstack((y, [minor_label] * offset))
     tmp = X[np.array(y) == minor_label]
@@ -107,8 +110,10 @@ X = extract_features(sents, train=True, save_model=True, filenames=None, tokeniz
 
 # ---------------- validate --------------------#
 
-kf = GroupKFold(n_splits=3)
+kf = GroupKFold(n_splits=len(data['template_id'].unique()))
 scores = []
+all_y = []
+all_predicted = []
 groups = data['template_id']
 for slot in slot_names:
     svm = SVC()
@@ -120,12 +125,11 @@ for slot in slot_names:
         X_tmp, y_tmp = oversample(X_train, y_train)
         svm.fit(X_tmp, y_tmp)
         pred = svm.predict(X_test)
-        score = f1_score(y_test, y_pred=pred)
-        scores.append(score)
-        print("f1: ", score)
-        print("Confusion matrix:\n", confusion_matrix(y_test, pred))
 
-    print("For slot: {} cv mean f1 score: {}".format(slot, np.mean(scores)))
+        all_y.extend(y_test)
+        all_predicted.extend(pred)
+
+    print("For slot: {} cv mean f1 score: {}".format(slot, f1_score(all_y, all_predicted)))
     print('--------------')
     # joblib.dump(svm.fit(X, y), '{}_svm_{}.model'.format(slot, np.round(np.mean(scores), 2)))
     # print('==Model dumped==')
