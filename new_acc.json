@@ -3,7 +3,8 @@
     [
       {
         "slot": "NEW_ACC_CURRENCY",
-        "condition": "supported_currency"
+        "condition": "not_eq",
+        "value": "RUB"
       },
       [
         {
@@ -44,7 +45,7 @@
         "condition": "not_eq",
         "value": "RUB"
       },
-      {"action": "say: send_to_bank; goto: find_vsp"}
+      {"action": "say: send_to_bank; goto: find_vsp_intent"}
     ],
 
     [
@@ -59,7 +60,7 @@
 
     [
       {"false": "NEW_ACC_RESERVE_ONLINE"},
-      {"action": "say: send_to_bank; goto: find_vsp"}
+      {"action": "say: send_to_bank; goto: find_vsp_intent"}
     ],
 
     {"action": "say: weird_route; goto:"}
