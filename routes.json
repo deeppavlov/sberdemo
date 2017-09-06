@@ -3,10 +3,14 @@
     [
       {
         "slot": "NEW_ACC_CURRENCY",
-        "condition": "not_eq",
-        "value": "RUB"
+        "condition": "supported_currency"
       },
       [
+        {
+          "slot": "NEW_ACC_CURRENCY",
+          "condition": "not_eq",
+          "value": "RUB"
+        },
         {
           "slot": "NEW_ACC_RESERVE_ONLINE",
           "condition": "true",
