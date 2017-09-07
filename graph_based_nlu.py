@@ -1,5 +1,5 @@
-from .slots import *
-from .nlu import *
+from slots import *
+from nlu import *
 
 
 def some_starts_with(words_list, *prefixi_to_check):

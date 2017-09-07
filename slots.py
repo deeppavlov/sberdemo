@@ -1,4 +1,4 @@
-from .nlu import ClassifierSlot, DictionarySlot
+from nlu import ClassifierSlot, DictionarySlot
 
 NEW_ACC_RESERVE_ONLINE = 'NEW_ACC_RESERVE_ONLINE'
 NEW_ACC_CURRENCY = 'NEW_ACC_CURRENCY'

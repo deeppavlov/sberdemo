@@ -3,9 +3,10 @@ import os
 import copy
 import time
 
-from .nlu import *
-from .graph_based_nlu import GraphBasedSberdemoNLU
-from .slots import *
+from nlu import *
+from graph_based_nlu import GraphBasedSberdemoNLU
+from slots import *
+from say_actions import Sayer as sayer
 
 from telegram.ext import Updater
 from telegram.ext import CommandHandler, MessageHandler, Filters
@@ -119,7 +120,7 @@ class GraphBasedSberdemoPolicy(object):
         actions, _ = self.get_actions(self.intent)
         print(actions)
         if not actions:
-            actions = [['say', 'no intent']]
+            actions = [['say', 'no_intent']]
 
         expect = None
         responses = []
@@ -128,7 +129,7 @@ class GraphBasedSberdemoPolicy(object):
                 expect = value
                 responses.append(self.slots_objects[value].ask())
             elif action == 'say':
-                responses.append(value)
+                responses.append(sayer.say(value, self.slots))
             elif action == 'goto':
                 if not value:
                     self.intent = None
