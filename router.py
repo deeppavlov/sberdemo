@@ -244,7 +244,7 @@ def main():
     def user_client(bot, update):
 
         chat_id = update.message.chat_id
-        user_msg = update.message.text
+        user_msg = update.message.text or str(update.message.location)
         print('{} >>> {}'.format(chat_id, user_msg))
         dialog = humans[chat_id]
         bot_responses = dialog.generate_response(user_msg)
@@ -256,7 +256,7 @@ def main():
     updater = Updater(token=os.environ['SBER_DEMO_BOT_TOKEN'])
     dispatcher = updater.dispatcher
     start_handler = CommandHandler('start', start)
-    msg_handler = MessageHandler(Filters.text, user_client)
+    msg_handler = MessageHandler(Filters.text | Filters.location, user_client)
 
     dispatcher.add_handler(start_handler)
     dispatcher.add_handler(msg_handler)
