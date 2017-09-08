@@ -1,12 +1,15 @@
+from collections import defaultdict
 from functools import lru_cache
+from itertools import chain
 
 import pymorphy2
 import sys
 from nltk.tokenize import sent_tokenize, word_tokenize
 import numpy as np
-from typing import List, Dict, Callable
+from typing import List, Dict, Callable, Any, Union
 import csv
 from fuzzywuzzy import process
+from fuzzywuzzy import fuzz
 
 # fasttext_file = '/home/marat/data/rusfasttext_on_news/model_yalen_sg_300.bin'
 FASTTEXT_MODEL = '/home/marat/data/rusfasttext_on_news/ft_0.8.3_yalen_sg_300.bin'
@@ -91,6 +94,8 @@ class DictionarySlot:
         self.ask_sentence = ask_sentence
         self.gen_dict = generative_dict
         self.nongen_dict = nongenerative_dict
+        self.threshold = 80
+
         self.filters = {
             'any': lambda x, _: True,
             'eq': lambda x, y: x == y,
@@ -105,18 +110,24 @@ class DictionarySlot:
     def infer_from_single_slot(self, text):
         return self._infer(text)
 
-    def _infer(self, text):
-        """
-        :param text: 
-        :return: (match_norm, score)
-        
-        """
-        norm_sent = [w['normal'] for w in text]
-        matched = process.extractOne(query=' '.join(norm_sent), choices=self.gen_dict.keys())
-        if len(matched) > 0:
-            return self.gen_dict[matched[0]], matched[1]
-        else:
-            return ()
+    def _normal_value(self, text: str) -> str:
+        return self.gen_dict.get(text, self.nongen_dict.get(text, ''))
+
+    def _infer(self, text: List[Dict[str, Any]]) -> Union[str, None]:
+        str_text = ' '.join(w['_text'] for w in text)
+        best_score = 0
+        best_match = None
+        for v in chain(self.gen_dict, self.nongen_dict):
+            score = fuzz.partial_ratio(v, str_text)
+            if score > best_score:
+                best_score = score
+                best_match = v
+
+        # works poorly for unknown reasons
+        # print(process.extractBests(str_text, choices=[str(x) for x in chain(self.gen_dict, self.nongen_dict)], scorer=fuzz.partial_ratio))
+        if best_score >= self.threshold:
+            return self._normal_value(best_match)
+        return None
 
     def __repr__(self):
         return '{}(name={}, len(dict)={})'.format(self.__class__.__name__, self.id, len(self.gen_dict))
@@ -230,7 +241,8 @@ if __name__ == '__main__':
 
     # pipe = Pipeline(sent_tokenize, word_tokenize, [PyMorphyPreproc(), Lower(), Fasttext(FASTTEXT_MODEL)], embedder=np.vstack)
     pipe = Pipeline(sent_tokenize, word_tokenize, [PyMorphyPreproc(), Lower()], embedder=np.vstack)
-    emb, text = pipe.feed('Добрый день! Могу ли я открыть отдельный счет по 275ФЗ и что для этого нужно? ')
+    test_input_str = 'Добрый день! Могу ли я открыть отдельный счет по 275ФЗ и что для этого нужно? '
+    emb, text = pipe.feed(test_input_str)
 
     assert [w['_text'] for w in text] == ['добрый', 'день', '!', 'могу', 'ли', 'я', 'открыть', 'отдельный', 'счет',
                                           'по', '275фз', 'и', 'что', 'для', 'этого', 'нужно', '?']
@@ -247,8 +259,13 @@ if __name__ == '__main__':
     # slotmap['client_metro'].infer_from_composional_request(pipe.feed('Есть рядом с метро савеловская какое-нибудь отделение поблизости?')[1])
     slotmap['client_metro'].infer_from_single_slot(pipe.feed('рядом с метро савеловская')[1])
 
-    # for s in slots:
-    #     print(s.infer_from_composional_request(text))
-    #     print('----------')
+    print('='*30)
+    print('compositional infer for "{}"'.format(test_input_str))
+    for s in slots:
+        try:
+            print(s.infer_from_composional_request(text))
+            print('----------')
+        except Exception:
+            print('Infer not implemented for slot "{}"'.format(s.id))
 
 
