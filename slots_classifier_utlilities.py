@@ -1,15 +1,8 @@
 from collections import defaultdict, Counter
 import numpy as np
 from sklearn.feature_extraction.text import CountVectorizer
-from nltk.tokenize import sent_tokenize, word_tokenize
+# from nltk.tokenize import sent_tokenize, word_tokenize
 from sklearn.base import TransformerMixin
-import nlu
-
-
-def normalize_tokenizer(text):
-    pipe = nlu.PreprocessorPipeline(sent_tokenize, word_tokenize, [nlu.PyMorphyPreproc(), nlu.Lower()], embedder=np.vstack)
-    _, normed = pipe.feed(text)
-    return [w['normal'] for w in normed]
 
 
 def oversample(X, y, verbose=False):
@@ -43,12 +36,10 @@ def oversample(X, y, verbose=False):
 
 
 class FeatureExtractor(TransformerMixin):
-    def __init__(self, use_chars=False, tokenizer=normalize_tokenizer):
-        self.tokenizer = tokenizer
+    def __init__(self, use_chars=False):
         self._been_fitten = False
         self.use_chars = use_chars
-        self.words_vectorizer = CountVectorizer(ngram_range=(1, 2),
-                                                tokenizer=self.tokenizer)  # taking into account pairs of words
+        self.words_vectorizer = CountVectorizer(ngram_range=(1, 2),)  # taking into account pairs of words
         if self.use_chars:
             self.chars_vectorizer = CountVectorizer(analyzer='char_wb',
                                                     ngram_range=(2, 4))  # taking into account

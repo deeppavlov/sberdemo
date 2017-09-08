@@ -8,6 +8,7 @@ from typing import Dict, List, Any, Union
 from fuzzywuzzy import fuzz
 from sklearn.externals import joblib
 from sklearn.pipeline import Pipeline
+from sklearn.base import TransformerMixin
 from sklearn.svm import SVC
 
 from slots_classifier_utlilities import FeatureExtractor
@@ -87,7 +88,7 @@ class ClassifierSlot(DictionarySlot):
             raise Exception("Model path: '{}' doesnt exist".format(model_path))
         self.model = joblib.load(model_path)
 
-    def train_model(self, X, y, use_chars=False):
+    def train_model(self, X: List[List[Dict[str, Any]]], y, use_chars=False):
         """
         :param X: iterable with strings
         :param y: target binary labels
@@ -95,16 +96,24 @@ class ClassifierSlot(DictionarySlot):
         :return: None
 
         """
+        class StickSentence(TransformerMixin):
+            @staticmethod
+            def _preproc(data: List[List[Dict[str, Any]]]):
+                return [" ".join([w['normal'] for w in sent]) for sent in data]
+
+            def fit_transform(self, data: List[List[Dict[str, Any]]]):
+                return self._preproc(data)
+
+            def transform(self, data: List[List[Dict[str, Any]]]):
+                return self._preproc(data)
+
         feat_generator = FeatureExtractor(use_chars=use_chars)
         clf = SVC()
-        self.model = Pipeline([('feature_extractor', feat_generator), ('svc', clf)])
+        sticker_sent = StickSentence()
+        self.model = Pipeline([("sticker_sent", sticker_sent), ('feature_extractor', feat_generator), ('svc', clf)])
         self.model.fit(X, y)
 
-    def infer_from_compositional_request(self, text):
-        """
-        :param text: just string
-        :return:
-        """
+    def infer_from_compositional_request(self, text: List[Dict[str, Any]]):
         if self.model is None:
             raise NotImplementedError("No model specified!")
 

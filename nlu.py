@@ -4,6 +4,7 @@ import pymorphy2
 from typing import List, Dict, Callable, Any, Union
 
 from slots import read_slots_from_tsv
+from nltk.tokenize import sent_tokenize, word_tokenize
 from slots_classifier_utlilities import *
 
 # fasttext_file = '/home/marat/data/rusfasttext_on_news/model_yalen_sg_300.bin'
@@ -120,9 +121,9 @@ if __name__ == '__main__':
     print('compositional infer for "{}"'.format(test_input_str))
     for s in slots:
         try:
-            print(s.infer_from_compositional_request(text))
+            print(s.infer_from_composional_request(text))
             print('----------')
-        except NotImplementedError:
+        except Exception:
             print('Infer not implemented for slot "{}"'.format(s.id))
 
 
