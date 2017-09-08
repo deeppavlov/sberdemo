@@ -1,7 +1,7 @@
 from functools import lru_cache
 
 import pymorphy2
-from typing import List, Dict, Callable, Any, Union
+from typing import List, Dict, Callable
 
 from slots import read_slots_from_tsv
 from nltk.tokenize import sent_tokenize, word_tokenize
@@ -63,12 +63,10 @@ class PreprocessorPipeline:
     def __init__(self,
                  sent_tokenizer: Callable[[str], List[str]],
                  word_tokenizer: Callable[[str], List[str]],
-                 feature_gens: List[Preprocessor],
-                 embedder: Callable):
+                 feature_gens: List[Preprocessor]):
         self.sent_tokenizer = sent_tokenizer
         self.word_tokenizer = word_tokenizer
         self.feature_gens = feature_gens
-        self.embedder = embedder
 
     @lru_cache()
     def feed(self, raw_input: str) -> ('embedding', List[str]):
@@ -81,49 +79,10 @@ class PreprocessorPipeline:
             if ws:
                 words.extend(ws)
 
-        return self.embedder([w['_vec'] for w in words]), words
+        return words
 
 
 if __name__ == '__main__':
-    pmp = PyMorphyPreproc(vectorize=False)
-    assert pmp.process([{'_text': 'Разлетелся'}, {'_text': 'градиент'}]) == [{'t_intr': 1, 't_VERB': 1, 't_indc': 1,
-                                                                              'normal': 'разлететься', 't_past': 1,
-                                                                              't_sing': 1, '_text': 'Разлетелся',
-                                                                              't_perf': 1, 't_masc': 1},
-                                                                             {'t_sing': 1, 't_NOUN': 1,
-                                                                              'normal': 'градиент', '_text': 'градиент',
-                                                                              't_nomn': 1, 't_inan': 1, 't_masc': 1}]
-
-    lower = Lower()
-    assert lower.process([{'_text': 'Разлетелся'}]) == [{'_text': 'разлетелся'}]
-
-    # pipe = Pipeline(sent_tokenize, word_tokenize, [PyMorphyPreproc(), Lower(), Fasttext(FASTTEXT_MODEL)], embedder=np.vstack)
-    pipe = PreprocessorPipeline(sent_tokenize, word_tokenize, [PyMorphyPreproc(), Lower()], embedder=np.vstack)
-    test_input_str = 'Добрый день! Могу ли я открыть отдельный счет по 275ФЗ и что для этого нужно? '
-    emb, text = pipe.feed(test_input_str)
-
-    assert [w['_text'] for w in text] == ['добрый', 'день', '!', 'могу', 'ли', 'я', 'открыть', 'отдельный', 'счет',
-                                          'по', '275фз', 'и', 'что', 'для', 'этого', 'нужно', '?']
-    assert emb.shape[0] == 17, 120
-
-    slots = read_slots_from_tsv()
-    assert len(slots) == 14, len(slots)
-
-    slotmap = {s.id:s for s in slots}
-
-    assert 'евро' in slotmap['currency'].gen_dict
-    assert 'библиотека' in slotmap['client_metro'].gen_dict
-
-    # slotmap['client_metro'].infer_from_composional_request(pipe.feed('Есть рядом с метро савеловская какое-нибудь отделение поблизости?')[1])
-    slotmap['client_metro'].infer_from_single_slot(pipe.feed('рядом с метро савеловская')[1])
-
-    print('='*30)
-    print('compositional infer for "{}"'.format(test_input_str))
-    for s in slots:
-        try:
-            print(s.infer_from_composional_request(text))
-            print('----------')
-        except Exception:
-            print('Infer not implemented for slot "{}"'.format(s.id))
+    pass
 
 

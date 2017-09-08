@@ -21,7 +21,7 @@ class DictionarySlot:
         self.ask_sentence = ask_sentence
         self.gen_dict = generative_dict
         self.nongen_dict = nongenerative_dict
-        self.threshold = 80
+        self.threshold = 84
 
         self.filters = {
             'any': lambda x, _: True,
@@ -139,7 +139,7 @@ class GeoSlot(DictionarySlot):
         super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict)
 
 
-def read_slots_from_tsv(filename=None):
+def read_slots_from_tsv(pipeline, filename=None):
     D = '\t'
     if filename is None:
         filename = 'slots_definitions.tsv'
@@ -150,6 +150,9 @@ def read_slots_from_tsv(filename=None):
         info_question = None
         generative_slot_values = {}
         nongenerative_slot_values = {}
+
+        def pipe(text):
+            return ' '.join([w['_text'] for w in pipeline.feed(text)])
 
         result_slots = []
         for row in csv_rows:
@@ -167,19 +170,17 @@ def read_slots_from_tsv(filename=None):
                     normal_name, generative_syns, nongenerative_syns = row
                 else:
                     raise Exception()
+                normal_name = pipe(normal_name)
 
                 if generative_syns:
-                    generative_syns = generative_syns.replace(', ', ',').replace('“', '').replace('”', '').replace('"',
-                                                                                                                   '').split(
-                        ',')
+                    generative_syns = generative_syns.replace(', ', ',').replace('“', '').replace('”', '').\
+                        replace('"','').split(',')
                 else:
                     generative_syns = []
 
                 if nongenerative_syns:
-                    nongenerative_syns = nongenerative_syns.replace(', ', ',').replace('“', '').replace('”',
-                                                                                                        '').replace('"',
-                                                                                                                    '').split(
-                        ',')
+                    nongenerative_syns = nongenerative_syns.replace(', ', ',').replace('“', '').replace('”', '').\
+                        replace('"', '').split(',')
                 else:
                     nongenerative_syns = []
 
@@ -188,11 +189,11 @@ def read_slots_from_tsv(filename=None):
                                                                                               generative_syns]
 
                 for s in nongenerative_syns:
-                    nongenerative_slot_values[s] = normal_name
+                    nongenerative_slot_values[pipe(s)] = normal_name
 
                 generative_slot_values[normal_name] = normal_name
                 for s in generative_syns:
-                    generative_slot_values[s] = normal_name
+                    generative_slot_values[pipe(s)] = normal_name
             else:
                 SlotClass = getattr(sys.modules[__name__], slot_class)
                 slot = SlotClass(slot_name, info_question, generative_slot_values, nongenerative_slot_values)
