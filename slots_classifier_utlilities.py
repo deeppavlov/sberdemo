@@ -7,7 +7,7 @@ import nlu
 
 
 def normalize_tokenizer(text):
-    pipe = nlu.Pipeline_nlp(sent_tokenize, word_tokenize, [nlu.PyMorphyPreproc(), nlu.Lower()], embedder=np.vstack)
+    pipe = nlu.PreprocessorPipeline(sent_tokenize, word_tokenize, [nlu.PyMorphyPreproc(), nlu.Lower()], embedder=np.vstack)
     _, normed = pipe.feed(text)
     return [w['normal'] for w in normed]
 

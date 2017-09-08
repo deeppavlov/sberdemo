@@ -166,7 +166,7 @@ def test_dialog(pipe):
 
 
 if __name__ == '__main__':
-    pipe = Pipeline_nlp(sent_tokenize, word_tokenize, [PyMorphyPreproc(), Lower()], embedder=np.vstack)
+    pipe = PreprocessorPipeline(sent_tokenize, word_tokenize, [PyMorphyPreproc(), Lower()], embedder=np.vstack)
     # test_dialog(pipe)
 
     humans = {}

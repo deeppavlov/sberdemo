@@ -147,7 +147,7 @@ def main():
 
     slots = read_slots_from_tsv()
 
-    pipe = Pipeline_nlp(sent_tokenize, word_tokenize, [PyMorphyPreproc(), Lower()], embedder=np.vstack)
+    pipe = PreprocessorPipeline(sent_tokenize, word_tokenize, [PyMorphyPreproc(), Lower()], embedder=np.vstack)
 
     humans = {}
 
