@@ -69,7 +69,7 @@ class PreprocessorPipeline:
         self.feature_gens = feature_gens
 
     @lru_cache()
-    def feed(self, raw_input: str) -> ('embedding', List[str]):
+    def feed(self, raw_input: str) -> List[str]:
         # TODO: is it OK to merge words from sentences?
         words = []
         for s in self.sent_tokenizer(raw_input):
