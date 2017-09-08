@@ -65,6 +65,17 @@ class DictionarySlot:
         return self.ask_sentence
 
 
+class CurrencySlot(DictionarySlot):
+    def __init__(self, slot_id: str, ask_sentence: str, generative_dict: Dict[str, str],
+                 nongenerative_dict: Dict[str, str], supported_slots:List[str] = None):
+        super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict)
+        if supported_slots is None:
+            supported_slots = ['RUB', 'EUR', 'USD']
+        self.supported_slots = supported_slots
+        self.filters['supported_currency'] = lambda x, _: x in self.supported_slots
+        self.filters['not_supported_currency'] = lambda x, _: x not in self.supported_slots
+
+
 class ClassifierSlot(DictionarySlot):
     def __init__(self, slot_id: str, ask_sentence: str, generative_dict: Dict[str, str],
                  nongenerative_dict: Dict[str, str]):
