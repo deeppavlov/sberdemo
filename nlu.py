@@ -172,7 +172,7 @@ class ClassifierSlot(DictionarySlot):
         :return: 
         """
         if self.model is None:
-            raise Exception("No model specified!")
+            raise NotImplementedError("No model specified!")
 
         label = self.model.predict(text)[0]
         return bool(label)
@@ -309,9 +309,9 @@ if __name__ == '__main__':
     print('compositional infer for "{}"'.format(test_input_str))
     for s in slots:
         try:
-            print(s.infer_from_composional_request(text))
+            print(s.infer_from_compositional_request(text))
             print('----------')
-        except Exception:
+        except NotImplementedError:
             print('Infer not implemented for slot "{}"'.format(s.id))
 
 
