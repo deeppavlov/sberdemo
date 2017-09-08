@@ -4,7 +4,7 @@ from random import sample
 
 from nltk import sent_tokenize, word_tokenize
 
-from nlu import read_slots_from_tsv, Pipeline, PyMorphyPreproc, Lower
+from nlu import read_slots_from_tsv, Pipeline_nlp, PyMorphyPreproc, Lower
 import re
 
 REPLICATION_FACTOR = 10
@@ -26,7 +26,7 @@ if __name__ == '__main__':
     slots = {s.id: s for s in read_slots_from_tsv()}
     slots_global_order = sorted(slots.values(), key=lambda s: s.id)
 
-    pipe = Pipeline(sent_tokenize, word_tokenize, [PyMorphyPreproc(), Lower()], embedder=lambda _: None)
+    pipe = Pipeline_nlp(sent_tokenize, word_tokenize, [PyMorphyPreproc(), Lower()], embedder=lambda _: None)
 
     templates = []
 

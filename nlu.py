@@ -8,8 +8,12 @@ from nltk.tokenize import sent_tokenize, word_tokenize
 import numpy as np
 from typing import List, Dict, Callable, Any, Union
 import csv
-from fuzzywuzzy import process
 from fuzzywuzzy import fuzz
+from sklearn.svm import SVC
+from sklearn.pipeline import Pipeline
+from slots_classifier_utlilities import *
+import os
+from sklearn.externals import joblib
 
 # fasttext_file = '/home/marat/data/rusfasttext_on_news/model_yalen_sg_300.bin'
 FASTTEXT_MODEL = '/home/marat/data/rusfasttext_on_news/ft_0.8.3_yalen_sg_300.bin'
@@ -63,7 +67,7 @@ class Lower(Preprocessor):
         return res
 
 
-class Pipeline:
+class Pipeline_nlp:
     def __init__(self,
                  sent_tokenizer: Callable[[str], List[str]],
                  word_tokenizer: Callable[[str], List[str]],
@@ -104,7 +108,7 @@ class DictionarySlot:
             'false': lambda x, _: not bool(x)
         }
 
-    def infer_from_composional_request(self, text):
+    def infer_from_compositional_request(self, text):
         return self._infer(text)
 
     def infer_from_single_slot(self, text):
@@ -142,9 +146,36 @@ class DictionarySlot:
 class ClassifierSlot(DictionarySlot):
     def __init__(self, slot_id: str, ask_sentence: str, generative_dict: Dict[str, str], nongenerative_dict: Dict[str, str]):
         super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict)
+        self.model = None
 
-    def infer_from_composional_request(self, text):
-        raise NotImplemented()
+    def load_model(self, model_path):
+        if not os.path.exists(model_path):
+            raise Exception("Model path: '{}' doesnt exist".format(model_path))
+        self.model = joblib.load(model_path)
+
+    def train_model(self, X, y, use_chars=False):
+        """
+        :param X: iterable with strings 
+        :param y: target binary labels 
+        :param use_chars: True if use char features
+        :return: None
+        
+        """
+        feat_generator = FeatureExtractor(use_chars=use_chars)
+        clf = SVC()
+        self.model = Pipeline([('feature_extractor', feat_generator), ('svc', clf)])
+        self.model.fit(X, y)
+
+    def infer_from_compositional_request(self, text):
+        """
+        :param text: just string 
+        :return: 
+        """
+        if self.model is None:
+            raise Exception("No model specified!")
+
+        label = self.model.predict(text)[0]
+        return bool(label)
 
 
 class CompositionalSlot(DictionarySlot):
@@ -226,6 +257,21 @@ def read_slots_from_tsv(filename=None):
     return result_slots
 
 
+def read_slots_serialized(folder):
+    """
+    Read slots from tsv and load saved svm models
+    
+    :param folder: path to folder with models 
+    :return: array of slots
+    
+    """
+    slots_array = read_slots_from_tsv()
+
+    for s in slots_array:
+        s.load_model(os.path.join(folder, s.id + '.model'))
+    return slots_array
+
+
 if __name__ == '__main__':
     pmp = PyMorphyPreproc(vectorize=False)
     assert pmp.process([{'_text': 'Разлетелся'}, {'_text': 'градиент'}]) == [{'t_intr': 1, 't_VERB': 1, 't_indc': 1,
@@ -240,7 +286,7 @@ if __name__ == '__main__':
     assert lower.process([{'_text': 'Разлетелся'}]) == [{'_text': 'разлетелся'}]
 
     # pipe = Pipeline(sent_tokenize, word_tokenize, [PyMorphyPreproc(), Lower(), Fasttext(FASTTEXT_MODEL)], embedder=np.vstack)
-    pipe = Pipeline(sent_tokenize, word_tokenize, [PyMorphyPreproc(), Lower()], embedder=np.vstack)
+    pipe = Pipeline_nlp(sent_tokenize, word_tokenize, [PyMorphyPreproc(), Lower()], embedder=np.vstack)
     test_input_str = 'Добрый день! Могу ли я открыть отдельный счет по 275ФЗ и что для этого нужно? '
     emb, text = pipe.feed(test_input_str)
 

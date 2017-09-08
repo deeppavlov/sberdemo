@@ -145,7 +145,7 @@ def main():
     fname = 'routes.json'
     data = parse_route(fname)
 
-    pipe = Pipeline(sent_tokenize, word_tokenize, [PyMorphyPreproc(), Lower()], embedder=np.vstack)
+    pipe = Pipeline_nlp(sent_tokenize, word_tokenize, [PyMorphyPreproc(), Lower()], embedder=np.vstack)
 
     humans = {}
 
