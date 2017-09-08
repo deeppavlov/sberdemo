@@ -81,6 +81,8 @@ class PreprocessorPipeline:
 
         return words
 
+def create_pipe():
+    return PreprocessorPipeline(sent_tokenize, word_tokenize, [PyMorphyPreproc(), Lower()])
 
 if __name__ == '__main__':
     pass

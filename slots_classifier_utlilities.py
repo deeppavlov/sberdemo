@@ -1,8 +1,8 @@
 from collections import defaultdict, Counter
 import numpy as np
 from sklearn.feature_extraction.text import CountVectorizer
-# from nltk.tokenize import sent_tokenize, word_tokenize
 from sklearn.base import TransformerMixin
+from copy import deepcopy
 
 
 def oversample(X, y, verbose=False):
@@ -11,7 +11,6 @@ def oversample(X, y, verbose=False):
     :param y: labels
     :return: new balanced dataset 
             with oversampled minor class 
-
     """
     if verbose:
         print('Oversampling...')
@@ -28,7 +27,11 @@ def oversample(X, y, verbose=False):
     tmp = X[np.array(y) == minor_label]
     sampled = np.random.choice(np.arange(len(tmp)), size=offset)
 
-    X_new = np.vstack((X, tmp[sampled]))
+    if isinstance(X[0][0], dict):
+        X_new = list(deepcopy(X))
+        X_new.extend(tmp[sampled])
+    else:
+        X_new = np.vstack((X, tmp[sampled]))
     assert len(X_new) == len(y_new)
     assert np.sum(y_new == minor_label) == len(y_new) // 2
 
@@ -39,7 +42,7 @@ class FeatureExtractor(TransformerMixin):
     def __init__(self, use_chars=False):
         self._been_fitten = False
         self.use_chars = use_chars
-        self.words_vectorizer = CountVectorizer(ngram_range=(1, 2),)  # taking into account pairs of words
+        self.words_vectorizer = CountVectorizer(ngram_range=(1, 2), )  # taking into account pairs of words
         if self.use_chars:
             self.chars_vectorizer = CountVectorizer(analyzer='char_wb',
                                                     ngram_range=(2, 4))  # taking into account
@@ -47,7 +50,7 @@ class FeatureExtractor(TransformerMixin):
         else:
             self.chars_vectorizer = None
 
-    def fit(self, raw_docs, y = None):
+    def fit(self, raw_docs, y=None):
         """
         :param raw_docs: iterable with strings 
         :return: None
@@ -95,3 +98,17 @@ class FeatureExtractor(TransformerMixin):
             return np.hstack((mtx_words, mtx_chars))
         else:
             return mtx_words
+
+
+class StickSentence(TransformerMixin):
+    @staticmethod
+    def _preproc(data):
+        if not isinstance(data[0], list):
+            data = [data]
+        return [" ".join([w['normal'] for w in sent]) for sent in data]
+
+    def fit_transform(self, data, y=None):
+        return self._preproc(data)
+
+    def transform(self, data, y=None):
+        return self._preproc(data)

@@ -12,6 +12,7 @@ from sklearn.base import TransformerMixin
 from sklearn.svm import SVC
 
 from slots_classifier_utlilities import FeatureExtractor
+from slots_classifier_utlilities import StickSentence
 
 
 class DictionarySlot:
@@ -96,27 +97,22 @@ class ClassifierSlot(DictionarySlot):
         :return: None
 
         """
-        class StickSentence(TransformerMixin):
-            @staticmethod
-            def _preproc(data: List[List[Dict[str, Any]]]):
-                return [" ".join([w['normal'] for w in sent]) for sent in data]
-
-            def fit_transform(self, data: List[List[Dict[str, Any]]]):
-                return self._preproc(data)
-
-            def transform(self, data: List[List[Dict[str, Any]]]):
-                return self._preproc(data)
-
         feat_generator = FeatureExtractor(use_chars=use_chars)
         clf = SVC()
         sticker_sent = StickSentence()
         self.model = Pipeline([("sticker_sent", sticker_sent), ('feature_extractor', feat_generator), ('svc', clf)])
         self.model.fit(X, y)
 
+    def infer_from_compositional_batch(self, list_texts: List[List[Dict[str, Any]]]):
+        if self.model is None:
+            raise NotImplementedError("No model specified!")
+        labels = self.model.predict(list_texts)
+        return labels
+
+
     def infer_from_compositional_request(self, text: List[Dict[str, Any]]):
         if self.model is None:
             raise NotImplementedError("No model specified!")
-
         label = self.model.predict(text)[0]
         return bool(label)
 
