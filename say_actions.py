@@ -1,4 +1,4 @@
-from slots import *
+from nlg_slots import *
 
 
 class Sayer:

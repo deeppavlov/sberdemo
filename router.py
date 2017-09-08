@@ -5,7 +5,7 @@ import time
 
 from nlu import *
 from graph_based_nlu import GraphBasedSberdemoNLU
-from slots import *
+from nlg_slots import *
 from say_actions import Sayer as sayer
 
 from telegram.ext import Updater
@@ -145,13 +145,15 @@ def main():
     fname = 'routes.json'
     data = parse_route(fname)
 
+    slots = read_slots_from_tsv()
+
     pipe = Pipeline_nlp(sent_tokenize, word_tokenize, [PyMorphyPreproc(), Lower()], embedder=np.vstack)
 
     humans = {}
 
     def start(bot, update):
         chat_id = update.message.chat_id
-        humans[chat_id] = Dialog(pipe, GraphBasedSberdemoNLU(), GraphBasedSberdemoPolicy(data, slot_objects))
+        humans[chat_id] = Dialog(pipe, GraphBasedSberdemoNLU(), GraphBasedSberdemoPolicy(data, slots))
         bot.send_message(chat_id=chat_id, text='Здрасте. Чего хотели?')
 
     def user_client(bot, update):
