@@ -3,6 +3,7 @@ from functools import lru_cache
 import pymorphy2
 from typing import List, Dict, Callable
 
+from intent_classifier import IntentClassifier
 from slots import read_slots_from_tsv, DictionarySlot
 from nltk.tokenize import sent_tokenize, word_tokenize
 from svm_classifier_utlilities import *
@@ -83,8 +84,9 @@ class PreprocessorPipeline:
 
 
 class StatisticalNLUModel:
-    def __init__(self, slots: List[DictionarySlot]):
+    def __init__(self, slots: List[DictionarySlot], intent_classifier: IntentClassifier):
         self.slots = {s.id: s for s in slots}  # type: Dict[str, DictionarySlot]
+        self.intent_classifier = intent_classifier
         self.expect = None
 
     def forward(self, text):
@@ -93,7 +95,7 @@ class StatisticalNLUModel:
         }
 
         if self.expect is None:
-            res['intent'] = 'open_account'
+            res['intent'] = self.intent_classifier.predict_single(text)
 
             for slot in self.slots.values():
                 val = slot.infer_from_compositional_request(text)

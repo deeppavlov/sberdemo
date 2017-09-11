@@ -7,7 +7,7 @@ from typing import Dict, List, Any
 
 
 class IntentClassifier():
-    def __init__(self, labels_list=None):
+    def __init__(self, labels_list=None, folder=None):
         self.model = None
 
         if labels_list is not None:
@@ -17,6 +17,9 @@ class IntentClassifier():
         else:
             self.string2idx = dict()
             self.idx2string = dict()
+
+        if folder is not None:
+            self.load_model(folder)
 
     def train_model(self, X: List[List[Dict[str, Any]]], y: List[str], use_chars=False):
         """

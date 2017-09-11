@@ -116,7 +116,7 @@ class ClassifierSlot(DictionarySlot):
         if self.model is None:
             raise NotImplementedError("No model specified!")
         label = bool(self.model.predict(text)[0])
-        return label or None
+        return self.true if label else None
 
 
 class CompositionalSlot(DictionarySlot):

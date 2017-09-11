@@ -46,7 +46,10 @@ class Dialog:
     def generate_response(self, client_utterance: str) -> List[str]:
         print('>>>', client_utterance)
         text = self.pipeline.feed(client_utterance)
-        nlu_result = self.nlu_model.forward(text)
+        try:
+            nlu_result = self.nlu_model.forward(text)
+        except Exception as e:
+            return ['NLU ERROR: {}'.format(str(e))]
         print(nlu_result)
         try:
             response, expect = self.policy_model.forward(nlu_result)
@@ -153,13 +156,15 @@ def main():
 
     pipe = create_pipe()
 
-    slots = read_slots_serialized('./models_nlu', pipe)
+    models_path = './models_nlu'
+    slots = read_slots_serialized(models_path, pipe)
 
     humans = {}
 
     def start(bot, update):
         chat_id = update.message.chat_id
-        humans[chat_id] = Dialog(pipe, StatisticalNLUModel(slots), GraphBasedSberdemoPolicy(data, slots))
+        humans[chat_id] = Dialog(pipe, StatisticalNLUModel(slots, IntentClassifier(folder=models_path)),
+                                 GraphBasedSberdemoPolicy(data, slots))
         bot.send_message(chat_id=chat_id, text='Здрасте. Чего хотели?')
 
     def send_delayed(bot, chat_id, messages: list, interval=0.7):
@@ -173,7 +178,8 @@ def main():
 
         chat_id = update.message.chat_id
         if chat_id not in humans:
-            humans[chat_id] = Dialog(pipe, StatisticalNLUModel(slots), GraphBasedSberdemoPolicy(data, slots))
+            humans[chat_id] = Dialog(pipe, StatisticalNLUModel(slots, IntentClassifier(folder=models_path)),
+                                     GraphBasedSberdemoPolicy(data, slots))
         user_msg = update.message.text or str(update.message.location)
         print('{} >>> {}'.format(chat_id, user_msg))
         dialog = humans[chat_id]
