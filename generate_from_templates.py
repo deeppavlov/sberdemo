@@ -6,7 +6,7 @@ import re
 
 PARAPHRASE_DELIM = '~'
 
-REPLICATION_FACTOR = 10
+REPLICATION_FACTOR = 2
 
 re_label_template = r'#[\w\s\d\.\/\\]+#\w+#'
 re_label = re.compile(re_label_template)
@@ -20,6 +20,7 @@ def generate_all_values(max_count, *slots):
     data = sample(data, min(len(data), max_count))
     for vals in data:
         yield {k: v for k, v in zip(slots, vals)}
+
 
 if __name__ == '__main__':
     pipe = create_pipe()
