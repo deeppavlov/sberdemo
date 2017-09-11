@@ -1,10 +1,7 @@
 import csv
 from itertools import product
 from random import sample
-
-from nltk import sent_tokenize, word_tokenize
-
-from nlu import read_slots_from_tsv, PreprocessorPipeline, PyMorphyPreproc, Lower
+from nlu import create_pipe, read_slots_from_tsv
 import re
 
 REPLICATION_FACTOR = 10
@@ -23,10 +20,9 @@ def generate_all_values(max_count, *slots):
         yield {k: v for k, v in zip(slots, vals)}
 
 if __name__ == '__main__':
-    slots = {s.id: s for s in read_slots_from_tsv()}
+    pipe = create_pipe()
+    slots = {s.id: s for s in read_slots_from_tsv(pipe)}
     slots_global_order = sorted(slots.values(), key=lambda s: s.id)
-
-    pipe = PreprocessorPipeline(sent_tokenize, word_tokenize, [PyMorphyPreproc(), Lower()], embedder=lambda _: None)
 
     templates = []
 
@@ -44,7 +40,7 @@ if __name__ == '__main__':
                     value, slot_name = gen.strip('#').split('#')
                     assert slot_name in slots, 'Unknown slot "{}" in templates'.format(slot_name)
 
-                    _, text = pipe.feed(value)
+                    text = pipe.feed(value)
                     slot = slots[slot_name]
 
                     slots_order.append(slot)
