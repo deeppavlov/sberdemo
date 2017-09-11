@@ -20,7 +20,7 @@ parser.add_argument('--data', dest='data_path', type=str, default='./generated_d
 parser.add_argument('--dump', dest='dump', action='store_true', default=True,
                     help='Use flag to dump trained svm')
 
-parser.add_argument('--no_oversample', dest='oversample', action='store_false', default=False,
+parser.add_argument('--oversample', dest='oversample', action='store_false', default=True,
                     help='Use flag to test and dump models !without! oversample; defaule -- use oversample;')
 
 parser.add_argument('--pic', dest='save_pic', action='store_true', default=True,
@@ -83,7 +83,8 @@ X = np.array([pipe.feed(sent) for sent in sents])  # list of list of dicts;
 
 
 # leave one out
-kf = GroupKFold(n_splits=len(data['template_id'].unique()))
+# kf = GroupKFold(n_splits=len(data['template_id'].unique()))
+kf = GroupKFold(n_splits=5)
 scores = []
 all_y = []
 all_predicted = []
