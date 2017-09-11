@@ -4,12 +4,12 @@ import copy
 import time
 
 from nlu import *
-from graph_based_nlu import GraphBasedSberdemoNLU
-from nlg_slots import *
 from say_actions import Sayer as sayer
 
 from telegram.ext import Updater
 from telegram.ext import CommandHandler, MessageHandler, Filters
+
+from slots import read_slots_serialized
 
 
 def format_route(route):
@@ -43,8 +43,8 @@ class Dialog:
 
     def generate_response(self, client_utterance: str) -> List[str]:
         print('>>>', client_utterance)
-        emb, text = self.pipeline.feed(client_utterance)
-        nlu_result = self.nlu_model.forward(emb, text)
+        text = self.pipeline.feed(client_utterance)
+        nlu_result = self.nlu_model.forward(text)
         print(nlu_result)
         try:
             response, expect = self.policy_model.forward(nlu_result)
@@ -59,7 +59,7 @@ class GraphBasedSberdemoPolicy(object):
 
     def __init__(self, routes, slots_objects):
         self.routes = routes
-        self.slots_objects = slots_objects
+        self.slots_objects = {s.id: s for s in slots_objects}  # type: Dict[str, DictionarySlot]
         self.intent = None
         self.slots = dict()
 
@@ -145,15 +145,15 @@ def main():
     fname = 'routes.json'
     data = parse_route(fname)
 
-    slots = read_slots_from_tsv()
+    pipe = create_pipe()
 
-    pipe = PreprocessorPipeline(sent_tokenize, word_tokenize, [PyMorphyPreproc(), Lower()], embedder=np.vstack)
+    slots = read_slots_serialized('./models_nlu', pipe)
 
     humans = {}
 
     def start(bot, update):
         chat_id = update.message.chat_id
-        humans[chat_id] = Dialog(pipe, GraphBasedSberdemoNLU(), GraphBasedSberdemoPolicy(data, slots))
+        humans[chat_id] = Dialog(pipe, StatisticalNLUModel(slots), GraphBasedSberdemoPolicy(data, slots))
         bot.send_message(chat_id=chat_id, text='Здрасте. Чего хотели?')
 
     def user_client(bot, update):

@@ -72,7 +72,7 @@ class CurrencySlot(DictionarySlot):
                  nongenerative_dict: Dict[str, str], supported_slots:List[str] = None):
         super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict)
         if supported_slots is None:
-            supported_slots = ['RUB', 'EUR', 'USD']
+            supported_slots = ['rub', 'eur', 'usd']
         self.supported_slots = supported_slots
         self.filters['supported_currency'] = lambda x, _: x in self.supported_slots
         self.filters['not_supported_currency'] = lambda x, _: x not in self.supported_slots
@@ -109,12 +109,11 @@ class ClassifierSlot(DictionarySlot):
         labels = self.model.predict(list_texts)
         return labels
 
-
     def infer_from_compositional_request(self, text: List[Dict[str, Any]]):
         if self.model is None:
             raise NotImplementedError("No model specified!")
-        label = self.model.predict(text)[0]
-        return bool(label)
+        label = bool(self.model.predict(text)[0])
+        return label or None
 
 
 class CompositionalSlot(DictionarySlot):
