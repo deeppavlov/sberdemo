@@ -33,10 +33,10 @@ parser.add_argument('--use_char', dest='use_char', action='store_true', default=
 parser.add_argument('--slot_path', dest='slot_path', type=str, default="slots_definitions.tsv",
                     help='The path of file with slot definitions')
 
-parser.add_argument('--slot_train', dest='slot_train', action='store_true', default=False,
+parser.add_argument('--slot_train', dest='slot_train', action='store_true', default=True,
                     help="Use flag to train slots' svms ")
 
-parser.add_argument('--intent_train', dest='intent_train', action='store_true', default=True,
+parser.add_argument('--intent_train', dest='intent_train', action='store_true', default=False,
                     help="Use flag to train intent multiclass svm")
 
 args = parser.parse_args()

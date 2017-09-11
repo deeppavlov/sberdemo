@@ -13,6 +13,7 @@ from sklearn.svm import SVC
 
 from svm_classifier_utlilities import FeatureExtractor
 from svm_classifier_utlilities import StickSentence
+from tomita.tomita import Tomita
 
 
 class DictionarySlot:
@@ -142,6 +143,11 @@ class TomitaSlot(DictionarySlot):
     def __init__(self, slot_id: str, ask_sentence: str, generative_dict: Dict[str, str],
                  nongenerative_dict: Dict[str, str], values_order: List[str], prev_created_slots, *args):
         super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict, values_order, prev_created_slots, *args)
+        root = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'tomita')
+        self.tomita = Tomita(os.path.expanduser('~/Downloads/tomita-linux64'), os.path.join(root, 'config.proto'), cwd=root)
+
+    def _infer(self, text: List[Dict[str, Any]]):
+        return self.tomita.get_json(' '.join(w['_text'] for w in text)) or None
 
 
 class GeoSlot(DictionarySlot):

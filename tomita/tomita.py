@@ -9,9 +9,9 @@ import os
 
 class Tomita:
 
-    def __init__(self, executable, config):
+    def __init__(self, executable, config, cwd=None):
         self.name = 'Tomita'
-        self.p = pexpect.spawn(executable, [config])
+        self.p = pexpect.spawn(executable, [config], cwd=cwd)
         self.p.expect('.* Start.*$')
 
     def communicate(self, text):
