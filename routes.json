@@ -2,42 +2,42 @@
   "new_acc_intent": [
     [
       {
-        "slot": "NEW_ACC_CURRENCY",
+        "slot": "currency",
         "condition": "supported_currency"
       },
       [
         {
-          "slot": "NEW_ACC_CURRENCY",
+          "slot": "currency",
           "condition": "not_eq",
           "value": "RUB"
         },
         {
-          "slot": "NEW_ACC_RESERVE_ONLINE",
+          "slot": "online_reserving",
           "condition": "true",
           "not_ask": 1
         },
         {"action": "say: cant_reserve"}
       ],
       [
-        {"true": "NEW_ACC_SHOW_DOCS"},
-        "CLIENT_RF_RESIDENT",
-        "NEW_ACC_OWNERSHIP_FORM",
-        "NEW_ACC_REGION",
+        {"true": "show_docs"},
+        "resident",
+        "client_type",
+        "region",
         {"action": "say: new_acc_documents_list"}
       ],
 
       [
-        {"true": "NEW_ACC_SHOW_RATES"},
-        "CLIENT_RF_RESIDENT",
-        "NEW_ACC_OWNERSHIP_FORM",
-        "NEW_ACC_REGION",
+        {"true": "cost_of_service"},
+        "resident",
+        "client_type",
+        "region",
         {"action": "say: new_acc_rates_list"}
       ]
     ],
 
     [
       {
-        "slot": "NEW_ACC_CURRENCY",
+        "slot": "currency",
         "condition": "not_supported_currency"
       },
       {"action": "say: not_supported; goto: "}
@@ -45,7 +45,7 @@
 
     [
       {
-        "slot": "NEW_ACC_CURRENCY",
+        "slot": "currency",
         "condition": "not_eq",
         "value": "RUB"
       },
@@ -54,16 +54,16 @@
 
     [
       {
-        "slot": "NEW_ACC_CURRENCY",
+        "slot": "currency",
         "condition": "eq",
         "value": "RUB"
       },
-      {"true": "NEW_ACC_RESERVE_ONLINE"},
+      {"true": "online_reserving"},
       {"action": "say: reserve_new_acc_online; goto:"}
     ],
 
     [
-      {"false": "NEW_ACC_RESERVE_ONLINE"},
+      {"false": "online_reserving"},
       {"action": "say: send_to_bank; goto: find_vsp_intent"}
     ],
 

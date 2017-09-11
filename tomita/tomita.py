@@ -1,5 +1,9 @@
 import pexpect
 from pexpect.exceptions import TIMEOUT
+
+import xmltodict
+
+import json
 import os
 
 
@@ -21,10 +25,34 @@ class Tomita:
             pass
         return raw or None
 
+    def get_json(self, text):
+        raw = self.communicate(text)
+        if not raw:  # empty result
+            return []
+        if raw.startswith(b'<document'):
+            return xmltodict.parse(raw.decode('UTF8'))['document']
+        # todo: do something with protobuf and (maybe) text
+        raise RuntimeError('Expected xml document, got {}'.format(raw))
+
 
 if __name__ == "__main__":
     root = os.path.dirname(os.path.realpath(__file__))
     tomita = Tomita(os.path.expanduser('~/Downloads/tomita-linux64'), os.path.join(root, 'config.proto'))
-    print(tomita.communicate('ул. Маяковского, пр. Красных Комиссаров, пятница, 22 апреля 2014 года'))
-    print(tomita.communicate('Юрий Гагарин'))
+
+    t = 'ул. Маяковского, пр. Красных Комиссаров, пятница, 22 апреля 2014 года'
+
+    r = tomita.communicate(t).decode('UTF8')
+    print(r)
+
+    r = tomita.get_json(t)
+    print(json.dumps(r, indent=2, ensure_ascii=False))
+    d = r['facts']['Date']
+    assert d['DayOfWeek']['@val'] == 'ПЯТНИЦА' and d['Day']['@val'] == '22' and d['Month']['@val'] == 'АПРЕЛЬ',\
+        'parsed wrong'
+
+    t = 'Юрий Гагарин'
+    r = tomita.get_json(t)
+    print(json.dumps(r, indent=2, ensure_ascii=False))
+    assert r == [], 'expected empty array'
+
     print('end')
