@@ -1,6 +1,3 @@
-from nlg_slots import *
-
-
 class Sayer:
     @classmethod
     def say(cls, method_name, ctx):
@@ -12,11 +9,11 @@ class Sayer:
 
     @staticmethod
     def new_acc_documents_list(ctx):
-        return 'Список документов для {}резидента РФ'.format('' if ctx[CLIENT_RF_RESIDENT] else 'не ')
+        return 'Список документов для {}резидента РФ'.format('' if ctx['resident'] else 'не ')
 
     @staticmethod
     def new_acc_rates_list(ctx):
-        return 'Тарифы для {}резидента РФ'.format('' if ctx[CLIENT_RF_RESIDENT] else 'не ')
+        return 'Тарифы для {}резидента РФ'.format('' if ctx['resident'] else 'не ')
 
     @staticmethod
     def not_supported(ctx):
