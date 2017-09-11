@@ -9,6 +9,8 @@ from say_actions import Sayer as sayer
 from telegram.ext import Updater
 from telegram.ext import CommandHandler, MessageHandler, Filters
 
+import threading
+
 from slots import read_slots_serialized
 
 
@@ -57,11 +59,12 @@ class Dialog:
 
 class GraphBasedSberdemoPolicy(object):
 
-    def __init__(self, routes, slots_objects):
+    def __init__(self, routes, slots_objects, debug=False):
         self.routes = routes
         self.slots_objects = {s.id: s for s in slots_objects}  # type: Dict[str, DictionarySlot]
         self.intent = None
-        self.slots = dict()
+        self.slots = {}
+        self.debug = debug
 
     def set_intent(self, intent):
         self.slots = dict()
@@ -138,6 +141,9 @@ class GraphBasedSberdemoPolicy(object):
                 new_intent_responses, expect = self.forward(client_nlu)
                 responses += new_intent_responses
 
+        if self.debug:
+            responses[0] = responses[0] + '\n\nslots: {}'.format(self.slots)
+
         return responses, expect
 
 
@@ -156,17 +162,23 @@ def main():
         humans[chat_id] = Dialog(pipe, StatisticalNLUModel(slots), GraphBasedSberdemoPolicy(data, slots))
         bot.send_message(chat_id=chat_id, text='Здрасте. Чего хотели?')
 
+    def send_delayed(bot, chat_id, messages: list, interval=0.7):
+        m = messages.pop(0)
+        print('{} <<< {}'.format(chat_id, m))
+        bot.send_message(chat_id=chat_id, text=m)
+        if messages:
+            threading.Timer(interval, send_delayed, [bot, chat_id, messages, interval]).start()
+
     def user_client(bot, update):
 
         chat_id = update.message.chat_id
+        if chat_id not in humans:
+            humans[chat_id] = Dialog(pipe, StatisticalNLUModel(slots), GraphBasedSberdemoPolicy(data, slots))
         user_msg = update.message.text or str(update.message.location)
         print('{} >>> {}'.format(chat_id, user_msg))
         dialog = humans[chat_id]
         bot_responses = dialog.generate_response(user_msg)
-        for bot_resp in bot_responses:
-            print('{} <<< {}'.format(chat_id, bot_resp))
-            bot.send_message(chat_id=chat_id, text=bot_resp)
-            time.sleep(0.7)
+        send_delayed(bot, chat_id, bot_responses, 0.7)
 
     updater = Updater(token=os.environ['SBER_DEMO_BOT_TOKEN'])
     dispatcher = updater.dispatcher
