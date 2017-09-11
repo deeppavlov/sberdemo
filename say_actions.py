@@ -9,11 +9,11 @@ class Sayer:
 
     @staticmethod
     def new_acc_documents_list(ctx):
-        return 'Список документов для {}резидента РФ'.format('' if ctx['resident'] else 'не ')
+        return 'Список документов для {}резидента РФ'.format('' if ctx['resident'] == 'резидент' else 'не ')
 
     @staticmethod
     def new_acc_rates_list(ctx):
-        return 'Тарифы для {}резидента РФ'.format('' if ctx['resident'] else 'не ')
+        return 'Тарифы для {}резидента РФ'.format('' if ctx['resident'] == 'резидент' else 'не ')
 
     @staticmethod
     def not_supported(ctx):

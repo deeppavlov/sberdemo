@@ -17,7 +17,7 @@ from slots_classifier_utlilities import StickSentence
 
 class DictionarySlot:
     def __init__(self, slot_id: str, ask_sentence: str, generative_dict: Dict[str, str],
-                 nongenerative_dict: Dict[str, str]):
+                 nongenerative_dict: Dict[str, str], values_order: List[str]):
         self.id = slot_id
         self.ask_sentence = ask_sentence
         self.gen_dict = generative_dict
@@ -27,9 +27,7 @@ class DictionarySlot:
         self.filters = {
             'any': lambda x, _: True,
             'eq': lambda x, y: x == y,
-            'not_eq': lambda x, y: x != y,
-            'true': lambda x, _: bool(x),
-            'false': lambda x, _: not bool(x)
+            'not_eq': lambda x, y: x != y
         }
 
     def infer_from_compositional_request(self, text):
@@ -69,8 +67,8 @@ class DictionarySlot:
 
 class CurrencySlot(DictionarySlot):
     def __init__(self, slot_id: str, ask_sentence: str, generative_dict: Dict[str, str],
-                 nongenerative_dict: Dict[str, str], supported_slots:List[str] = None):
-        super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict)
+                 nongenerative_dict: Dict[str, str], supported_slots:List[str] = None, values_order: List[str]=None):
+        super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict, values_order)
         if supported_slots is None:
             supported_slots = ['rub', 'eur', 'usd']
         self.supported_slots = supported_slots
@@ -80,8 +78,13 @@ class CurrencySlot(DictionarySlot):
 
 class ClassifierSlot(DictionarySlot):
     def __init__(self, slot_id: str, ask_sentence: str, generative_dict: Dict[str, str],
-                 nongenerative_dict: Dict[str, str]):
-        super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict)
+                 nongenerative_dict: Dict[str, str], values_order: List[str]):
+        super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict, values_order)
+        self.true = values_order[0]
+        self.filters.update({
+            'true': lambda x, _: x == self.true,
+            'false': lambda x, _: x != self.true
+        })
         self.model = None
 
     def load_model(self, model_path):
@@ -118,20 +121,20 @@ class ClassifierSlot(DictionarySlot):
 
 class CompositionalSlot(DictionarySlot):
     def __init__(self, slot_id: str, ask_sentence: str, generative_dict: Dict[str, str],
-                 nongenerative_dict: Dict[str, str]):
-        super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict)
+                 nongenerative_dict: Dict[str, str], values_order: List[str]):
+        super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict, values_order)
 
 
 class TomitaSlot(DictionarySlot):
     def __init__(self, slot_id: str, ask_sentence: str, generative_dict: Dict[str, str],
-                 nongenerative_dict: Dict[str, str]):
-        super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict)
+                 nongenerative_dict: Dict[str, str], values_order: List[str]):
+        super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict, values_order)
 
 
 class GeoSlot(DictionarySlot):
     def __init__(self, slot_id: str, ask_sentence: str, generative_dict: Dict[str, str],
-                 nongenerative_dict: Dict[str, str]):
-        super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict)
+                 nongenerative_dict: Dict[str, str], values_order: List[str]):
+        super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict, values_order)
 
 
 def read_slots_from_tsv(pipeline, filename=None):
@@ -154,6 +157,7 @@ def read_slots_from_tsv(pipeline, filename=None):
             if slot_name is None:
                 slot_name, slot_class, *args = row[0].split()[0].split('.')
                 info_question = row[1].strip()
+                normal_names_order = []
             elif ''.join(row):
                 nongenerative_syns = ''
                 generative_syns = ''
@@ -166,6 +170,7 @@ def read_slots_from_tsv(pipeline, filename=None):
                 else:
                     raise Exception()
                 normal_name = pipe(normal_name)
+                normal_names_order.append(normal_name)
 
                 if generative_syns:
                     generative_syns = generative_syns.replace(', ', ',').replace('“', '').replace('”', '').\
@@ -191,7 +196,8 @@ def read_slots_from_tsv(pipeline, filename=None):
                     generative_slot_values[pipe(s)] = normal_name
             else:
                 SlotClass = getattr(sys.modules[__name__], slot_class)
-                slot = SlotClass(slot_name, info_question, generative_slot_values, nongenerative_slot_values)
+                slot = SlotClass(slot_name, info_question, generative_slot_values, nongenerative_slot_values,
+                                 normal_names_order)
                 result_slots.append(slot)
 
                 slot_name = None
@@ -199,7 +205,8 @@ def read_slots_from_tsv(pipeline, filename=None):
                 nongenerative_slot_values = {}
         if slot_name:
             SlotClass = getattr(sys.modules[__name__], slot_class)
-            slot = SlotClass(slot_name, info_question, generative_slot_values, nongenerative_slot_values)
+            slot = SlotClass(slot_name, info_question, generative_slot_values, nongenerative_slot_values,
+                             normal_names_order)
             result_slots.append(slot)
 
     return result_slots
