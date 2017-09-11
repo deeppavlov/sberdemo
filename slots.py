@@ -206,7 +206,7 @@ def read_slots_from_tsv(pipeline, filename=None):
     return result_slots
 
 
-def read_slots_serialized(folder):
+def read_slots_serialized(folder, pipe):
     """
     Read slots from tsv and load saved svm models
 
@@ -214,8 +214,12 @@ def read_slots_serialized(folder):
     :return: array of slots
 
     """
-    slots_array = read_slots_from_tsv()
+    slots_array = read_slots_from_tsv(pipeline=pipe)
 
     for s in slots_array:
-        s.load_model(os.path.join(folder, s.id + '.model'))
+        name = os.path.join(folder, s.id + '.model')
+        if isinstance(s, ClassifierSlot):
+            if not os.path.exists(name):
+                raise Exception("{} does not exist".format(name))
+            s.load_model(name)
     return slots_array

@@ -1,10 +1,9 @@
 import pandas as pd
 from nlu import *
+from collections import defaultdict
 from sklearn.metrics import confusion_matrix, roc_auc_score, f1_score
 from sklearn.model_selection import GroupKFold
-from sklearn.manifold.t_sne import TSNE
 from sklearn.externals import joblib
-from matplotlib import pyplot as plt
 from slots_classifier_utlilities import oversample
 from slots import *
 import os
@@ -21,7 +20,7 @@ parser.add_argument('--data', dest='data_path', type=str, default='./generated_d
 parser.add_argument('--dump', dest='dump', action='store_true', default=True,
                     help='Use flag to dump trained svm')
 
-parser.add_argument('--no_oversample', dest='oversample', action='store_false', default=True,
+parser.add_argument('--no_oversample', dest='oversample', action='store_false', default=False,
                     help='Use flag to test and dump models !without! oversample; defaule -- use oversample;')
 
 parser.add_argument('--pic', dest='save_pic', action='store_true', default=True,
@@ -45,6 +44,7 @@ SLOT_PATH = params['slot_path']
 USE_CHAR = params['use_char']
 
 # just checking:
+print("Current configuration:\n")
 print(params)
 
 # if there's no folder to save model
@@ -63,7 +63,6 @@ pipe = create_pipe()
 slot_list = read_slots_from_tsv(pipeline=pipe, filename=SLOT_PATH)
 slot_names = [s.id for s in slot_list if isinstance(s, ClassifierSlot)]
 print(slot_names)
-slot_names = list(set(slot_names) - set(['show_schedule']))
 
 # ------------ making train data ---------------#
 
@@ -104,9 +103,7 @@ for slot in slot_list:
         else:
             slot.train_model(X_train, y_train, use_chars=USE_CHAR)
         pred = slot.infer_from_compositional_batch(X_test)
-        # print("PRED: ", np.sum(pred))
-        # print("TRAIN: ", np.sum(y_train), len(y_train))
-        # print("TEST: ", np.sum(y_test), len(y_test))
+
         all_y.extend(y_test)
         all_predicted.extend(pred)
 
@@ -124,14 +121,3 @@ for slot in slot_list:
                     os.path.join(MODEL_FOLDER, '{}.model'.format(slot.id)))
 
         print('==Model dumped==')
-
-# ---------------- visualize --------------------#
-# TODO: problem to get features because of model encapsulation
-# if SAVE_PIC:
-#     tsne = TSNE()
-#     data_tsne = tsne.fit_transform(X)
-#     plt.figure(figsize=(6, 5))
-#     for slot in slot_names:
-#         plt.scatter(data_tsne[targets[slot], 0], data_tsne[targets[slot], 1], alpha=0.3, label=slot)
-#     plt.legend()
-#     plt.savefig("tsne.png")

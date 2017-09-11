@@ -1,5 +1,6 @@
 import unittest
 from nlu import *
+from collections import defaultdict
 
 
 class TestSlots(unittest.TestCase):
