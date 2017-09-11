@@ -31,12 +31,14 @@ if __name__ == '__main__':
 
     with open('generative_templates.tsv') as fcsv:
         with open('generated_dataset.tsv', 'w') as f:
-            print('template_id', 'request', *[s.id for s in slots_global_order], sep='\t', file=f)
+            print('template_id', 'intent', 'request', *[s.id for s in slots_global_order], sep='\t', file=f)
             csv_rows = csv.reader(fcsv, delimiter='\t')
             for template_id, row in enumerate(csv_rows):
                 if row[0] != '1':
                     continue
                 print(row[1])
+                intent = row[3].strip()
+                assert intent, 'Intent value can not be empty'
                 for template_text in row[1].split(PARAPHRASE_DELIM):
                     slot_vals = {}
                     slots_order = []
@@ -59,4 +61,4 @@ if __name__ == '__main__':
                             classifiers = [x.strip() for x in row[2].split(',')]
                             for x in classifiers:
                                 vals[slots[x]] = 'YES'
-                        print(template_id, msg, *[vals.get(s, '') for s in slots_global_order], sep='\t', file=f)
+                        print(template_id, intent, msg, *[vals.get(s, '') for s in slots_global_order], sep='\t', file=f)
