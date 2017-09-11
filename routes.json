@@ -1,5 +1,5 @@
 {
-  "new_acc_intent": [
+  "open_account": [
     [
       {
         "slot": "currency",
@@ -9,7 +9,7 @@
         {
           "slot": "currency",
           "condition": "not_eq",
-          "value": "RUB"
+          "value": "rub"
         },
         {
           "slot": "online_reserving",
@@ -47,16 +47,16 @@
       {
         "slot": "currency",
         "condition": "not_eq",
-        "value": "RUB"
+        "value": "rub"
       },
-      {"action": "say: send_to_bank; goto: find_vsp_intent"}
+      {"action": "say: send_to_bank; goto: search_bank"}
     ],
 
     [
       {
         "slot": "currency",
         "condition": "eq",
-        "value": "RUB"
+        "value": "rub"
       },
       {"true": "online_reserving"},
       {"action": "say: reserve_new_acc_online; goto:"}
@@ -64,13 +64,13 @@
 
     [
       {"false": "online_reserving"},
-      {"action": "say: send_to_bank; goto: find_vsp_intent"}
+      {"action": "say: send_to_bank; goto: search_bank"}
     ],
 
     {"action": "say: weird_route; goto:"}
   ],
 
-  "find_vsp_intent": [
+  "search_bank": [
     [
       {"true": "search_vsp"},
       "method_location",

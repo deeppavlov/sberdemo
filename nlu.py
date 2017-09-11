@@ -3,7 +3,7 @@ from functools import lru_cache
 import pymorphy2
 from typing import List, Dict, Callable
 
-from slots import read_slots_from_tsv
+from slots import read_slots_from_tsv, DictionarySlot
 from nltk.tokenize import sent_tokenize, word_tokenize
 from svm_classifier_utlilities import *
 
@@ -81,8 +81,39 @@ class PreprocessorPipeline:
 
         return words
 
+
+class StatisticalNLUModel:
+    def __init__(self, slots: List[DictionarySlot]):
+        self.slots = {s.id: s for s in slots}  # type: Dict[str, DictionarySlot]
+        self.expect = None
+
+    def forward(self, text):
+        res = {
+            'slots': {}
+        }
+
+        if self.expect is None:
+            res['intent'] = 'open_account'
+
+            for slot in self.slots.values():
+                val = slot.infer_from_compositional_request(text)
+                if val is not None:
+                    res['slots'][slot.id] = val
+        else:
+            slot = self.slots[self.expect]
+            val = slot.infer_from_single_slot(text)
+            if val is not None:
+                res['slots'][self.expect] = val
+
+        return res
+
+    def set_expectation(self, expect):
+        self.expect = expect
+
+
 def create_pipe():
     return PreprocessorPipeline(sent_tokenize, word_tokenize, [PyMorphyPreproc(), Lower()])
+
 
 if __name__ == '__main__':
     pass

@@ -17,7 +17,7 @@ from svm_classifier_utlilities import StickSentence
 
 class DictionarySlot:
     def __init__(self, slot_id: str, ask_sentence: str, generative_dict: Dict[str, str],
-                 nongenerative_dict: Dict[str, str]):
+                 nongenerative_dict: Dict[str, str], values_order: List[str], prev_created_slots: List, *args):
         self.id = slot_id
         self.ask_sentence = ask_sentence
         self.gen_dict = generative_dict
@@ -27,9 +27,7 @@ class DictionarySlot:
         self.filters = {
             'any': lambda x, _: True,
             'eq': lambda x, y: x == y,
-            'not_eq': lambda x, y: x != y,
-            'true': lambda x, _: bool(x),
-            'false': lambda x, _: not bool(x)
+            'not_eq': lambda x, y: x != y
         }
 
     def infer_from_compositional_request(self, text):
@@ -69,19 +67,23 @@ class DictionarySlot:
 
 class CurrencySlot(DictionarySlot):
     def __init__(self, slot_id: str, ask_sentence: str, generative_dict: Dict[str, str],
-                 nongenerative_dict: Dict[str, str], supported_slots:List[str] = None):
-        super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict)
-        if supported_slots is None:
-            supported_slots = ['RUB', 'EUR', 'USD']
-        self.supported_slots = supported_slots
+                 nongenerative_dict: Dict[str, str], values_order: List[str], prev_created_slots, *args):
+        super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict, values_order, prev_created_slots, *args)
+
+        self.supported_slots = ['rub', 'eur', 'usd']
         self.filters['supported_currency'] = lambda x, _: x in self.supported_slots
         self.filters['not_supported_currency'] = lambda x, _: x not in self.supported_slots
 
 
 class ClassifierSlot(DictionarySlot):
     def __init__(self, slot_id: str, ask_sentence: str, generative_dict: Dict[str, str],
-                 nongenerative_dict: Dict[str, str]):
-        super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict)
+                 nongenerative_dict: Dict[str, str], values_order: List[str], prev_created_slots, *args):
+        super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict, values_order, prev_created_slots, *args)
+        self.true = values_order[0]
+        self.filters.update({
+            'true': lambda x, _: x == self.true,
+            'false': lambda x, _: x != self.true
+        })
         self.model = None
 
     def load_model(self, model_path):
@@ -109,30 +111,43 @@ class ClassifierSlot(DictionarySlot):
         labels = self.model.predict(list_texts)
         return labels
 
-
     def infer_from_compositional_request(self, text: List[Dict[str, Any]]):
         if self.model is None:
             raise NotImplementedError("No model specified!")
-        label = self.model.predict(text)[0]
-        return bool(label)
+        label = bool(self.model.predict(text)[0])
+        return label or None
 
 
 class CompositionalSlot(DictionarySlot):
     def __init__(self, slot_id: str, ask_sentence: str, generative_dict: Dict[str, str],
-                 nongenerative_dict: Dict[str, str]):
-        super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict)
+                 nongenerative_dict: Dict[str, str], values_order: List[str], prev_created_slots, *args):
+        super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict, values_order, prev_created_slots, *args)
+        slotmap = {s.id: s for s in prev_created_slots}
+        self.children = [slotmap[slot_names] for slot_names in args]
+
+    def infer_from_compositional_request(self, text):
+        for s in self.children:
+            rv = s.infer_from_compositional_request(text)
+            if rv is not None:
+                return rv
+
+    def infer_from_single_slot(self, text):
+        for s in self.children:
+            rv = s.infer_from_single_slot(text)
+            if rv is not None:
+                return rv
 
 
 class TomitaSlot(DictionarySlot):
     def __init__(self, slot_id: str, ask_sentence: str, generative_dict: Dict[str, str],
-                 nongenerative_dict: Dict[str, str]):
-        super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict)
+                 nongenerative_dict: Dict[str, str], values_order: List[str], prev_created_slots, *args):
+        super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict, values_order, prev_created_slots, *args)
 
 
 class GeoSlot(DictionarySlot):
     def __init__(self, slot_id: str, ask_sentence: str, generative_dict: Dict[str, str],
-                 nongenerative_dict: Dict[str, str]):
-        super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict)
+                 nongenerative_dict: Dict[str, str], values_order: List[str], prev_created_slots, *args):
+        super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict, values_order, prev_created_slots, *args)
 
 
 def read_slots_from_tsv(pipeline, filename=None):
@@ -155,6 +170,7 @@ def read_slots_from_tsv(pipeline, filename=None):
             if slot_name is None:
                 slot_name, slot_class, *args = row[0].split()[0].split('.')
                 info_question = row[1].strip()
+                normal_names_order = []
             elif ''.join(row):
                 nongenerative_syns = ''
                 generative_syns = ''
@@ -167,6 +183,7 @@ def read_slots_from_tsv(pipeline, filename=None):
                 else:
                     raise Exception()
                 normal_name = pipe(normal_name)
+                normal_names_order.append(normal_name)
 
                 if generative_syns:
                     generative_syns = generative_syns.replace(', ', ',').replace('“', '').replace('”', '').\
@@ -192,7 +209,8 @@ def read_slots_from_tsv(pipeline, filename=None):
                     generative_slot_values[pipe(s)] = normal_name
             else:
                 SlotClass = getattr(sys.modules[__name__], slot_class)
-                slot = SlotClass(slot_name, info_question, generative_slot_values, nongenerative_slot_values)
+                slot = SlotClass(slot_name, info_question, generative_slot_values, nongenerative_slot_values,
+                                 normal_names_order, result_slots)
                 result_slots.append(slot)
 
                 slot_name = None
@@ -200,7 +218,8 @@ def read_slots_from_tsv(pipeline, filename=None):
                 nongenerative_slot_values = {}
         if slot_name:
             SlotClass = getattr(sys.modules[__name__], slot_class)
-            slot = SlotClass(slot_name, info_question, generative_slot_values, nongenerative_slot_values)
+            slot = SlotClass(slot_name, info_question, generative_slot_values, nongenerative_slot_values,
+                             normal_names_order, result_slots)
             result_slots.append(slot)
 
     return result_slots
