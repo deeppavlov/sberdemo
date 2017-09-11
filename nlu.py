@@ -5,7 +5,7 @@ from typing import List, Dict, Callable
 
 from slots import read_slots_from_tsv
 from nltk.tokenize import sent_tokenize, word_tokenize
-from slots_classifier_utlilities import *
+from svm_classifier_utlilities import *
 
 # fasttext_file = '/home/marat/data/rusfasttext_on_news/model_yalen_sg_300.bin'
 FASTTEXT_MODEL = '/home/marat/data/rusfasttext_on_news/ft_0.8.3_yalen_sg_300.bin'

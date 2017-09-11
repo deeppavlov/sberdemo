@@ -11,8 +11,8 @@ from sklearn.pipeline import Pipeline
 from sklearn.base import TransformerMixin
 from sklearn.svm import SVC
 
-from slots_classifier_utlilities import FeatureExtractor
-from slots_classifier_utlilities import StickSentence
+from svm_classifier_utlilities import FeatureExtractor
+from svm_classifier_utlilities import StickSentence
 
 
 class DictionarySlot:
