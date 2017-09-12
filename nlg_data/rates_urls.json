@@ -1,0 +1,881 @@
+[
+  {
+    "id": "moscow",
+    "title": "Москва",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/moskva-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/moskva-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/moskva-services.html"
+  },
+  {
+    "id": "moscowoblast",
+    "title": "Московская область",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/moskovskaja-oblastjh-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/moskovskaja-oblastjh-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/moskovskaja-oblastjh-services.html"
+  },
+  {
+    "id": "saintpetersburg",
+    "title": "Санкт-Петербург",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/sankt-peterburg-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/sankt-peterburg-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/sankt-peterburg-services.html"
+  },
+  {
+    "id": "leningradoblast",
+    "title": "Ленинградская область",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/sankt-peterburg-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/sankt-peterburg-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/sankt-peterburg-services.html"
+  },
+  {
+    "id": "altaikrai",
+    "title": "Алтайский край",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/novosibirskaja-oblastjh-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/novosibirskaja-oblastjh-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/novosibirskaja-oblastjh-services.html"
+  },
+  {
+    "id": "amur",
+    "title": "Амурская область",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/amurskaja-oblastjh-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/amurskaja-oblastjh-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/amurskaja-oblastjh-services.html"
+  },
+  {
+    "id": "arkhangelsk",
+    "title": "Архангельская область",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/arkhangeljhskaja-oblastjh-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/arkhangeljhskaja-oblastjh-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/arkhangeljhskaja-oblastjh-services.html"
+  },
+  {
+    "id": "astrakhan",
+    "title": "Астраханская область",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/volgogradskaja-oblastjh-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/volgogradskaja-oblastjh-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/volgogradskaja-oblastjh-services.html"
+  },
+  {
+    "id": "belgorod",
+    "title": "Белгородская область",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/belgorodskaja-oblastjh-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/belgorodskaja-oblastjh-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/belgorodskaja-oblastjh-services.html"
+  },
+  {
+    "id": "bryansk",
+    "title": "Брянская область",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/brjanskaja-oblastjh-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/brjanskaja-oblastjh-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/brjanskaja-oblastjh-services.html"
+  },
+  {
+    "id": "vladimir",
+    "title": "Владимирская область",
+    "shortTableUrl": null,
+    "fullTableUrl": null,
+    "cities": [
+      {
+        "id": "1",
+        "title": "г.Владимир",
+        "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/vladimirskaja-oblastjh-short.html",
+        "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/vladimirskaja-oblastjh-full.html",
+        "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/vladimirskaja-oblastjh-services.html"
+      },
+      {
+        "id": "2",
+        "title": "Владимирская область за исключением г.Владимир",
+        "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/vladimirskaja-oblastjh-short.html",
+        "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/vladimirskaja-oblastjh-full.html",
+        "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/vladimirskaja-oblastjh-services.html"
+      }
+    ],
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/"
+  },
+  {
+    "id": "volgograd",
+    "title": "Волгоградская область",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/volgogradskaja-oblastjh-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/volgogradskaja-oblastjh-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/volgogradskaja-oblastjh-services.html"
+  },
+  {
+    "id": "vologda",
+    "title": "Вологодская область",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/arkhangeljhskaja-oblastjh-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/arkhangeljhskaja-oblastjh-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/arkhangeljhskaja-oblastjh-services.html"
+  },
+  {
+    "id": "voronezh",
+    "title": "Воронежская область",
+    "cities": [
+      {
+        "id": "1",
+        "title": "г.Воронеж, г.Нововоронеж и пгт.Рамонь",
+        "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/belgorodskaja-oblastjh-short.html",
+        "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/belgorodskaja-oblastjh-full.html",
+        "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/belgorodskaja-oblastjh-services.html"
+      },
+      {
+        "id": "2",
+        "title": "Воронежская область за исключением г.Воронеж, г.Нововоронеж и пгт.Рамонь",
+        "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/belgorodskaja-oblastjh-short.html",
+        "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/belgorodskaja-oblastjh-full.html",
+        "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/belgorodskaja-oblastjh-services.html"
+      }
+    ]
+  },
+  {
+    "id": "jewish",
+    "title": "Еврейская АО",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/amurskaja-oblastjh-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/amurskaja-oblastjh-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/amurskaja-oblastjh-services.html"
+  },
+  {
+    "id": "zabaykalskykrai",
+    "title": "Забайкальский край",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/irkutskaja-oblastjh-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/irkutskaja-oblastjh-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/irkutskaja-oblastjh-services.html"
+  },
+  {
+    "id": "ivanovo",
+    "title": "Ивановская область",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/jaroslavskaja-oblastjh-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/jaroslavskaja-oblastjh-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/arkhangeljhskaja-oblastjh-services.html"
+  },
+  {
+    "id": "irkutsk",
+    "title": "Иркутская область",
+    "cities": [
+      {
+        "id": "1",
+        "title": "г.Иркутск",
+        "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/irkutskaja-oblastjh-short.html",
+        "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/irkutskaja-oblastjh-full.html",
+        "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/irkutskaja-oblastjh-services.html"
+      },
+      {
+        "id": "2",
+        "title": "Иркутская область за исключением г.Иркутск",
+        "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/irkutskaja-oblastjh-short.html",
+        "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/irkutskaja-oblastjh-full.html",
+        "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/irkutskaja-oblastjh-services.html"
+      }
+    ]
+  },
+  {
+    "id": "kabardinobalkaria",
+    "title": "Кабардино-Балкарская Республика",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/stavropoljhskiy-kray-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/stavropoljhskiy-kray-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/stavropoljhskiy-kray-services.html"
+  },
+  {
+    "id": "kaliningrad",
+    "title": "Калининградская область",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/kaliningradskaja-oblastjh-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/kaliningradskaja-oblastjh-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/kaliningradskaja-oblastjh-services.html"
+  },
+  {
+    "id": "kaluga",
+    "title": "Калужская область",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/brjanskaja-oblastjh-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/brjanskaja-oblastjh-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/brjanskaja-oblastjh-services.html"
+  },
+  {
+    "id": "kamchatka",
+    "title": "Камчатский край",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/kamchatskiy-kray-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/kamchatskiy-kray-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/kamchatskiy-kray-services.html"
+  },
+  {
+    "id": "karachaycherkessia",
+    "title": "Карачаево-Черкесская Республика",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/stavropoljhskiy-kray-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/stavropoljhskiy-kray-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/stavropoljhskiy-kray-services.html"
+  },
+  {
+    "id": "kemerovo",
+    "title": "Кемеровская область",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/novosibirskaja-oblastjh-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/novosibirskaja-oblastjh-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/novosibirskaja-oblastjh-services.html"
+  },
+  {
+    "id": "kirov",
+    "title": "Кировская область",
+    "cities": [
+      {
+        "id": "1",
+        "title": "г.Киров",
+        "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/vladimirskaja-oblastjh-short.html",
+        "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/vladimirskaja-oblastjh-full.html",
+        "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/vladimirskaja-oblastjh-services.html"
+      },
+      {
+        "id": "2",
+        "title": "Кировская область за исключением г.Киров",
+        "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/vladimirskaja-oblastjh-short.html",
+        "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/vladimirskaja-oblastjh-full.html",
+        "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/vladimirskaja-oblastjh-services.html"
+      }
+    ]
+  },
+  {
+    "id": "kostroma",
+    "title": "Костромская область",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/jaroslavskaja-oblastjh-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/jaroslavskaja-oblastjh-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/arkhangeljhskaja-oblastjh-services.html"
+  },
+  {
+    "id": "krasnodar",
+    "title": "Краснодарский край",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/rostovskaja-oblastjh-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/rostovskaja-oblastjh-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/rostovskaja-oblastjh-services.html"
+  },
+  {
+    "id": "krasnoyarsk",
+    "title": "Красноярский край",
+    "cities": [
+      {
+        "id": "1",
+        "title": "Красноярский край за исключением г.Норильск и г.Красноярск",
+        "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/novosibirskaja-oblastjh-short.html",
+        "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/novosibirskaja-oblastjh-full.html",
+        "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/novosibirskaja-oblastjh-services.html"
+      },
+      {
+        "id": "2",
+        "title": "г.Красноярск",
+        "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/novosibirskaja-oblastjh-short.html",
+        "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/novosibirskaja-oblastjh-full.html",
+        "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/novosibirskaja-oblastjh-services.html"
+      },
+      {
+        "id": "3",
+        "title": "г.Норильск",
+        "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/noriljhsk-short.html",
+        "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/noriljhsk-full.html",
+        "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/noriljhsk-services.html"
+      }
+    ]
+  },
+  {
+    "id": "kurgan",
+    "title": "Курганская область",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/kurganskaja-oblastjh-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/kurganskaja-oblastjh-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/kurganskaja-oblastjh-services.html"
+  },
+  {
+    "id": "kursk",
+    "title": "Курская область",
+    "shortTableUrl": null,
+    "fullTableUrl": null,
+    "cities": [
+      {
+        "id": "1",
+        "title": "г.Курск",
+        "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/belgorodskaja-oblastjh-short.html",
+        "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/belgorodskaja-oblastjh-full.html",
+        "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/belgorodskaja-oblastjh-services.html"
+      },
+      {
+        "id": "2",
+        "title": "Курская область за исключением г.Курск",
+        "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/belgorodskaja-oblastjh-short.html",
+        "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/belgorodskaja-oblastjh-full.html",
+        "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/belgorodskaja-oblastjh-services.html"
+      }
+    ]
+  },
+  {
+    "id": "lipetsk",
+    "title": "Липецкая область",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/belgorodskaja-oblastjh-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/belgorodskaja-oblastjh-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/belgorodskaja-oblastjh-services.html"
+  },
+  {
+    "id": "magadan",
+    "title": "Магаданская область",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/kamchatskiy-kray-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/kamchatskiy-kray-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/kamchatskiy-kray-services.html"
+  },
+  {
+    "id": "murmansk",
+    "title": "Мурманская область",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/kaliningradskaja-oblastjh-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/kaliningradskaja-oblastjh-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/kaliningradskaja-oblastjh-services.html"
+  },
+  {
+    "id": "nenets",
+    "title": "Ненецкий АО",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/arkhangeljhskaja-oblastjh-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/arkhangeljhskaja-oblastjh-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/arkhangeljhskaja-oblastjh-services.html"
+  },
+  {
+    "id": "nizhnynovgorod",
+    "title": "Нижегородская область",
+    "cities": [
+      {
+        "id": "1",
+        "title": "г.Нижний Новгород",
+        "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/nizhegorodskaja-oblastjh-short.html",
+        "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/nizhegorodskaja-oblastjh-full.html",
+        "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/nizhegorodskaja-oblastjh-services.html"
+      },
+      {
+        "id": "2",
+        "title": "Нижегородская область за исключением г.Нижний Новгород",
+        "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/nizhegorodskaja-oblastjh-short.html",
+        "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/nizhegorodskaja-oblastjh-full.html",
+        "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/nizhegorodskaja-oblastjh-services.html"
+      }
+    ]
+  },
+  {
+    "id": "novgorod",
+    "title": "Новгородская область",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/kaliningradskaja-oblastjh-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/kaliningradskaja-oblastjh-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/kaliningradskaja-oblastjh-services.html"
+  },
+  {
+    "id": "novosibirsk",
+    "title": "Новосибирская область",
+    "cities": [
+      {
+        "id": "1",
+        "title": "г.Новосибирск",
+        "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/novosibirskaja-oblastjh-short.html",
+        "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/novosibirskaja-oblastjh-full.html",
+        "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/novosibirskaja-oblastjh-services.html"
+      },
+      {
+        "id": "2",
+        "title": "Новосибирская область за исключением г.Новосибирск",
+        "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/novosibirskaja-oblastjh-short.html",
+        "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/novosibirskaja-oblastjh-full.html",
+        "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/novosibirskaja-oblastjh-services.html"
+      }
+    ]
+  },
+  {
+    "id": "omsk",
+    "title": "Омская область",
+    "cities": [
+      {
+        "id": "1",
+        "title": "г.Омск",
+        "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/omskaja-oblastjh-short.html",
+        "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/omskaja-oblastjh-full.html",
+        "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/omskaja-oblastjh-services.html"
+      },
+      {
+        "id": "2",
+        "title": "Омская область за исключением г.Омск",
+        "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/omskaja-oblastjh-short.html",
+        "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/omskaja-oblastjh-full.html",
+        "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/omskaja-oblastjh-services.html"
+      }
+    ]
+  },
+  {
+    "id": "orenburg",
+    "title": "Оренбургская область",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/volgogradskaja-oblastjh-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/volgogradskaja-oblastjh-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/volgogradskaja-oblastjh-services.html"
+  },
+  {
+    "id": "oryol",
+    "title": "Орловская область",
+    "cities": [
+      {
+        "id": "1",
+        "title": "г.Орел",
+        "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/belgorodskaja-oblastjh-short.html",
+        "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/belgorodskaja-oblastjh-full.html",
+        "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/belgorodskaja-oblastjh-services.html"
+      },
+      {
+        "id": "2",
+        "title": "Орловская область за исключением г.Орел",
+        "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/belgorodskaja-oblastjh-short.html",
+        "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/belgorodskaja-oblastjh-full.html",
+        "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/belgorodskaja-oblastjh-services.html"
+      }
+    ]
+  },
+  {
+    "id": "penza",
+    "title": "Пензенская область",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/volgogradskaja-oblastjh-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/volgogradskaja-oblastjh-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/volgogradskaja-oblastjh-services.html"
+  },
+  {
+    "id": "perm",
+    "title": "Пермский край",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/permskiy-kray-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/permskiy-kray-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/permskiy-kray-services.html"
+  },
+  {
+    "id": "primorskykrai",
+    "title": "Приморский край",
+    "cities": [
+      {
+        "id": "1",
+        "title": "г.Владивосток и г.Находка",
+        "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/primorskiy-kray-short.html",
+        "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/primorskiy-kray-full.html",
+        "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/primorskiy-kray-services.html"
+      },
+      {
+        "id": "2",
+        "title": "Приморский край за исключением г.Владивосток и г.Находка",
+        "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/primorskiy-kray-short.html",
+        "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/primorskiy-kray-full.html",
+        "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/primorskiy-kray-services.html"
+      }
+    ]
+  },
+  {
+    "id": "pskov",
+    "title": "Псковская область",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/kaliningradskaja-oblastjh-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/kaliningradskaja-oblastjh-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/kaliningradskaja-oblastjh-services.html"
+  },
+  {
+    "id": "adygea",
+    "title": "Республика Адыгея",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/rostovskaja-oblastjh-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/rostovskaja-oblastjh-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/rostovskaja-oblastjh-services.html"
+  },
+  {
+    "id": "altai",
+    "title": "Республика Алтай",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/novosibirskaja-oblastjh-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/novosibirskaja-oblastjh-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/novosibirskaja-oblastjh-services.html"
+  },
+  {
+    "id": "bashkortostan",
+    "title": "Республика Башкортостан",
+    "cities": [
+      {
+        "id": "1",
+        "title": "Республика Башкортостан за исключением г.Уфа",
+        "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/respublika-bashkortostan-short.html",
+        "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/respublika-bashkortostan-full.html",
+        "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/respublika-bashkortostan-services.html"
+      },
+      {
+        "id": "2",
+        "title": "г.Уфа",
+        "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/respublika-bashkortostan-short.html",
+        "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/respublika-bashkortostan-full.html",
+        "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/respublika-bashkortostan-services.html"
+      }
+    ]
+  },
+  {
+    "id": "buryatia",
+    "title": "Республика Бурятия",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/irkutskaja-oblastjh-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/irkutskaja-oblastjh-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/irkutskaja-oblastjh-services.html"
+  },
+  {
+    "id": "dagestan",
+    "title": "Республика Дагестан",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/stavropoljhskiy-kray-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/stavropoljhskiy-kray-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/stavropoljhskiy-kray-services.html"
+  },
+  {
+    "id": "ingushetia",
+    "title": "Республика Ингушетия",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/respublika-ingushetija-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/respublika-ingushetija-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/respublika-ingushetija-services.html"
+  },
+  {
+    "id": "kalmykia",
+    "title": "Республика Калмыкия",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/chechenskaja-respublika-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/chechenskaja-respublika-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/chechenskaja-respublika-services.html"
+  },
+  {
+    "id": "karelia",
+    "title": "Республика Карелия",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/kaliningradskaja-oblastjh-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/kaliningradskaja-oblastjh-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/kaliningradskaja-oblastjh-services.html"
+  },
+  {
+    "id": "komi",
+    "title": "Республика Коми",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/komi-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/komi-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/permskiy-kray-services.html"
+  },
+  {
+    "id": "mariel",
+    "title": "Республика Марий Эл",
+    "cities": [
+      {
+        "id": "1",
+        "title": "г.Йошкар-Ола",
+        "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/vladimirskaja-oblastjh-short.html",
+        "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/vladimirskaja-oblastjh-full.html",
+        "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/vladimirskaja-oblastjh-services.html"
+      },
+      {
+        "id": "2",
+        "title": "Республика Марий Эл за исключением г.Йошкар-Ола",
+        "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/vladimirskaja-oblastjh-short.html",
+        "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/vladimirskaja-oblastjh-full.html",
+        "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/vladimirskaja-oblastjh-services.html"
+      }
+    ]
+  },
+  {
+    "id": "mordovia",
+    "title": "Республика Мордовия",
+    "cities": [
+      {
+        "id": "1",
+        "title": "г.Саранск",
+        "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/vladimirskaja-oblastjh-short.html",
+        "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/vladimirskaja-oblastjh-full.html",
+        "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/vladimirskaja-oblastjh-services.html"
+      },
+      {
+        "id": "2",
+        "title": "Республика Мордовия за исключением г.Саранск",
+        "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/vladimirskaja-oblastjh-short.html",
+        "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/vladimirskaja-oblastjh-full.html",
+        "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/vladimirskaja-oblastjh-services.html"
+      }
+    ]
+  },
+  {
+    "id": "sakha",
+    "title": "Республика Саха (Якутия)",
+    "cities": [
+      {
+        "id": "1",
+        "title": "г.Якутск",
+        "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/respublika-sakha-short.html",
+        "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/respublika-sakha-full.html",
+        "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/respublika-sakha-services.html"
+      },
+      {
+        "id": "2",
+        "title": "Республика Саха (Якутия) за исключением г.Якутск",
+        "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/respublika-sakha-short.html",
+        "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/respublika-sakha-full.html",
+        "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/respublika-sakha-services.html"
+      }
+    ]
+  },
+  {
+    "id": "alania",
+    "title": "Республика Северная Осетия - Алания",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/stavropoljhskiy-kray-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/stavropoljhskiy-kray-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/stavropoljhskiy-kray-services.html"
+  },
+  {
+    "id": "tatarstan",
+    "title": "Республика Татарстан",
+    "cities": [
+      {
+        "id": "1",
+        "title": "г.Казань, г.Н.Челны, г.Альметьевск, г.Нижнекамск",
+        "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/vladimirskaja-oblastjh-short.html",
+        "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/vladimirskaja-oblastjh-full.html",
+        "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/vladimirskaja-oblastjh-services.html"
+      },
+      {
+        "id": "2",
+        "title": "Республика Татарстан за исключением г.Казань, г.Н.Челны, г.Альметьевск, г.Нижнекамск",
+        "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/respublika-tatarstan-short.html",
+        "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/respublika-tatarstan-full.html",
+        "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/respublika-tatarstan-services.html"
+      }
+    ]
+  },
+  {
+    "id": "tuva",
+    "title": "Республика Тыва",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/respublika-tihva-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/respublika-tihva-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/respublika-tihva-services.html"
+  },
+  {
+    "id": "khakassia",
+    "title": "Республика Хакасия",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/respublika-tihva-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/respublika-tihva-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/respublika-tihva-services.html"
+  },
+  {
+    "id": "rostov",
+    "title": "Ростовская область",
+    "cities": [
+      {
+        "id": "1",
+        "title": "г.Ростов-на-Дону",
+        "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/rostovskaja-oblastjh-short.html",
+        "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/rostovskaja-oblastjh-full.html",
+        "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/rostovskaja-oblastjh-services.html"
+      },
+      {
+        "id": "2",
+        "title": "Ростовская область за исключением г.Ростов-на-Дону",
+        "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/rostovskaja-oblastjh-short.html",
+        "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/rostovskaja-oblastjh-full.html",
+        "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/rostovskaja-oblastjh-services.html"
+      }
+    ]
+  },
+  {
+    "id": "ryazan",
+    "title": "Рязанская область",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/brjanskaja-oblastjh-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/brjanskaja-oblastjh-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/brjanskaja-oblastjh-services.html"
+  },
+  {
+    "id": "samara",
+    "title": "Самарская область",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/volgogradskaja-oblastjh-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/volgogradskaja-oblastjh-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/volgogradskaja-oblastjh-services.html"
+  },
+  {
+    "id": "saratov",
+    "title": "Саратовская область",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/volgogradskaja-oblastjh-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/volgogradskaja-oblastjh-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/volgogradskaja-oblastjh-services.html"
+  },
+  {
+    "id": "sakhalin",
+    "title": "Сахалинская область",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/primorskiy-kray-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/primorskiy-kray-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/primorskiy-kray-services.html"
+  },
+  {
+    "id": "sverdlovsk",
+    "title": "Свердловская область",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/kurganskaja-oblastjh-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/kurganskaja-oblastjh-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/kurganskaja-oblastjh-services.html"
+  },
+  {
+    "id": "smolensk",
+    "title": "Смоленская область",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/brjanskaja-oblastjh-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/brjanskaja-oblastjh-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/brjanskaja-oblastjh-services.html"
+  },
+  {
+    "id": "stavropol",
+    "title": "Ставропольский край",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/stavropoljhskiy-kray-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/stavropoljhskiy-kray-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/stavropoljhskiy-kray-services.html"
+  },
+  {
+    "id": "tambov",
+    "title": "Тамбовская область",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/belgorodskaja-oblastjh-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/belgorodskaja-oblastjh-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/belgorodskaja-oblastjh-services.html"
+  },
+  {
+    "id": "tver",
+    "title": "Тверская область",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/brjanskaja-oblastjh-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/brjanskaja-oblastjh-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/brjanskaja-oblastjh-services.html"
+  },
+  {
+    "id": "tomsk",
+    "title": "Томская область",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/novosibirskaja-oblastjh-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/novosibirskaja-oblastjh-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/novosibirskaja-oblastjh-services.html"
+  },
+  {
+    "id": "tula",
+    "title": "Тульская область",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/brjanskaja-oblastjh-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/brjanskaja-oblastjh-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/brjanskaja-oblastjh-services.html"
+  },
+  {
+    "id": "tyumen",
+    "title": "Тюменская область",
+    "cities": [
+      {
+        "id": "1",
+        "title": "г.Тюмень",
+        "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/omskaja-oblastjh-short.html",
+        "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/omskaja-oblastjh-full.html",
+        "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/omskaja-oblastjh-services.html"
+      },
+      {
+        "id": "2",
+        "title": "Тюменская область за исключением г.Тюмень",
+        "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/omskaja-oblastjh-short.html",
+        "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/omskaja-oblastjh-full.html",
+        "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/omskaja-oblastjh-services.html"
+      }
+    ]
+  },
+  {
+    "id": "udmurtia",
+    "title": "Удмуртская Республика",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/permskiy-kray-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/permskiy-kray-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/permskiy-kray-services.html"
+  },
+  {
+    "id": "ulyanovsk",
+    "title": "Ульяновская область",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/volgogradskaja-oblastjh-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/volgogradskaja-oblastjh-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/volgogradskaja-oblastjh-services.html"
+  },
+  {
+    "id": "khabarovsk",
+    "title": "Хабаровский край",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/amurskaja-oblastjh-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/amurskaja-oblastjh-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/amurskaja-oblastjh-services.html"
+  },
+  {
+    "id": "khantymansi",
+    "title": "Ханты-Мансийский АО - Югра",
+    "cities": [
+      {
+        "id": "1",
+        "title": "г.Сургут",
+        "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/khmao-i-janao-short.html",
+        "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/khmao-i-janao-full.html",
+        "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/khmao-i-janao-services.html"
+      },
+      {
+        "id": "2",
+        "title": "Ханты-Мансийский АО - Югра за исключением г.Сургут",
+        "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/khmao-i-janao-short.html",
+        "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/khmao-i-janao-full.html",
+        "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/khmao-i-janao-services.html"
+      }
+    ]
+  },
+  {
+    "id": "chelyabinsk",
+    "title": "Челябинская область",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/respublika-bashkortostan-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/respublika-bashkortostan-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/respublika-bashkortostan-services.html"
+  },
+  {
+    "id": "chechnya",
+    "title": "Чеченская Республика",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/chechenskaja-respublika-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/chechenskaja-respublika-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/chechenskaja-respublika-services.html"
+  },
+  {
+    "id": "chuvashia",
+    "title": "Чувашская Республика - Чувашия",
+    "cities": [
+      {
+        "id": "1",
+        "title": "г.Чебоксары",
+        "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/vladimirskaja-oblastjh-short.html",
+        "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/vladimirskaja-oblastjh-full.html",
+        "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/vladimirskaja-oblastjh-services.html"
+      },
+      {
+        "id": "2",
+        "title": "Чувашская Республика - Чувашия за исключением г.Чебоксары",
+        "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/vladimirskaja-oblastjh-short.html",
+        "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/vladimirskaja-oblastjh-full.html",
+        "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/vladimirskaja-oblastjh-services.html"
+      }
+    ]
+  },
+  {
+    "id": "chukotka",
+    "title": "Чукотский АО",
+    "cities": [
+      {
+        "id": "1",
+        "title": "г.Анадырь",
+        "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/kamchatskiy-kray-short.html",
+        "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/kamchatskiy-kray-full.html",
+        "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/kamchatskiy-kray-services.html"
+      },
+      {
+        "id": "2",
+        "title": "Чукотский АО за исключением г.Анадырь",
+        "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/kamchatskiy-kray-short.html",
+        "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/kamchatskiy-kray-full.html",
+        "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/kamchatskiy-kray-services.html"
+      }
+    ]
+  },
+  {
+    "id": "yamalonenets",
+    "title": "Ямало-Ненецкий АО",
+    "cities": [
+      {
+        "id": "1",
+        "title": "г.Салехард",
+        "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/khmao-i-janao-short.html",
+        "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/khmao-i-janao-full.html",
+        "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/khmao-i-janao-services.html"
+      },
+      {
+        "id": "2",
+        "title": "Ямало-Ненецкий АО за исключением г.Салехард",
+        "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/khmao-i-janao-short.html",
+        "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/khmao-i-janao-full.html",
+        "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/khmao-i-janao-services.html"
+      }
+    ]
+  },
+  {
+    "id": "yaroslavl",
+    "title": "Ярославская область",
+    "shortTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/short/jaroslavskaja-oblastjh-short.html",
+    "fullTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/full/jaroslavskaja-oblastjh-full.html",
+    "servicesTableUrl": "https://www.sberbank.ru/common/img/uploaded/alltariffsedbo/services/arkhangeljhskaja-oblastjh-services.html"
+  }
+]
