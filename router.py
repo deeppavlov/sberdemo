@@ -141,8 +141,7 @@ class GraphBasedSberdemoPolicy(object):
                 if not value:
                     self.intent = None
                     continue
-                client_nlu['intent'] = value
-                new_intent_responses, expect = self.forward(client_nlu)
+                new_intent_responses, expect = self.forward({"slots": {}, "intent": value})
                 responses += new_intent_responses
 
         if self.debug:
