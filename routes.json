@@ -27,8 +27,6 @@
 
       [
         {"true": "cost_of_service"},
-        "resident",
-        "client_type",
         "region",
         {"action": "say: new_acc_rates_list"}
       ]
