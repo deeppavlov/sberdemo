@@ -22,7 +22,6 @@
         {"true": "show_docs"},
         "resident",
         "client_type",
-        "region",
         {"action": "say: new_acc_documents_list"}
       ],
 
