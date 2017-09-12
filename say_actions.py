@@ -17,15 +17,16 @@ class Sayer:
 
     @staticmethod
     def not_supported(ctx):
-        return "Такая валюта не поддерживается. Можно открыть в рублях, долларах и евро"
+        return 'Такая валюта не поддерживается. Можно открыть в рублях, долларах и евро'
 
     @staticmethod
     def send_to_bank(ctx):
-        return "Для открытия счёта обратись в отеление Сбербанка"
+        return 'Для открытия счёта обратись в отеление Сбербанка'
 
     @staticmethod
     def reserve_new_acc_online(ctx):
-        return "`Ссылка на онлайн-резервирование`"
+        return 'Зарезервировать счёт вы можете по ссылке: ' \
+               'https://www.sberbank.ru/ru/s_m_business/bankingservice/rko/service23'
 
     @staticmethod
     def weird_route(ctx):
