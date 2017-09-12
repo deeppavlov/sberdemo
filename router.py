@@ -4,7 +4,7 @@ import copy
 import time
 
 from nlu import *
-from say_actions import Sayer as sayer
+from say_actions import Sayer
 
 from telegram.ext import Updater
 from telegram.ext import CommandHandler, MessageHandler, Filters
@@ -62,9 +62,10 @@ class Dialog:
 
 class GraphBasedSberdemoPolicy(object):
 
-    def __init__(self, routes, slots_objects, debug=False):
+    def __init__(self, routes, slots_objects, sayer, debug=False):
         self.routes = routes
         self.slots_objects = {s.id: s for s in slots_objects}  # type: Dict[str, DictionarySlot]
+        self.sayer = sayer
         self.intent = None
         self.slots = {}
         self.debug = debug
@@ -136,7 +137,7 @@ class GraphBasedSberdemoPolicy(object):
                 expect = value
                 responses.append(self.slots_objects[value].ask())
             elif action == 'say':
-                responses.append(sayer.say(value, self.slots))
+                responses.append(self.sayer.say(value, self.slots))
             elif action == 'goto':
                 if not value:
                     self.intent = None
@@ -159,11 +160,13 @@ def main():
     models_path = './models_nlu'
     slots = read_slots_serialized(models_path, pipe)
 
+    sayer = Sayer(slots, pipe)
+
     humans = {}
 
     def new_dialog():
         return Dialog(pipe, StatisticalNLUModel(slots, IntentClassifier(folder=models_path)),
-                      GraphBasedSberdemoPolicy(data, slots, debug=True))
+                      GraphBasedSberdemoPolicy(data, slots, sayer, debug=True))
 
     def start(bot, update):
         chat_id = update.message.chat_id
