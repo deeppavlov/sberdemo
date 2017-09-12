@@ -104,7 +104,8 @@ class GraphBasedSberdemoPolicy(object):
                 elif 'action' in branch:
                     if branch.get('executed'):
                         continue
-                    branch_actions = [[x.strip() for x in action.split(':')] for action in branch['action'].split(';') if action]
+                    branch_actions = [[x.strip() for x in action.split(':')] for action in branch['action'].split(';')
+                                      if action]
                     for act, _ in branch_actions:
                         if 'say' != act:
                             done = True
@@ -161,10 +162,13 @@ def main():
 
     humans = {}
 
+    def new_dialog():
+        return Dialog(pipe, StatisticalNLUModel(slots, IntentClassifier(folder=models_path)),
+                      GraphBasedSberdemoPolicy(data, slots, debug=True))
+
     def start(bot, update):
         chat_id = update.message.chat_id
-        humans[chat_id] = Dialog(pipe, StatisticalNLUModel(slots, IntentClassifier(folder=models_path)),
-                                 GraphBasedSberdemoPolicy(data, slots))
+        humans[chat_id] = new_dialog()
         bot.send_message(chat_id=chat_id, text='Здрасте. Чего хотели?')
 
     def send_delayed(bot, chat_id, messages: list, interval=0.7):
@@ -178,8 +182,7 @@ def main():
 
         chat_id = update.message.chat_id
         if chat_id not in humans:
-            humans[chat_id] = Dialog(pipe, StatisticalNLUModel(slots, IntentClassifier(folder=models_path)),
-                                     GraphBasedSberdemoPolicy(data, slots))
+            humans[chat_id] = new_dialog()
         user_msg = update.message.text or str(update.message.location)
         print('{} >>> {}'.format(chat_id, user_msg))
         dialog = humans[chat_id]
