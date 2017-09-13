@@ -2,10 +2,12 @@ import csv
 import os
 
 import sys
+from collections import defaultdict
 from itertools import chain
+from operator import itemgetter
 from typing import Dict, List, Any, Union
 
-from fuzzywuzzy import fuzz
+from fuzzywuzzy import fuzz, process
 from sklearn.externals import joblib
 from sklearn.pipeline import Pipeline
 from sklearn.base import TransformerMixin
@@ -23,6 +25,11 @@ class DictionarySlot:
         self.ask_sentence = ask_sentence
         self.gen_dict = generative_dict
         self.nongen_dict = nongenerative_dict
+        self.ngrams = defaultdict(list)
+        for phrase in chain(nongenerative_dict, generative_dict):
+            t = phrase.split()
+            self.ngrams[len(t)].append(phrase)
+
         self.threshold = 84
         self.input_type = {'text'}
 
@@ -52,20 +59,22 @@ class DictionarySlot:
         return self.gen_dict.get(text, self.nongen_dict.get(text, ''))
 
     def _infer(self, text: List[Dict[str, Any]]) -> Union[str, None]:
-        str_text = ' '.join(w['_text'] for w in text)
+        n = len(text)
         best_score = 0
-        best_match = None
-        for v in chain(self.gen_dict, self.nongen_dict):
-            score = fuzz.partial_ratio(v, str_text)
-            if score > best_score:
-                best_score = score
-                best_match = v
+        best_candidate = None
+        for window, candidates in self.ngrams.items():
+            for w in range(0, n-window+1):
+                query = ' '.join(x['_text'] for x in text[w:w+window])
+                if query:
+                    for c in candidates:
+                        score = fuzz.ratio(c, query)
+                        if score > best_score:
+                            best_score = score
+                            best_candidate = c
 
-        # works poorly for unknown reasons
-        # print(process.extractBests(str_text, choices=[str(x) for x in chain(self.gen_dict, self.nongen_dict)], scorer=fuzz.partial_ratio))
         if best_score >= self.threshold:
-            return self._normal_value(best_match)
-        return None
+            return best_candidate
+
 
     def __repr__(self):
         return '{}(name={}, len(dict)={})'.format(self.__class__.__name__, self.id, len(self.gen_dict))

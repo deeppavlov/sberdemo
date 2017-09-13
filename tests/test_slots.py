@@ -1,4 +1,6 @@
 import unittest
+from time import time
+
 from nlu import *
 from collections import defaultdict
 
@@ -6,7 +8,7 @@ from collections import defaultdict
 class TestSlots(unittest.TestCase):
     def setUp(self):
         self.pipe = PreprocessorPipeline(sent_tokenize, word_tokenize, [PyMorphyPreproc(), Lower()])
-        self.slots = read_slots_from_tsv(self.pipe)
+        self.slots = read_slots_from_tsv(self.pipe)  # type: List[DictionarySlot]
         self.slots_map = {s.id: s for s in self.slots}
 
     def __getitem__(self, item) -> DictionarySlot:
@@ -43,6 +45,43 @@ class TestSlots(unittest.TestCase):
         # print(tomita.infer_from_single_slot(self.pipe.feed('улица преображенского 44')))
         # print(tomita.infer_from_single_slot(self.pipe.feed('пр. Красных Комиссаров')))
         print(tomita.infer_from_single_slot(self.pipe.feed('улица Победы 44')))
+
+    def test_dictionary_slots(self):
+        import pandas as pd
+        table = pd.read_csv('generated_dataset.tsv', sep='\t')
+        all_count = 0
+        all_corrects_count = 0
+        time_started = time()
+        for slot in self.slots:
+            if type(slot) == DictionarySlot:
+
+                statistics = defaultdict(int)
+                for row_id, row in table[['request', slot.id]].iterrows():
+                    text = row['request']
+                    value = row[slot.id]
+                    if pd.isnull(value):
+                        value = None
+                    predicted = slot.infer_from_single_slot(self.pipe.feed(text))
+                    correct = value == predicted
+                    null_value = value is None
+                    statistics[(null_value, correct)] += 1
+                    all_count += 1
+                    if correct:
+                        all_corrects_count += 1
+                    if not correct:
+                        print('"{}" but was "{}" for: {}'.format(value, predicted, text))
+
+                print('=' * 30)
+                print(slot.id)
+                print('    ', 'correct', 'wrong', sep='\t')
+                print('nulls', statistics[(1, 1)], statistics[(1, 0)], sep='\t')
+                print('filled', statistics[(0, 1)], statistics[(0, 0)], sep='\t')
+
+        print()
+        print('score is {:.2f}% for {} examples'.format(100 * all_corrects_count / all_count, all_count))
+        print('\t\t{:.2f} seconds'.format(time() - time_started))
+
+        self.assertGreater(all_corrects_count / all_count, 0.95)
 
 
 if __name__ == '__main__':
