@@ -89,23 +89,29 @@ class StatisticalNLUModel:
         self.intent_classifier = intent_classifier
         self.expect = None
 
-    def forward(self, text):
+    def forward(self, message, message_type='text'):
         res = {
             'slots': {}
         }
 
         if self.expect is None:
-            res['intent'] = self.intent_classifier.predict_single(text)
+            res['intent'] = self.intent_classifier.predict_single(message)
 
             for slot in self.slots.values():
-                val = slot.infer_from_compositional_request(text)
-                if val is not None:
-                    res['slots'][slot.id] = val
+                if message_type in slot.input_type:
+                    val = slot.infer_from_compositional_request(message)
+                    if isinstance(val, dict):
+                        res['slots'].update(val)
+                    elif val is not None:
+                        res['slots'][slot.id] = val
         else:
             slot = self.slots[self.expect]
-            val = slot.infer_from_single_slot(text)
-            if val is not None:
-                res['slots'][self.expect] = val
+            if message_type in slot.input_type:
+                val = slot.infer_from_single_slot(message)
+                if isinstance(val, dict):
+                    res['slots'].update(val)
+                elif val is not None:
+                    res['slots'][self.expect] = val
 
         return res
 

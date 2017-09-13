@@ -24,6 +24,7 @@ class DictionarySlot:
         self.gen_dict = generative_dict
         self.nongen_dict = nongenerative_dict
         self.threshold = 84
+        self.input_type = {'text'}
 
         self.filters = {
             'any': lambda x, _: True,
@@ -31,10 +32,20 @@ class DictionarySlot:
             'not_eq': lambda x, y: x != y
         }
 
-    def infer_from_compositional_request(self, text):
+    def infer_from_compositional_request(self, text, input_type='text'):
+        if input_type not in self.input_type:
+            return None
+        return self._infer_from_compositional_request(text)
+
+    def _infer_from_compositional_request(self, text):
         return self._infer(text)
 
-    def infer_from_single_slot(self, text):
+    def infer_from_single_slot(self, text, input_type='text'):
+        if input_type not in self.input_type:
+            return None
+        return self._infer_from_single_slot(text)
+
+    def _infer_from_single_slot(self, text):
         return self._infer(text)
 
     def _normal_value(self, text: str) -> str:
@@ -106,13 +117,13 @@ class ClassifierSlot(DictionarySlot):
         self.model = Pipeline([("sticker_sent", sticker_sent), ('feature_extractor', feat_generator), ('svc', clf)])
         self.model.fit(X, y)
 
-    def infer_from_compositional_batch(self, list_texts: List[List[Dict[str, Any]]]):
+    def _infer_from_compositional_batch(self, list_texts: List[List[Dict[str, Any]]]):
         if self.model is None:
             raise NotImplementedError("No model specified!")
         labels = self.model.predict(list_texts)
         return labels
 
-    def infer_from_compositional_request(self, text: List[Dict[str, Any]]):
+    def _infer_from_compositional_request(self, text: List[Dict[str, Any]]):
         if self.model is None:
             raise NotImplementedError("No model specified!")
         label = bool(self.model.predict(text)[0])
@@ -125,18 +136,25 @@ class CompositionalSlot(DictionarySlot):
         super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict, values_order, prev_created_slots, *args)
         slotmap = {s.id: s for s in prev_created_slots}
         self.children = [slotmap[slot_names] for slot_names in args]
+        self.input_type = set()
+        for c in self.children:
+            self.input_type.update(c.input_type)
 
-    def infer_from_compositional_request(self, text):
+    def infer_from_compositional_request(self, text, input_type='text'):
         for s in self.children:
-            rv = s.infer_from_compositional_request(text)
-            if rv is not None:
-                return rv
+            if input_type in s.input_type:
+                rv = s.infer_from_compositional_request(text)
+                if rv is not None:
+                    return {s.id: rv, self.id: s.id}
+        return None
 
-    def infer_from_single_slot(self, text):
+    def infer_from_single_slot(self, text, input_type='text'):
         for s in self.children:
-            rv = s.infer_from_single_slot(text)
-            if rv is not None:
-                return rv
+            if input_type in s.input_type:
+                rv = s.infer_from_compositional_request(text)
+                if rv is not None:
+                    return {s.id: rv, self.id: s.id}
+        return None
 
 
 class TomitaSlot(DictionarySlot):
@@ -154,6 +172,7 @@ class GeoSlot(DictionarySlot):
     def __init__(self, slot_id: str, ask_sentence: str, generative_dict: Dict[str, str],
                  nongenerative_dict: Dict[str, str], values_order: List[str], prev_created_slots, *args):
         super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict, values_order, prev_created_slots, *args)
+        self.input_type = {'geo'}
 
 
 def read_slots_from_tsv(pipeline, filename=None):

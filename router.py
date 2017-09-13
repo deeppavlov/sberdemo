@@ -44,10 +44,15 @@ class Dialog:
         self.policy_model = policy_model
 
     def generate_response(self, client_utterance: str) -> List[str]:
-        print('>>>', client_utterance)
-        text = self.pipeline.feed(client_utterance)
+        message_type = 'text'
+        if client_utterance.startswith('__geo__'):
+            text = eval(client_utterance.split(' ', 1)[1])
+            message_type = 'geo'
+        else:
+            text = self.pipeline.feed(client_utterance)
+
         try:
-            nlu_result = self.nlu_model.forward(text)
+            nlu_result = self.nlu_model.forward(text, message_type)
         except Exception as e:
             return ['NLU ERROR: {}'.format(str(e))]
         print(nlu_result)
@@ -56,7 +61,6 @@ class Dialog:
         except Exception as e:
             return ['ERROR: {}'.format(str(e))]
         self.nlu_model.set_expectation(expect)
-        print('<<<', response)
         return response
 
 
@@ -185,7 +189,7 @@ def main():
         chat_id = update.message.chat_id
         if chat_id not in humans:
             humans[chat_id] = new_dialog()
-        user_msg = update.message.text or str(update.message.location)
+        user_msg = update.message.text or '__geo__ ' + str(update.message.location)
         print('{} >>> {}'.format(chat_id, user_msg))
         dialog = humans[chat_id]
         bot_responses = dialog.generate_response(user_msg)
