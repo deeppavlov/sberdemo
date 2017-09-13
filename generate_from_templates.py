@@ -8,7 +8,7 @@ PARAPHRASE_DELIM = '~'
 
 REPLICATION_FACTOR = 2
 
-re_label_template = r'#[\w\s\d\.\/\\]+#\w+#'
+re_label_template = r'#[\w\s\d\.\/\\\,]+#\w+#'
 re_label = re.compile(re_label_template)
 
 greetings = ['Добрый день. ', 'Добрый день! ', 'Здравствуйте! ', 'Здравствуйте. ', '', '']
