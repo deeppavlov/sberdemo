@@ -8,7 +8,7 @@ PARAPHRASE_DELIM = '~'
 
 REPLICATION_FACTOR = 2
 
-re_label_template = r'#[\w\s\d\.\/\\]+#\w+#'
+re_label_template = r'#[\w\s\d\.\/\\\,]+#\w+#'
 re_label = re.compile(re_label_template)
 
 greetings = ['Добрый день. ', 'Добрый день! ', 'Здравствуйте! ', 'Здравствуйте. ', '', '']
@@ -19,7 +19,7 @@ def generate_all_values(max_count, *slots):
     data = list(product(*values))
     data = sample(data, min(len(data), max_count))
     for vals in data:
-        yield {k: v for k, v in zip(slots, vals)}
+        yield {k: (v, k._normal_value(v)) for k, v in zip(slots, vals)}
 
 
 if __name__ == '__main__':
@@ -57,9 +57,9 @@ if __name__ == '__main__':
 
                     t = re_label.sub('{}', template_text)
                     for vals in generate_all_values(REPLICATION_FACTOR, *[slots[s] for s in slot_vals]):
-                        msg = sample(greetings, 1)[0] + t.format(*[vals[s] for s in slots_order])
+                        msg = sample(greetings, 1)[0] + t.format(*[vals[s][0] for s in slots_order])
                         if row[2]:
                             classifiers = [x.strip() for x in row[2].split(',')]
                             for x in classifiers:
                                 vals[slots[x]] = 'YES'
-                        print(template_id, intent, msg, *[vals.get(s, '') for s in slots_global_order], sep='\t', file=f)
+                        print(template_id, intent, msg, *[vals.get(s, ('',''))[1] for s in slots_global_order], sep='\t', file=f)
