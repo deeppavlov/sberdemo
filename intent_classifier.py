@@ -34,8 +34,12 @@ class IntentClassifier():
         if self.label_list is None:
             self.string2idx = {t: i for i, t in enumerate(list(set(y)))}
             self.idx2string = {v: k for k, v in self.string2idx.items()}
+            y_idx = [self.string2idx[s] for s in y]
 
-        y_idx = [self.string2idx[s] for s in y]
+        if isinstance(y[0], str):
+            y_idx = [self.string2idx[s] for s in y]
+        else:
+            y_idx = y
 
         clf = SVC()
         sticker_sent = StickSentence()

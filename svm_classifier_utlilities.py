@@ -3,15 +3,19 @@ import numpy as np
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.base import TransformerMixin
 from copy import deepcopy
+from numpy.random import RandomState
 
 
-def oversample(X, y, verbose=False):
+def oversample_data(X, y, verbose=False, seed=23):
     """
     :param X: features
     :param y: labels
     :return: new balanced dataset 
             with oversampled minor class 
     """
+
+    random_state = RandomState(seed=seed)
+
     if verbose:
         print('Oversampling...')
     c = Counter(y)
@@ -25,7 +29,7 @@ def oversample(X, y, verbose=False):
 
     y_new = np.hstack((y, [minor_label] * offset))
     tmp = X[np.array(y) == minor_label]
-    sampled = np.random.choice(np.arange(len(tmp)), size=offset)
+    sampled = random_state.choice(np.arange(len(tmp)), size=offset)
 
     if isinstance(X[0][0], dict):
         X_new = list(deepcopy(X))

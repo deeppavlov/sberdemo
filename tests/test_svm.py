@@ -33,7 +33,8 @@ class TestSVM(unittest.TestCase):
 
     def test_intent_clf_predict(self):
         sent = "Добрый день. Подскажите до скольки работает отделение рядом с проспект мира"
-        pred = self.intent_clf.predict_single(self.pipe.feed(sent))
+        sent2 = 'Покажите, пожалуйста, передачу про Михалкова'
+        pred = self.intent_clf.predict_single(self.pipe.feed(sent2))
         print("Predicted intent:", pred)
 
 if __name__ == '__main__':

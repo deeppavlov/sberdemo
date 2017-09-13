@@ -117,7 +117,7 @@ class ClassifierSlot(DictionarySlot):
         self.model = Pipeline([("sticker_sent", sticker_sent), ('feature_extractor', feat_generator), ('svc', clf)])
         self.model.fit(X, y)
 
-    def _infer_from_compositional_batch(self, list_texts: List[List[Dict[str, Any]]]):
+    def predict_batch(self, list_texts: List[List[Dict[str, Any]]]):
         if self.model is None:
             raise NotImplementedError("No model specified!")
         labels = self.model.predict(list_texts)
