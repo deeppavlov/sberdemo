@@ -161,8 +161,13 @@ class TomitaSlot(DictionarySlot):
     def __init__(self, slot_id: str, ask_sentence: str, generative_dict: Dict[str, str],
                  nongenerative_dict: Dict[str, str], values_order: List[str], prev_created_slots, *args):
         super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict, values_order, prev_created_slots, *args)
+
+        config_proto = 'config.proto'
+        if len(args) == 1:
+            config_proto = args[0]
+
         root = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'tomita')
-        self.tomita = Tomita(os.path.expanduser('~/Downloads/tomita-linux64'), os.path.join(root, 'config.proto'), cwd=root)
+        self.tomita = Tomita(os.path.expanduser('~/Downloads/tomita-linux64'), os.path.join(root, config_proto), cwd=root)
 
     def _infer(self, text: List[Dict[str, Any]]):
         return self.tomita.get_json(' '.join(w['_text'] for w in text)) or None
@@ -235,7 +240,7 @@ def read_slots_from_tsv(pipeline, filename=None):
             else:
                 SlotClass = getattr(sys.modules[__name__], slot_class)
                 slot = SlotClass(slot_name, info_question, generative_slot_values, nongenerative_slot_values,
-                                 normal_names_order, result_slots)
+                                 normal_names_order, result_slots, *args)
                 result_slots.append(slot)
 
                 slot_name = None
@@ -244,7 +249,7 @@ def read_slots_from_tsv(pipeline, filename=None):
         if slot_name:
             SlotClass = getattr(sys.modules[__name__], slot_class)
             slot = SlotClass(slot_name, info_question, generative_slot_values, nongenerative_slot_values,
-                             normal_names_order, result_slots)
+                             normal_names_order, result_slots, *args)
             result_slots.append(slot)
 
     return result_slots
@@ -267,3 +272,9 @@ def read_slots_serialized(folder, pipe):
                 raise Exception("{} does not exist".format(name))
             s.load_model(name)
     return slots_array
+
+
+
+
+# tomita = TomitaSlot('address', '', {}, {}, [], [], './address/config.proto')
+# tomita = TomitaSlot('address', '', {}, {}, [], [])
