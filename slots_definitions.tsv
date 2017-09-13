@@ -1,6 +1,6 @@
 currency.CurrencySlot Валюта, в которой клиент хочет открыть счёт	В какой валюте хотите открыть счёт?	
 RUB	рубли, рублевый, российская валюта,рубль, рублей, в рублях, в отечественной валюте, в нашей валюте, ₽, р., руб.	
-USD	баксы, доллары,иностранная валюта, не в нашей валюте, доллар, в долларах, в иностранной валюте, $, dollar, валютный счёт, в баксах
+USD	баксы, доллары,иностранная валюта, не в нашей валюте, доллар, в долларах, в иностранной валюте, $, dollar, валютный счёт	
 EUR	евро, в евро, euro, €	
 AUD	австралийские доллары, в австралийских долларах	
 CAD	канадские доллары, в канадских долларах	
@@ -199,9 +199,7 @@ client_metro.DictionarySlot	NotImplementedTemplateMessage
 Рижская	рижской	
 Савеловская	на савёлках, совки	
 		
-method_location.CompositionalSlot.client_address.client_metro.client_geo СпособОпределенияМестоположения	Укажите место, рядом с которым ищем ближайший ВСП (метро, адрес, гео-позиция)	
-		
-client_address.TomitaSlot	Error 'client_address' should not be asked	
+client_address.TomitaSlot address-config.proto	Error 'client_address' should not be asked
 		
 client_geo.GeoSlot	Error 'client_geo' should not be asked	
 		
@@ -210,6 +208,8 @@ show_phone.TomitaSlot	Error 'show_phone' should not be asked
 show_schedule.ClassifierSlot	Error 'show_schedule' should not be asked	
 показать расписание		
 не показывать расписание		
+		
+method_location.CompositionalSlot.client_address.client_metro.client_geo СпособОпределенияМестоположения	Укажите место, рядом с которым ищем ближайший ВСП (метро, адрес, гео-позиция)	
 		
 search_vsp.ClassifierSlot	Найти для вас удобное отделение?	
 найти		да, найти, показать, естественно
