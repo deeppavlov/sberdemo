@@ -6,6 +6,10 @@ class Sayer:
 
     def __init__(self, slots, pipe, data_dir='./nlg_data'):
         self.slots = {s.id: s for s in slots}
+
+        with open(os.path.join(data_dir, 'new_acc_documents.json')) as f:
+            self.documents_data = json.load(f)
+
         self.rates_data = {}
         with open(os.path.join(data_dir, 'rates_urls.json')) as f:
             rates_data = json.load(f)
@@ -21,9 +25,11 @@ class Sayer:
     def cant_reserve(ctx):
         return 'Нельзя резервировать счёт не в рублях'
 
-    @staticmethod
-    def new_acc_documents_list(ctx):
-        return 'Список документов для {}резидента РФ'.format('' if ctx['resident'] == 'резидент' else 'не ')
+    def new_acc_documents_list(self, ctx):
+        docs = self.documents_data[ctx['resident']]
+        text = 'С необходимыми документами вы можете ознакомиться по ссылке: '
+        text += docs[ctx['client_type']] if ctx['client_type'] in docs else docs['default']
+        return text
 
     def new_acc_rates_list(self, ctx):
         rates = self.rates_data[ctx['region']]
