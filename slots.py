@@ -142,18 +142,16 @@ class CompositionalSlot(DictionarySlot):
 
     def infer_from_compositional_request(self, text, input_type='text'):
         for s in self.children:
-            if input_type in s.input_type:
-                rv = s.infer_from_compositional_request(text)
-                if rv is not None:
-                    return {s.id: rv, self.id: s.id}
+            rv = s.infer_from_compositional_request(text, input_type)
+            if rv is not None:
+                return {s.id: rv, self.id: s.id}
         return None
 
     def infer_from_single_slot(self, text, input_type='text'):
         for s in self.children:
-            if input_type in s.input_type:
-                rv = s.infer_from_compositional_request(text)
-                if rv is not None:
-                    return {s.id: rv, self.id: s.id}
+            rv = s.infer_from_compositional_request(text, input_type)
+            if rv is not None:
+                return {s.id: rv, self.id: s.id}
         return None
 
 
