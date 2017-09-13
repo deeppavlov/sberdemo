@@ -177,6 +177,9 @@ class GeoSlot(DictionarySlot):
         super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict, values_order, prev_created_slots, *args)
         self.input_type = {'geo'}
 
+    def _infer(self, location: Dict[str, float]):
+        return location
+
 
 def read_slots_from_tsv(pipeline, filename=None):
     D = '\t'
