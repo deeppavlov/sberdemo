@@ -164,11 +164,15 @@ class TomitaSlot(DictionarySlot):
         if len(args) == 1:
             config_proto = args[0]
 
-        root = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'tomita')
-        self.tomita = Tomita(os.path.expanduser('~/Downloads/tomita-linux64'), os.path.join(root, config_proto), cwd=root)
+        config_real_path = os.path.realpath(config_proto)
+        wd = os.path.dirname(config_real_path)
+        assert 'TOMITA_PATH' in os.environ, 'Specify path to Tomita binary in $TOMITA_PATH'
+        tomita_path = os.environ['TOMITA_PATH']
+        self.tomita = Tomita(tomita_path, config_real_path, cwd=wd)
 
     def _infer(self, text: List[Dict[str, Any]]):
-        return self.tomita.get_json(' '.join(w['_text'] for w in text)) or None
+        joined_text = ' '.join(w['_text'] for w in text)
+        return self.tomita.get_json(joined_text) or None
 
 
 class GeoSlot(DictionarySlot):
@@ -199,7 +203,7 @@ def read_slots_from_tsv(pipeline, filename=None):
         result_slots = []
         for row in csv_rows:
             if slot_name is None:
-                slot_name, slot_class, *args = row[0].split()[0].split('.')
+                slot_name, slot_class, *args = row[0].split()[0].split('->')
                 info_question = row[1].strip()
                 normal_names_order = []
             elif ''.join(row):
@@ -273,9 +277,3 @@ def read_slots_serialized(folder, pipe):
                 raise Exception("{} does not exist".format(name))
             s.load_model(name)
     return slots_array
-
-
-
-
-# tomita = TomitaSlot('address', '', {}, {}, [], [], './address/config.proto')
-# tomita = TomitaSlot('address', '', {}, {}, [], [])
