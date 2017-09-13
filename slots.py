@@ -30,7 +30,7 @@ class DictionarySlot:
             t = phrase.split()
             self.ngrams[len(t)].append(phrase)
 
-        self.threshold = 84
+        self.threshold = 95
         self.input_type = {'text'}
 
         self.filters = {

@@ -95,7 +95,7 @@
 1	#счет#account_type#		open_account
 1	Открыл #ИП#client_type# что дальше нужно		open_account
 1	открыл #ип#client_type# какие документы вам нужны	show_docs	open_account
-1	в каком банке могу открыть #счет#account_type#~в каком офисе мне откроют #сче#account_type#т~в каком офисе мне могут открыть #счет#account_type#	search_vsp	search_bank
+1	в каком банке могу открыть #счет#account_type#~в каком офисе мне откроют #счет#account_type#~в каком офисе мне могут открыть #счет#account_type#	search_vsp	search_bank
 1	куда обратиться чтобы открыть #счет#account_type#~куда обратиться чтобы получить #счет#account_type#		open_account
 1	открыть счет на сайте~открыть счет не приходя в банк~счет онлайн	online_reserving	open_account
 1	сколько стоит счет	cost_of_service	open_account
