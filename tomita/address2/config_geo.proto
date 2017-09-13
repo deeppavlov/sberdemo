@@ -1,0 +1,14 @@
+encoding "utf8";
+TTextMinerConfig {
+    Dictionary = "rootdic.gzt"
+    Input = {
+        Type = dpl;
+      }
+    Articles = [
+        { Name = "адрес" }
+    ]
+    Facts = [
+        { Name = "Street" }
+    ]
+    Output = {Format = xml;}
+}
