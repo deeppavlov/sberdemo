@@ -10,6 +10,7 @@ import os
 class Tomita:
 
     def __init__(self, executable, config, cwd=None):
+        assert os.path.isfile(config), 'Config file "{}" not found'.format(config)
         self.name = 'Tomita'
         self.p = pexpect.spawn(executable, [config], cwd=cwd)
         self.p.expect('.* Start.*$')
@@ -39,7 +40,7 @@ if __name__ == "__main__":
     root = os.path.dirname(os.path.realpath(__file__))
     tomita = Tomita(os.path.expanduser('~/Downloads/tomita-linux64'), os.path.join(root, 'config.proto'))
 
-    t = 'ул. Маяковского, пр. Красных Комиссаров, пятница, 22 апреля 2014 года'
+    t = 'ул. Маяковского, c, пятница, 22 апреля 2014 года'
 
     r = tomita.communicate(t).decode('UTF8')
     print(r)

@@ -9,7 +9,7 @@ class TestSlots(unittest.TestCase):
         self.slots = read_slots_from_tsv(self.pipe)
         self.slots_map = {s.id: s for s in self.slots}
 
-    def __getitem__(self, item):
+    def __getitem__(self, item) -> DictionarySlot:
         return self.slots_map[item]
 
     def test_reading_from_definitions(self):
@@ -36,6 +36,11 @@ class TestSlots(unittest.TestCase):
     def test_infer_from_compositional_request(self):
         self._test_infer_from_compositional_request('Добрый день! Могу ли я открыть отдельный счет по 275ФЗ и что для этого нужно? ', account_type='расчетный счет')
         self._test_infer_from_compositional_request('Есть рядом с метро савеловская какое-нибудь отделение поблизости?', client_metro='савеловская')
+
+    def test_tomita(self):
+        tomita = self['client_address']
+        print(tomita.infer_from_single_slot(self.pipe.feed('улица преображенского 44')))
+        print(tomita.infer_from_single_slot(self.pipe.feed('пр. Красных Комиссаров')))
 
 
 if __name__ == '__main__':
