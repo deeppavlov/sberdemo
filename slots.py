@@ -56,7 +56,7 @@ class DictionarySlot:
         return self._infer(text)
 
     def _normal_value(self, text: str) -> str:
-        return self.gen_dict.get(text, self.nongen_dict.get(text, ''))
+        return self.gen_dict.get(text, self.nongen_dict.get(text, 'Лажа какая-то'))
 
     def _infer(self, text: List[Dict[str, Any]]) -> Union[str, None]:
         n = len(text)
@@ -73,7 +73,7 @@ class DictionarySlot:
                             best_candidate = c
 
         if best_score >= self.threshold:
-            return best_candidate
+            return self._normal_value(best_candidate)
 
 
     def __repr__(self):
