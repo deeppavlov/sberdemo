@@ -337,7 +337,7 @@ client_metro->DictionarySlot	NotImplementedTemplateMessage
 Южная		
 Ясенево		
 		
-client_address->TomitaSlot->./tomita/address/config_geo.proto	Error 'client_address' should not be asked	
+client_address->TomitaSlot->./tomita/address/config_geo.proto->Street	Error 'client_address' should not be asked
 		
 client_geo->GeoSlot	Error 'client_geo' should not be asked	
 		

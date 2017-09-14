@@ -41,10 +41,10 @@ class TestSlots(unittest.TestCase):
 
     def test_tomita(self):
         tomita = self['client_address']
-        # print(tomita.infer_from_single_slot(self.pipe.feed('ул. Маяковского, c, пятница, 22 апреля 2014 года')))
+        self.assertEqual('улица Победы', tomita.infer_from_single_slot(self.pipe.feed('улица Победы 44 проспект Сахара 33')))
+        print(tomita.infer_from_single_slot(self.pipe.feed('ул. Маяковского, c, пятница, 22 апреля 2014 года')))
         # print(tomita.infer_from_single_slot(self.pipe.feed('улица преображенского 44')))
         # print(tomita.infer_from_single_slot(self.pipe.feed('пр. Красных Комиссаров')))
-        print(tomita.infer_from_single_slot(self.pipe.feed('улица Победы 44')))
 
     def test_dictionary_slots(self):
         import pandas as pd
