@@ -2,7 +2,7 @@ import pandas as pd
 from nlu import *
 from intent_classifier import IntentClassifier
 from collections import defaultdict
-from sklearn.metrics import confusion_matrix, roc_auc_score, f1_score
+from sklearn.metrics import confusion_matrix, roc_auc_score, f1_score, accuracy_score
 from sklearn.model_selection import GroupKFold
 from sklearn.externals import joblib
 from svm_classifier_utlilities import oversample_data
@@ -34,7 +34,7 @@ parser.add_argument('--use_char', dest='use_char', action='store_true', default=
 parser.add_argument('--slot_path', dest='slot_path', type=str, default="slots_definitions.tsv",
                     help='The path of file with slot definitions')
 
-parser.add_argument('--slot_train', dest='slot_train', action='store_true', default=False,
+parser.add_argument('--slot_train', dest='slot_train', action='store_true', default=True,
                     help="Use flag to train slots' svms ")
 
 parser.add_argument('--intent_train', dest='intent_train', action='store_true', default=True,
@@ -96,7 +96,7 @@ y_intents = np.array(list(data['intent']))
 # ---------------- validate & dump --------------#
 
 def validate_train(model, X, y, oversample=OVERSAMPLE, n_splits=5, use_chars=USE_CHAR,
-                   dump_name='any.model', dump=DUMP, model_folder=MODEL_FOLDER, verbose=True):
+                   dump_name='any.model', dump=DUMP, model_folder=MODEL_FOLDER, metric=f1_score, verbose=True):
     kf = GroupKFold(n_splits=n_splits)
     groups = data['template_id']
     all_y = []
@@ -113,13 +113,14 @@ def validate_train(model, X, y, oversample=OVERSAMPLE, n_splits=5, use_chars=USE
 
         all_predicted.extend(pred)
         all_y.extend(y_test)
-        test_score = f1_score(y_test, pred)
-        if test_score == 0:
-            print("hey!")
-        print(">> ", test_score)
-        print("     test_len: ", len(y_test))
+        # test_score = metric(y_test, pred)
 
-    result = f1_score(all_y, all_predicted)
+        # print("     >>pred!: ", pred)
+        # print("     >>true!: ", y_test)
+        # print(">> ", test_score)
+        # print("     test_len: ", len(y_test))
+
+    result = metric(all_y, all_predicted)
     if dump:
         if oversample:
             X_tmp, y_tmp = oversample_data(X, y, verbose=verbose)
@@ -135,11 +136,13 @@ def validate_train(model, X, y, oversample=OVERSAMPLE, n_splits=5, use_chars=USE
 
 if INTENT_TRAIN:
     intent_clf = IntentClassifier(labels_list=y_intents)
+    print("intent_clf.string2idx: ", intent_clf.string2idx)
+    print("\n-------\n")
     y_intents_idx = np.array([intent_clf.string2idx[t] for t in y_intents])
     if DUMP:
-        joblib.dump(intent_clf.string2idx, "string2idx_dict.model")
+        joblib.dump(intent_clf.string2idx, os.path.join(MODEL_FOLDER, "string2idx_dict.model"))
 
-    result = validate_train(intent_clf, X, y_intents_idx, oversample=False,
+    result = validate_train(intent_clf, X, y_intents_idx, oversample=True, metric=f1_score,
                             n_splits=8, dump_name="IntentClassifier.model", verbose=False)
     print("INTENT CLF: cv mean f1 score: {}".format(result))
     print('--------------')
@@ -150,7 +153,7 @@ if SLOT_TRAIN:
             continue
 
         print("SLOT: ", slot.id)
-        result = validate_train(slot, X, np.array(targets[slot.id]), n_splits=8,
+        result = validate_train(slot, X, np.array(targets[slot.id]), n_splits=8, metric=f1_score,
                                 dump_name="{}.model".format(slot.id), verbose=False)
         print("For slot: {} cv mean f1 score: {}".format(slot.id, result))
         print('--------------')
