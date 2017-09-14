@@ -14,6 +14,8 @@ def run(*args):
     print('Run: ', *args)
     return subprocess.run(args, stderr=PIPE, stdout=PIPE, check=True)
 
+assert 'TOMITA_PATH' in os.environ, 'Please specify path to Tomita Parser in $TOMITA_PATH'
+
 dir = tempfile.TemporaryDirectory(prefix='sberdemotest_').name
 os.mkdir(dir)
 
@@ -38,8 +40,13 @@ print('intent recognizer trained')
 
 pipe = nlu.create_pipe()
 slots.read_slots_serialized(dir, pipe)
+print('Slots deserialized')
+
+print()
 
 print('The test has just passed!')
+
+print()
 
 print('cleaning up...')
 shutil.rmtree(dir)
