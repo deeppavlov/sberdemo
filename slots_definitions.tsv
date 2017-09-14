@@ -215,7 +215,7 @@ client_metro->DictionarySlot	NotImplementedTemplateMessage
 Рижская	рижской	
 Савеловская	на савёлках, совки	
 		
-client_address->TomitaSlot->./tomita/address2/config_geo.proto	Error 'client_address' should not be asked
+client_address->TomitaSlot->./tomita/address/config_geo.proto	Error 'client_address' should not be asked
 		
 client_geo->GeoSlot	Error 'client_geo' should not be asked	
 		
