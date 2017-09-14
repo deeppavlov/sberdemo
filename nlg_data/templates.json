@@ -1,0 +1,16 @@
+{
+  "cant_reserve": ["Нельзя резервировать счёт не в рублях"],
+  "not_supported": ["Такая валюта не поддерживается. Можно открыть в рублях, долларах и евро"],
+  "send_to_bank": ["Для открытия счёта обратись в отеление Сбербанка"],
+  "reserve_new_acc_online": ["Зарезервировать счёт вы можете по ссылке: https://www.sberbank.ru/ru/s_m_business/bankingservice/rko/service23"],
+
+  "new_acc_documents_list": ["С необходимыми документами вы можете ознакомиться по ссылке: {href}"],
+
+  "what_now": [
+    "Мы можем вам ещё как-нибудь помочь?",
+    "Мы закончили?"
+  ],
+
+  "no_intent": ["Простите, не поняла"],
+  "weird_route": ["You were not supposed to see this"]
+}
