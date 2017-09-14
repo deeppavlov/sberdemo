@@ -1,5 +1,6 @@
 import csv
 import os
+import random
 
 import sys
 from collections import defaultdict
@@ -20,7 +21,7 @@ class DictionarySlot:
     def __init__(self, slot_id: str, ask_sentence: str, generative_dict: Dict[str, str],
                  nongenerative_dict: Dict[str, str], values_order: List[str], prev_created_slots: List, *args):
         self.id = slot_id
-        self.ask_sentence = ask_sentence
+        self.ask_sentences = ask_sentence.split('~')
         self.gen_dict = generative_dict
         self.nongen_dict = nongenerative_dict
         self.ngrams = defaultdict(list)
@@ -80,7 +81,7 @@ class DictionarySlot:
         raise NotImplemented()
 
     def ask(self) -> str:
-        return self.ask_sentence
+        return random.choice(self.ask_sentences)
 
 
 class CurrencySlot(DictionarySlot):
