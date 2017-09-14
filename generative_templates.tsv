@@ -102,9 +102,9 @@
 1	комиссии за счет	cost_of_service	open_account
 1	стоимость открытия	cost_of_service	open_account
 1	Я хотел бы рассмотреть варианты открытия в Сбербанке #расчетного счета#account_type# как #юридическое лицо#client_type#		open_account
-1	Телефон отделения у #метро Южная#client_metro#	show_phone	search_bank
-1	Как мне связаться с отделением на #улице Победы#client_address#?	show_phone	search_bank
-1	Скажите номера телефонов ближайших ко мне отделений	show_phone	search_bank
-1	Дайте информацию по банку на #улице Труда#client_address#	show_phone,show_schedule	search_bank
-1	График и телефон банка рядом со мной	show_phone,show_schedule	search_bank
-1	Где ближайший банк, работающий с #юридическими лицами#client_type#. График и телефон.	show_phone,show_schedule	search_bank
+1	Телефон отделения у #метро Южная#client_metro#	show_phone,search_vsp	search_bank
+1	Как мне связаться с отделением на #улице Победы#client_address#?	show_phone,search_vsp	search_bank
+1	Скажите номера телефонов ближайших ко мне отделений	show_phone,search_vsp	search_bank
+1	Дайте информацию по банку на #улице Труда#client_address#	show_phone,show_schedule,search_vsp	search_bank
+1	График и телефон банка рядом со мной	show_phone,show_schedule,search_vsp	search_bank
+1	Где ближайший банк, работающий с #юридическими лицами#client_type#. График и телефон.	show_phone,show_schedule,search_vsp	search_bank
