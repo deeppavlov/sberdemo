@@ -4,13 +4,11 @@ import os
 import sys
 from collections import defaultdict
 from itertools import chain
-from operator import itemgetter
 from typing import Dict, List, Any, Union
 
-from fuzzywuzzy import fuzz, process
+from fuzzywuzzy import fuzz
 from sklearn.externals import joblib
 from sklearn.pipeline import Pipeline
-from sklearn.base import TransformerMixin
 from sklearn.svm import SVC
 
 from svm_classifier_utlilities import FeatureExtractor
@@ -75,7 +73,6 @@ class DictionarySlot:
         if best_score >= self.threshold:
             return self._normal_value(best_candidate)
 
-
     def __repr__(self):
         return '{}(name={}, len(dict)={})'.format(self.__class__.__name__, self.id, len(self.gen_dict))
 
@@ -89,7 +86,8 @@ class DictionarySlot:
 class CurrencySlot(DictionarySlot):
     def __init__(self, slot_id: str, ask_sentence: str, generative_dict: Dict[str, str],
                  nongenerative_dict: Dict[str, str], values_order: List[str], prev_created_slots, *args):
-        super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict, values_order, prev_created_slots, *args)
+        super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict, values_order, prev_created_slots,
+                         *args)
 
         self.supported_slots = ['rub', 'eur', 'usd']
         self.filters['supported_currency'] = lambda x, _: x in self.supported_slots
@@ -99,7 +97,8 @@ class CurrencySlot(DictionarySlot):
 class ClassifierSlot(DictionarySlot):
     def __init__(self, slot_id: str, ask_sentence: str, generative_dict: Dict[str, str],
                  nongenerative_dict: Dict[str, str], values_order: List[str], prev_created_slots, *args):
-        super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict, values_order, prev_created_slots, *args)
+        super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict, values_order, prev_created_slots,
+                         *args)
         self.true = values_order[0]
         self.filters.update({
             'true': lambda x, _: x == self.true,
@@ -142,7 +141,8 @@ class ClassifierSlot(DictionarySlot):
 class CompositionalSlot(DictionarySlot):
     def __init__(self, slot_id: str, ask_sentence: str, generative_dict: Dict[str, str],
                  nongenerative_dict: Dict[str, str], values_order: List[str], prev_created_slots, *args):
-        super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict, values_order, prev_created_slots, *args)
+        super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict, values_order, prev_created_slots,
+                         *args)
         slotmap = {s.id: s for s in prev_created_slots}
         self.children = [slotmap[slot_names] for slot_names in args]
         self.input_type = set()
@@ -167,7 +167,8 @@ class CompositionalSlot(DictionarySlot):
 class TomitaSlot(DictionarySlot):
     def __init__(self, slot_id: str, ask_sentence: str, generative_dict: Dict[str, str],
                  nongenerative_dict: Dict[str, str], values_order: List[str], prev_created_slots, *args):
-        super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict, values_order, prev_created_slots, *args)
+        super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict, values_order, prev_created_slots,
+                         *args)
 
         config_proto = 'config.proto'
         if len(args) == 1:
@@ -187,7 +188,8 @@ class TomitaSlot(DictionarySlot):
 class GeoSlot(DictionarySlot):
     def __init__(self, slot_id: str, ask_sentence: str, generative_dict: Dict[str, str],
                  nongenerative_dict: Dict[str, str], values_order: List[str], prev_created_slots, *args):
-        super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict, values_order, prev_created_slots, *args)
+        super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict, values_order, prev_created_slots,
+                         *args)
         self.input_type = {'geo'}
 
     def _infer(self, location: Dict[str, float]):
@@ -231,7 +233,7 @@ def read_slots_from_tsv(pipeline, filename=None):
 
                 if generative_syns:
                     generative_syns = generative_syns.replace(', ', ',').replace('“', '').replace('”', '').\
-                        replace('"','').split(',')
+                        replace('"', '').split(',')
                 else:
                     generative_syns = []
 
