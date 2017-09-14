@@ -1,7 +1,6 @@
 import csv
 import os
 import random
-
 import sys
 from collections import defaultdict
 from itertools import chain
@@ -14,7 +13,7 @@ from sklearn.svm import SVC
 
 from svm_classifier_utlilities import FeatureExtractor
 from svm_classifier_utlilities import StickSentence
-from tomita.tomita import Tomita
+from tomita import Tomita
 
 
 class DictionarySlot:
@@ -171,9 +170,9 @@ class TomitaSlot(DictionarySlot):
         super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict, values_order, prev_created_slots,
                          *args)
 
-        config_proto = 'config.proto'
-        if len(args) == 1:
-            config_proto = args[0]
+        assert len(args) == 2, 'Slot {} has exactly 2 arguments'.format(TomitaSlot.__name__)
+        config_proto, target_fact = args
+        self.target_fact = target_fact
 
         config_real_path = os.path.realpath(config_proto)
         wd = os.path.dirname(config_real_path)
@@ -182,8 +181,19 @@ class TomitaSlot(DictionarySlot):
         self.tomita = Tomita(tomita_path, config_real_path, cwd=wd)
 
     def _infer(self, text: List[Dict[str, Any]]):
-        joined_text = ' '.join(w['_text'] for w in text)
-        return self.tomita.get_json(joined_text) or None
+        joined_text = ' '.join(w['_orig'] for w in text)
+        for p in '.,!?:;':
+            joined_text = joined_text.replace(' ' + p, p)
+        res = self.tomita.get_json(joined_text) or None
+        if res:
+            target_vals = res['facts'][self.target_fact]
+            # TODO: ignore all other variants?! Better ideas?
+            if isinstance(target_vals, list):
+                target_vals = target_vals[0]
+
+            pos = int(target_vals['@pos'])
+            ln = int(target_vals['@len'])
+            return joined_text[pos:pos+ln]
 
 
 class GeoSlot(DictionarySlot):

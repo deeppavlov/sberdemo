@@ -74,7 +74,7 @@ class PreprocessorPipeline:
         # TODO: is it OK to merge words from sentences?
         words = []
         for s in self.sent_tokenizer(raw_input):
-            ws = [{'_text': w, '_vec': []} for w in self.word_tokenizer(s)]
+            ws = [{'_text': w, '_orig': w, '_vec': []} for w in self.word_tokenizer(s)]
             for fg in self.feature_gens:
                 ws = fg.process(ws)
             if ws:

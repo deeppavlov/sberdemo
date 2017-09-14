@@ -1,8 +1,11 @@
-import json
 import os
-import csv
-import numpy as np
 import gzip
+
+import csv
+import json
+
+import random
+import numpy as np
 
 
 class Sayer:
@@ -10,6 +13,9 @@ class Sayer:
     def __init__(self, slots, pipe, data_dir='./nlg_data',
                  api_url='https://static-maps.yandex.ru/1.x/?l=map&pt={}'):
         self.slots = {s.id: s for s in slots}
+
+        with open(os.path.join(data_dir, 'templates.json')) as f:
+            self.templates = json.load(f)
 
         with open(os.path.join(data_dir, 'new_acc_documents.json')) as f:
             self.documents_data = json.load(f)
@@ -37,7 +43,8 @@ class Sayer:
                     'address': ', '.join([c for c in row[9: 14] if c]),
                     'phone': row[14],
                     'working_hours': row[15],
-                    'closest_subway': row[16]
+                    'closest_subway': self.slots['client_metro'].infer_from_single_slot(pipe.feed(row[16])) if row[16]
+                    else ''
                 })
         self.branches_coordinates = np.asarray([[float(c) for c in row['point']] for row in self.branches])
         self.maps_api_url = api_url
@@ -51,17 +58,15 @@ class Sayer:
                 self.rates_data[norm] = rate
 
     def say(self, method_name, ctx):
-        return getattr(self, method_name)(ctx)
-
-    @staticmethod
-    def cant_reserve(ctx):
-        return 'Нельзя резервировать счёт не в рублях'
+        if hasattr(self, method_name):
+            return getattr(self, method_name)(ctx)
+        return random.choice(self.templates[method_name])
 
     def new_acc_documents_list(self, ctx):
         docs = self.documents_data[ctx['resident']]
-        text = 'С необходимыми документами вы можете ознакомиться по ссылке: '
-        text += docs[ctx['client_type']] if ctx['client_type'] in docs else docs['default']
-        return text
+        template = random.choice(self.templates['new_acc_documents_list'])  # type: str
+        href = docs[ctx['client_type']] if ctx['client_type'] in docs else docs['default']
+        return template.format(href=href)
 
     def new_acc_rates_list(self, ctx):
         rates = self.rates_data[ctx['region']]
@@ -72,44 +77,25 @@ class Sayer:
             text += '{}'.format(rates['fullTableUrl'])
         return text
 
-    @staticmethod
-    def not_supported(ctx):
-        return 'Такая валюта не поддерживается. Можно открыть в рублях, долларах и евро'
-
-    @staticmethod
-    def send_to_bank(ctx):
-        return 'Для открытия счёта обратись в отеление Сбербанка'
-
-    @staticmethod
-    def reserve_new_acc_online(ctx):
-        return 'Зарезервировать счёт вы можете по ссылке: ' \
-               'https://www.sberbank.ru/ru/s_m_business/bankingservice/rko/service23'
-
-    @staticmethod
-    def weird_route(ctx):
-        return 'You were not supposed to see this'
-
     def show_vsp(self, ctx):
-        text = 'Не реализовано, видимо'
+        closest = []
         if ctx['method_location'] == 'client_geo':
             point = ctx['client_geo']
             point = (point['longitude'], point['latitude'])
-            closest = (((self.branches_coordinates - point) ** 2).sum(axis=1) ** 0.5).argsort()
-            text = ['Ближайшие отделения:']
-            points = []
-            for i in closest[:3]:
-                points.append(','.join(self.branches[i]['point']))
-                text.append('🏦 ' + self.branches[i]['address'])
-            url = self.maps_api_url.format('~'.join(points))
-            text.append(url)
-            text = '\n'.join(text)
+            closest = (((self.branches_coordinates - point) ** 2).sum(axis=1) ** 0.5).argsort()[:3]
+        elif ctx['method_location'] == 'client_metro':
+            metro = ctx['client_metro']
+            closest = [i for i in range(len(self.branches)) if self.branches[i]['closest_subway'] == metro]
+        text = ['Ближайшие отделения:']
+        points = []
+        n = 1
+        for i in closest:
+            points.append(','.join(self.branches[i]['point'] + ('pmgnm%i' % n,)))
+            text.append('🏦 ' + self.branches[i]['address'])
+            n += 1
+        del n
+        url = self.maps_api_url.format('~'.join(points))
+        text.append(url)
+        text = '\n'.join(text)
 
         return text
-
-    @staticmethod
-    def what_now(ctx):
-        return 'Мы можем вам ещё как-нибудь помочь?'
-
-    @staticmethod
-    def no_intent(ctx):
-        return 'Простите, не поняла'
