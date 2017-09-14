@@ -1,8 +1,13 @@
 import csv
 from itertools import product
 from random import sample
+
+import os
+
 from nlu import create_pipe, read_slots_from_tsv
 import re
+
+import argparse
 
 PARAPHRASE_DELIM = '~'
 
@@ -22,16 +27,14 @@ def generate_all_values(max_count, *slots):
         yield {k: (v, k._normal_value(v)) for k, v in zip(slots, vals)}
 
 
-if __name__ == '__main__':
+def generate_dataset_from_templates(output_dataset_fn, generative_templates_fn):
     pipe = create_pipe()
     slots = {s.id: s for s in read_slots_from_tsv(pipe)}
 
     slots_global_order = sorted(slots.values(), key=lambda s: s.id)
 
-    templates = []
-
-    with open('generative_templates.tsv') as fcsv:
-        with open('generated_dataset.tsv', 'w') as f:
+    with open(generative_templates_fn) as fcsv:
+        with open(output_dataset_fn, 'w') as f:
             print('template_id', 'intent', 'request', *[s.id for s in slots_global_order], sep='\t', file=f)
             csv_rows = csv.reader(fcsv, delimiter='\t')
             for template_id, row in enumerate(csv_rows):
@@ -63,3 +66,18 @@ if __name__ == '__main__':
                             for x in classifiers:
                                 vals[slots[x]] = 'YES'
                         print(template_id, intent, msg, *[vals.get(s, ('',''))[1] for s in slots_global_order], sep='\t', file=f)
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--output', default='generated_dataset.tsv')
+    parser.add_argument('--templates', default='generative_templates.tsv')
+
+    args = parser.parse_args()
+
+    assert os.path.isfile(args.templates), 'Templatesa file "{}" not found'.format(args.templates)
+    assert not os.path.isfile(args.output), 'Output file "{}" is already exist'.format(args.output)
+
+    generate_dataset_from_templates(args.output, args.templates)
+
+
+
