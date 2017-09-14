@@ -75,7 +75,8 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     assert os.path.isfile(args.templates), 'Templatesa file "{}" not found'.format(args.templates)
-    assert not os.path.isfile(args.output), 'Output file "{}" is already exist'.format(args.output)
+    if os.path.isfile(args.output):
+        print('Output file "{}" is already exist. Overwriting. '.format(args.output))
 
     generate_dataset_from_templates(args.output, args.templates)
 
