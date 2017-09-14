@@ -1,14 +1,46 @@
 import json
 import os
+import csv
+import numpy as np
+import gzip
 
 
 class Sayer:
 
-    def __init__(self, slots, pipe, data_dir='./nlg_data'):
+    def __init__(self, slots, pipe, data_dir='./nlg_data',
+                 api_url='https://static-maps.yandex.ru/1.x/?l=map&pt={}'):
         self.slots = {s.id: s for s in slots}
 
         with open(os.path.join(data_dir, 'new_acc_documents.json')) as f:
             self.documents_data = json.load(f)
+
+        with gzip.open(os.path.join(data_dir, 'branches.csv.gz'), 'rt') as f:
+            reader = csv.reader(f)
+            next(reader)
+            self.branches = []
+            for row in reader:
+                if not row[0]:  # Нет координат
+                    continue
+                self.branches.append({
+                    'point': (row[0], row[1]),
+                    'branch_code': row[2],
+                    'branch_name': row[3],
+                    'client_types': row[4],
+                    'credit_in': row[5],
+                    'credit_out': row[6],
+                    'allow_handicapped': row[7],
+                    'postcode': row[9],
+                    'region': row[10],
+                    'town': row[11],
+                    'street': row[12],
+                    'house': row[13],
+                    'address': ', '.join([c for c in row[9: 14] if c]),
+                    'phone': row[14],
+                    'working_hours': row[15],
+                    'closest_subway': row[16]
+                })
+        self.branches_coordinates = np.asarray([[float(c) for c in row['point']] for row in self.branches])
+        self.maps_api_url = api_url
 
         self.rates_data = {}
         with open(os.path.join(data_dir, 'rates_urls.json')) as f:
@@ -57,9 +89,22 @@ class Sayer:
     def weird_route(ctx):
         return 'You were not supposed to see this'
 
-    @staticmethod
-    def show_vsp(ctx):
-        return '`точки на карте с отеделениями`'
+    def show_vsp(self, ctx):
+        text = 'Не реализовано, видимо'
+        if ctx['method_location'] == 'client_geo':
+            point = ctx['client_geo']
+            point = (point['longitude'], point['latitude'])
+            closest = (((self.branches_coordinates - point) ** 2).sum(axis=1) ** 0.5).argsort()
+            text = ['Ближайшие отделения:']
+            points = []
+            for i in closest[:3]:
+                points.append(','.join(self.branches[i]['point']))
+                text.append('🏦 ' + self.branches[i]['address'])
+            url = self.maps_api_url.format('~'.join(points))
+            text.append(url)
+            text = '\n'.join(text)
+
+        return text
 
     @staticmethod
     def what_now(ctx):
