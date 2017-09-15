@@ -50,6 +50,18 @@ class DictionarySlot:
             return None
         return self._infer_from_single_slot(text)
 
+    def infer_many(self, text, input_type='text'):
+        if input_type not in self.input_type:
+            return None
+        n = len(text)
+        res = set()
+        for i in range(n):
+            for k in range(i+1, n+1):
+                c = self._infer(text[i:k])
+                if c:
+                    res.add(c)
+        return res
+
     def _infer_from_single_slot(self, text):
         return self._infer(text)
 
