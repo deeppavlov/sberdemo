@@ -75,12 +75,16 @@ class Sayer:
         return template.format(href=href)
 
     def new_acc_rates_list(self, ctx):
+        templates = self.templates['new_acc_rates_list']
+        if ctx['region'] not in self.rates_data:
+            return templates['not_found']
         rates = self.rates_data[ctx['region']]
-        text = 'Тарифы для выбранного региона:\n'
         if 'cities' in rates:
-            text += '\n\n'.join(['<a href="{1}">{0}</a>'.format(x['title'], x['fullTableUrl']) for x in rates['cities']])
+            templates = templates['multiple']
+            text = templates['start']
+            text += '\n'.join([templates['city'].format(city=x['title'], href=x['fullTableUrl']) for x in rates['cities']])
         else:
-            text = 'С тарифами вы можете ознакомиться <a href="{}">по ссылке</a>'.format(rates['fullTableUrl'])
+            text = templates['single'].format(href=rates['fullTableUrl'])
         return text
 
     def show_vsp(self, ctx):
