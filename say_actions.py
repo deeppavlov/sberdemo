@@ -44,7 +44,7 @@ class Sayer:
                     'town': row[11],
                     'street': row[12],
                     'house': row[13],
-                    'address': ', '.join([c for c in row[9: 14] if c]),
+                    'address': ', '.join([c for c in row[11: 14] if c]),
                     'phone': row[14],
                     'working_hours': row[15],
 
