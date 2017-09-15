@@ -101,7 +101,7 @@ class CurrencySlot(DictionarySlot):
         super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict, values_order, prev_created_slots,
                          *args)
 
-        self.supported_slots = ['rub', 'eur', 'usd']
+        self.supported_slots = ['rub', 'eur', 'usd', 'aud', 'cad', 'chf', 'dkk', 'gbp', 'jpy', 'nok', 'sek', 'sgd']
         self.filters['supported_currency'] = lambda x, _: x in self.supported_slots
         self.filters['not_supported_currency'] = lambda x, _: x not in self.supported_slots
 
