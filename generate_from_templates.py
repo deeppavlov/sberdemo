@@ -67,12 +67,13 @@ def generate_dataset_from_templates(output_dataset_fn, generative_templates_fn):
                                 vals[slots[x]] = 'YES'
                         print(template_id, intent, msg, *[vals.get(s, ('',''))[1] for s in slots_global_order], sep='\t', file=f)
 
-if __name__ == '__main__':
+
+def main(args=None):
     parser = argparse.ArgumentParser()
     parser.add_argument('--output', default='generated_dataset.tsv')
     parser.add_argument('--templates', default='generative_templates.tsv')
 
-    args = parser.parse_args()
+    args = parser.parse_args(args)
 
     assert os.path.isfile(args.templates), 'Templatesa file "{}" not found'.format(args.templates)
     if os.path.isfile(args.output):
@@ -81,4 +82,5 @@ if __name__ == '__main__':
     generate_dataset_from_templates(args.output, args.templates)
 
 
-
+if __name__ == '__main__':
+    main()
