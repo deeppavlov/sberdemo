@@ -3,7 +3,7 @@ import os
 import copy
 import logging
 
-from telegram import Update, User
+from telegram import Update, User, Bot
 
 from nlu import *
 from say_actions import Sayer
@@ -206,18 +206,18 @@ def main():
         return Dialog(pipe, StatisticalNLUModel(slots, IntentClassifier(folder=models_path)),
                       GraphBasedSberdemoPolicy(data, slots, sayer, debug=debug), user)
 
-    def start(bot, update: Update):
+    def start(bot: Bot, update: Update):
         chat_id = update.message.chat_id
         humans[chat_id] = new_dialog(update.effective_user)
         bot.send_message(chat_id=chat_id, text='Здрасте. Чего хотели?')
 
-    def send_delayed(bot, chat_id, messages: list, interval=0.7):
+    def send_delayed(bot: Bot, chat_id, messages: list, interval=0.7):
         m = messages.pop(0)
-        bot.send_message(chat_id=chat_id, text=m)
+        bot.send_message(chat_id=chat_id, text=m, parse_mode='HTML')
         if messages:
             threading.Timer(interval, send_delayed, [bot, chat_id, messages, interval]).start()
 
-    def user_client(bot, update):
+    def user_client(bot: Bot, update):
 
         chat_id = update.message.chat_id
         if chat_id not in humans:

@@ -78,9 +78,9 @@ class Sayer:
         rates = self.rates_data[ctx['region']]
         text = 'Тарифы для выбранного региона:\n'
         if 'cities' in rates:
-            text += '\n\n'.join(['{}: {}'.format(x['title'], x['fullTableUrl']) for x in rates['cities']])
+            text += '\n\n'.join(['<a href="{1}">{0}</a>'.format(x['title'], x['fullTableUrl']) for x in rates['cities']])
         else:
-            text += '{}'.format(rates['fullTableUrl'])
+            text = 'С тарифами вы можете ознакомиться <a href="{}">по ссылке</a>'.format(rates['fullTableUrl'])
         return text
 
     def show_vsp(self, ctx):
@@ -92,7 +92,7 @@ class Sayer:
         elif ctx['method_location'] == 'client_metro':
             metro = ctx['client_metro']
             closest = [i for i in range(len(self.branches)) if metro in self.branches[i]['closest_subway']]
-        text = ['Ближайшие отделения:']
+        text = ['Ближайшие отделения<a href="{}">:</a>']
         points = []
         n = 1
         for i in closest:
@@ -101,7 +101,7 @@ class Sayer:
             n += 1
         del n
         url = self.maps_api_url.format('~'.join(points))
-        text.append(url)
+        text[0] = text[0].format(url)
         text = '\n'.join(text)
 
         return text
