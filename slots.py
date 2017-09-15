@@ -194,8 +194,12 @@ class TomitaSlot(DictionarySlot):
 
     def _infer(self, text: List[Dict[str, Any]]):
         joined_text = ' '.join(w['_orig'] for w in text)
+        print(joined_text)
         for p in '.,!?:;':
-            joined_text = joined_text.replace(' ' + p, p)
+            joined_text = joined_text.replace(' ' + p, '')
+        joined_text = joined_text.replace('.', ' ')
+        print(joined_text)
+
         res = self.tomita.get_json(joined_text) or None
         if res:
             target_vals = res['facts'][self.target_fact]
