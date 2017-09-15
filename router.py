@@ -187,6 +187,7 @@ def get_logger():
 
 def main():
     set_logger()
+    get_logger().info('Starting...')
 
     fname = 'routes.json'
     data = parse_route(fname)
@@ -235,6 +236,9 @@ def main():
     dispatcher.add_handler(msg_handler)
 
     updater.start_polling()
+
+    get_logger().info('Ready')
+
     updater.idle()
 
 

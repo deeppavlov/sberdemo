@@ -7,10 +7,14 @@ import json
 import random
 import numpy as np
 
+from typing import List
+
+from slots import DictionarySlot
+
 
 class Sayer:
 
-    def __init__(self, slots, pipe, data_dir='./nlg_data',
+    def __init__(self, slots: List[DictionarySlot], pipe, data_dir='./nlg_data',
                  api_url='https://static-maps.yandex.ru/1.x/?l=map&pt={}'):
         self.slots = {s.id: s for s in slots}
 
@@ -43,7 +47,9 @@ class Sayer:
                     'address': ', '.join([c for c in row[9: 14] if c]),
                     'phone': row[14],
                     'working_hours': row[15],
-                    'closest_subway': self.slots['client_metro'].infer_from_single_slot(pipe.feed(row[16])) if row[16]
+
+                    'closest_subway': self.slots['client_metro'].infer_many(pipe.feed(row[16]))
+                    if row[16] and row[11] == 'г.Москва'
                     else ''
                 })
         self.branches_coordinates = np.asarray([[float(c) for c in row['point']] for row in self.branches])
@@ -85,7 +91,7 @@ class Sayer:
             closest = (((self.branches_coordinates - point) ** 2).sum(axis=1) ** 0.5).argsort()[:3]
         elif ctx['method_location'] == 'client_metro':
             metro = ctx['client_metro']
-            closest = [i for i in range(len(self.branches)) if self.branches[i]['closest_subway'] == metro]
+            closest = [i for i in range(len(self.branches)) if metro in self.branches[i]['closest_subway']]
         text = ['Ближайшие отделения:']
         points = []
         n = 1
