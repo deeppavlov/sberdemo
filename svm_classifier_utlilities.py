@@ -1,6 +1,6 @@
 from collections import Counter
 import numpy as np
-from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.base import TransformerMixin
 from copy import deepcopy
 from numpy.random import RandomState
@@ -46,9 +46,9 @@ class FeatureExtractor(TransformerMixin):
     def __init__(self, use_chars=False):
         self._been_fitten = False
         self.use_chars = use_chars
-        self.words_vectorizer = CountVectorizer(ngram_range=(1, 2), )  # taking into account pairs of words
+        self.words_vectorizer = TfidfVectorizer(ngram_range=(1, 2), )  # taking into account pairs of words
         if self.use_chars:
-            self.chars_vectorizer = CountVectorizer(analyzer='char_wb',
+            self.chars_vectorizer = TfidfVectorizer(analyzer='char_wb',
                                                     ngram_range=(2, 4))  # taking into account
             # only n-grams into word boundaries
         else:

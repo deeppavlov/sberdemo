@@ -11,7 +11,8 @@ class IntentClassifier():
         self.model = None
 
         if labels_list is not None:
-            self.label_list = list(set(labels_list))
+            # sort strings to fix their labels
+            self.label_list = sorted(list(set(labels_list)), key=str.lower)
             self.string2idx = {t: i for i, t in enumerate(self.label_list)}
             self.idx2string = {v: k for k, v in self.string2idx.items()}
         else:
@@ -30,11 +31,6 @@ class IntentClassifier():
 
         """
         feat_generator = FeatureExtractor(use_chars=use_chars)
-
-        if self.label_list is None:
-            self.string2idx = {t: i for i, t in enumerate(list(set(y)))}
-            self.idx2string = {v: k for k, v in self.string2idx.items()}
-            y_idx = [self.string2idx[s] for s in y]
 
         if isinstance(y[0], str):
             y_idx = [self.string2idx[s] for s in y]

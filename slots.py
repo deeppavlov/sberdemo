@@ -1,28 +1,26 @@
 import csv
 import os
-
+import random
 import sys
 from collections import defaultdict
 from itertools import chain
-from operator import itemgetter
 from typing import Dict, List, Any, Union
 
-from fuzzywuzzy import fuzz, process
+from fuzzywuzzy import fuzz
 from sklearn.externals import joblib
 from sklearn.pipeline import Pipeline
-from sklearn.base import TransformerMixin
 from sklearn.svm import SVC
 
 from svm_classifier_utlilities import FeatureExtractor
 from svm_classifier_utlilities import StickSentence
-from tomita.tomita import Tomita
+from tomita import Tomita
 
 
 class DictionarySlot:
     def __init__(self, slot_id: str, ask_sentence: str, generative_dict: Dict[str, str],
                  nongenerative_dict: Dict[str, str], values_order: List[str], prev_created_slots: List, *args):
         self.id = slot_id
-        self.ask_sentence = ask_sentence
+        self.ask_sentences = ask_sentence.split('~')
         self.gen_dict = generative_dict
         self.nongen_dict = nongenerative_dict
         self.ngrams = defaultdict(list)
@@ -52,6 +50,18 @@ class DictionarySlot:
             return None
         return self._infer_from_single_slot(text)
 
+    def infer_many(self, text, input_type='text'):
+        if input_type not in self.input_type:
+            return None
+        n = len(text)
+        res = set()
+        for i in range(n):
+            for k in range(i+1, n+1):
+                c = self._infer(text[i:k])
+                if c:
+                    res.add(c)
+        return res
+
     def _infer_from_single_slot(self, text):
         return self._infer(text)
 
@@ -75,7 +85,6 @@ class DictionarySlot:
         if best_score >= self.threshold:
             return self._normal_value(best_candidate)
 
-
     def __repr__(self):
         return '{}(name={}, len(dict)={})'.format(self.__class__.__name__, self.id, len(self.gen_dict))
 
@@ -83,13 +92,14 @@ class DictionarySlot:
         raise NotImplemented()
 
     def ask(self) -> str:
-        return self.ask_sentence
+        return random.choice(self.ask_sentences)
 
 
 class CurrencySlot(DictionarySlot):
     def __init__(self, slot_id: str, ask_sentence: str, generative_dict: Dict[str, str],
                  nongenerative_dict: Dict[str, str], values_order: List[str], prev_created_slots, *args):
-        super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict, values_order, prev_created_slots, *args)
+        super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict, values_order, prev_created_slots,
+                         *args)
 
         self.supported_slots = ['rub', 'eur', 'usd']
         self.filters['supported_currency'] = lambda x, _: x in self.supported_slots
@@ -99,7 +109,8 @@ class CurrencySlot(DictionarySlot):
 class ClassifierSlot(DictionarySlot):
     def __init__(self, slot_id: str, ask_sentence: str, generative_dict: Dict[str, str],
                  nongenerative_dict: Dict[str, str], values_order: List[str], prev_created_slots, *args):
-        super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict, values_order, prev_created_slots, *args)
+        super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict, values_order, prev_created_slots,
+                         *args)
         self.true = values_order[0]
         self.filters.update({
             'true': lambda x, _: x == self.true,
@@ -142,7 +153,8 @@ class ClassifierSlot(DictionarySlot):
 class CompositionalSlot(DictionarySlot):
     def __init__(self, slot_id: str, ask_sentence: str, generative_dict: Dict[str, str],
                  nongenerative_dict: Dict[str, str], values_order: List[str], prev_created_slots, *args):
-        super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict, values_order, prev_created_slots, *args)
+        super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict, values_order, prev_created_slots,
+                         *args)
         slotmap = {s.id: s for s in prev_created_slots}
         self.children = [slotmap[slot_names] for slot_names in args]
         self.input_type = set()
@@ -158,7 +170,7 @@ class CompositionalSlot(DictionarySlot):
 
     def infer_from_single_slot(self, text, input_type='text'):
         for s in self.children:
-            rv = s.infer_from_compositional_request(text, input_type)
+            rv = s.infer_from_single_slot(text, input_type)
             if rv is not None:
                 return {s.id: rv, self.id: s.id}
         return None
@@ -167,11 +179,12 @@ class CompositionalSlot(DictionarySlot):
 class TomitaSlot(DictionarySlot):
     def __init__(self, slot_id: str, ask_sentence: str, generative_dict: Dict[str, str],
                  nongenerative_dict: Dict[str, str], values_order: List[str], prev_created_slots, *args):
-        super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict, values_order, prev_created_slots, *args)
+        super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict, values_order, prev_created_slots,
+                         *args)
 
-        config_proto = 'config.proto'
-        if len(args) == 1:
-            config_proto = args[0]
+        assert len(args) == 2, 'Slot {} has exactly 2 arguments'.format(TomitaSlot.__name__)
+        config_proto, target_fact = args
+        self.target_fact = target_fact
 
         config_real_path = os.path.realpath(config_proto)
         wd = os.path.dirname(config_real_path)
@@ -180,14 +193,28 @@ class TomitaSlot(DictionarySlot):
         self.tomita = Tomita(tomita_path, config_real_path, cwd=wd)
 
     def _infer(self, text: List[Dict[str, Any]]):
-        joined_text = ' '.join(w['_text'] for w in text)
-        return self.tomita.get_json(joined_text) or None
+        joined_text = ' '.join(w['_orig'] for w in text)
+        for p in '.,!?:;':
+            joined_text = joined_text.replace(' ' + p, '')
+        joined_text = joined_text.replace('.', ' ')
+
+        res = self.tomita.get_json(joined_text) or None
+        if res:
+            target_vals = res['facts'][self.target_fact]
+            # TODO: ignore all other variants?! Better ideas?
+            if isinstance(target_vals, list):
+                target_vals = target_vals[0]
+
+            pos = int(target_vals['@pos'])
+            ln = int(target_vals['@len'])
+            return joined_text[pos:pos+ln]
 
 
 class GeoSlot(DictionarySlot):
     def __init__(self, slot_id: str, ask_sentence: str, generative_dict: Dict[str, str],
                  nongenerative_dict: Dict[str, str], values_order: List[str], prev_created_slots, *args):
-        super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict, values_order, prev_created_slots, *args)
+        super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict, values_order, prev_created_slots,
+                         *args)
         self.input_type = {'geo'}
 
     def _infer(self, location: Dict[str, float]):
@@ -231,7 +258,7 @@ def read_slots_from_tsv(pipeline, filename=None):
 
                 if generative_syns:
                     generative_syns = generative_syns.replace(', ', ',').replace('“', '').replace('”', '').\
-                        replace('"','').split(',')
+                        replace('"', '').split(',')
                 else:
                     generative_syns = []
 

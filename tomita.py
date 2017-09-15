@@ -16,7 +16,7 @@ class Tomita:
         self.p.expect('.* Start.*$')
 
     def communicate(self, text):
-        self.p.sendline(text.encode('UTF8'))
+        self.p.sendline(text)
         self.p.expect_exact((text + '\r\n').encode('UTF8'))
         raw = b''
         try:
@@ -38,7 +38,8 @@ class Tomita:
 
 if __name__ == "__main__":
     root = os.path.dirname(os.path.realpath(__file__))
-    tomita = Tomita(os.path.expanduser('~/Downloads/tomita-linux64'), os.path.join(root, 'config.proto'))
+    tomita = Tomita(os.environ['TOMITA_PATH'], os.path.join(root, 'tomita', 'test', 'config.proto'),
+                    os.path.join(root, 'tomita', 'test'))
 
     t = 'ул. Маяковского, c, пятница, 22 апреля 2014 года'
 

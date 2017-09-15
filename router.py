@@ -1,7 +1,9 @@
 import json
 import os
 import copy
-import time
+import logging
+
+from telegram import Update, User, Bot
 
 from nlu import *
 from say_actions import Sayer
@@ -38,12 +40,14 @@ def parse_route(file_name):
 
 
 class Dialog:
-    def __init__(self, preproc_pipeline, nlu_model, policy_model):
+    def __init__(self, preproc_pipeline, nlu_model, policy_model, user: User):
         self.pipeline = preproc_pipeline
         self.nlu_model = nlu_model
         self.policy_model = policy_model
+        self.user = user
 
     def generate_response(self, client_utterance: str) -> List[str]:
+        get_logger().info("{user.id}:{user.name} >>> {msg}".format(user=self.user, msg=repr(client_utterance)))
         message_type = 'text'
         if client_utterance.startswith('__geo__'):
             text = eval(client_utterance.split(' ', 1)[1])
@@ -54,13 +58,19 @@ class Dialog:
         try:
             nlu_result = self.nlu_model.forward(text, message_type)
         except Exception as e:
+            get_logger().error(e)
             return ['NLU ERROR: {}'.format(str(e))]
-        print(nlu_result)
+        get_logger().debug("{user.id}:{user.name} : nlu parsing result: {msg}".format(user=self.user, msg=nlu_result))
         try:
             response, expect = self.policy_model.forward(nlu_result)
         except Exception as e:
+            get_logger().error(e)
             return ['ERROR: {}'.format(str(e))]
         self.nlu_model.set_expectation(expect)
+        for msg in response:
+            get_logger().info("{user.id}:{user.name} <<< {msg}".format(user=self.user, msg=repr(msg)))
+        if expect:
+            get_logger().debug("{user.id}:{user.name} : expecting slot `{msg}`".format(user=self.user, msg=expect))
         return response
 
 
@@ -124,13 +134,11 @@ class GraphBasedSberdemoPolicy(object):
         return actions, done
 
     def forward(self, client_nlu):
-        print('nlu: ', client_nlu)
         if 'intent' in client_nlu:
             self.set_intent(client_nlu['intent'])
         self.slots.update(client_nlu['slots'])
 
         actions, _ = self.get_actions(self.intent)
-        print(actions)
         if not actions:
             actions = [['say', 'no_intent']]
 
@@ -155,7 +163,32 @@ class GraphBasedSberdemoPolicy(object):
         return responses, expect
 
 
+def set_logger(level=logging.DEBUG):
+    logger = logging.getLogger('router')
+    logger.setLevel(level)
+
+    fh = logging.FileHandler('router.log')
+    fh.setLevel(level)
+
+    ch = logging.StreamHandler()
+    ch.setLevel(level)
+
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    fh.setFormatter(formatter)
+    ch.setFormatter(formatter)
+
+    logger.addHandler(fh)
+    logger.addHandler(ch)
+
+
+def get_logger():
+    return logging.getLogger('router')
+
+
 def main():
+    set_logger()
+    get_logger().info('Starting...')
+
     fname = 'routes.json'
     data = parse_route(fname)
 
@@ -168,29 +201,28 @@ def main():
 
     humans = {}
 
-    def new_dialog():
+    def new_dialog(user):
+        debug = get_logger().level <= logging.DEBUG
         return Dialog(pipe, StatisticalNLUModel(slots, IntentClassifier(folder=models_path)),
-                      GraphBasedSberdemoPolicy(data, slots, sayer, debug=True))
+                      GraphBasedSberdemoPolicy(data, slots, sayer, debug=debug), user)
 
-    def start(bot, update):
+    def start(bot: Bot, update: Update):
         chat_id = update.message.chat_id
-        humans[chat_id] = new_dialog()
+        humans[chat_id] = new_dialog(update.effective_user)
         bot.send_message(chat_id=chat_id, text='Здрасте. Чего хотели?')
 
-    def send_delayed(bot, chat_id, messages: list, interval=0.7):
+    def send_delayed(bot: Bot, chat_id, messages: list, interval=0.7):
         m = messages.pop(0)
-        print('{} <<< {}'.format(chat_id, m))
-        bot.send_message(chat_id=chat_id, text=m)
+        bot.send_message(chat_id=chat_id, text=m, parse_mode='HTML')
         if messages:
             threading.Timer(interval, send_delayed, [bot, chat_id, messages, interval]).start()
 
-    def user_client(bot, update):
+    def user_client(bot: Bot, update):
 
         chat_id = update.message.chat_id
         if chat_id not in humans:
-            humans[chat_id] = new_dialog()
+            humans[chat_id] = new_dialog(update.effective_user)
         user_msg = update.message.text or '__geo__ ' + str(update.message.location)
-        print('{} >>> {}'.format(chat_id, user_msg))
         dialog = humans[chat_id]
         bot_responses = dialog.generate_response(user_msg)
         send_delayed(bot, chat_id, bot_responses, 0.7)
@@ -204,6 +236,9 @@ def main():
     dispatcher.add_handler(msg_handler)
 
     updater.start_polling()
+
+    get_logger().info('Ready')
+
     updater.idle()
 
 

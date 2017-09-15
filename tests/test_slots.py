@@ -41,10 +41,25 @@ class TestSlots(unittest.TestCase):
 
     def test_tomita(self):
         tomita = self['client_address']
-        # print(tomita.infer_from_single_slot(self.pipe.feed('ул. Маяковского, c, пятница, 22 апреля 2014 года')))
-        # print(tomita.infer_from_single_slot(self.pipe.feed('улица преображенского 44')))
-        # print(tomita.infer_from_single_slot(self.pipe.feed('пр. Красных Комиссаров')))
-        print(tomita.infer_from_single_slot(self.pipe.feed('улица Победы 44')))
+        self.assertEqual('улица Победы', tomita.infer_from_single_slot(self.pipe.feed('улица Победы 44 проспект Сахара 33')), msg='Only first address is recognized')
+        self.assertEqual('улица правды', tomita.infer_from_single_slot(self.pipe.feed('мой адрес улица правды')))
+        addresses = ['улица Победы',
+                     'ул Поражения',
+                     'ул. Правды',
+                     'ул дружинников',
+                     'сенная площадь',
+                     'площадь революции',
+                     # 'Пл джихаддистов',
+                     'пр.Бешенных панд',
+                     'московский проспект',
+                     'Ленинградский пр.',
+                     'Санк-Петербургское шоссе',
+                     'Ленинский Проезд',
+                     'пл морской славы',
+                     'ул. маяковского',
+                     'Первомайская ул']
+        for a in addresses:
+            self.assertEqual(a.replace('. ', ' ').replace('.', ' ').strip(), tomita.infer_from_single_slot(self.pipe.feed(a)))
 
     def test_dictionary_slots(self):
         import pandas as pd
