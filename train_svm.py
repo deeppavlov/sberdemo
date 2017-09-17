@@ -2,18 +2,16 @@ import pandas as pd
 from nlu import *
 from intent_classifier import IntentClassifier
 from collections import defaultdict
-from sklearn.metrics import confusion_matrix, roc_auc_score, f1_score, accuracy_score
+from sklearn.metrics import confusion_matrix, classification_report, f1_score
 from sklearn.model_selection import GroupKFold
 from sklearn.externals import joblib
 from svm_classifier_utlilities import oversample_data
 from slots import read_slots_from_tsv, ClassifierSlot
-from numpy.random import RandomState
 import os
 import argparse
 
 
 def main(args=None):
-
     parser = argparse.ArgumentParser(description='Train SVM and dump it')
 
     parser.add_argument('--folder', dest='model_folder', type=str, default='./models_nlu',
@@ -28,19 +26,19 @@ def main(args=None):
     parser.add_argument('--oversample', dest='oversample', action='store_false', default=True,
                         help='Use flag to test and dump models !without! oversample; defaule -- use oversample;')
 
-    parser.add_argument('--pic', dest='save_pic', action='store_true', default=True,
-                        help='Use flag to save TSNE')
-
     parser.add_argument('--use_char', dest='use_char', action='store_true', default=False,
                         help='Use flag to use char features in svm')
 
     parser.add_argument('--slot_path', dest='slot_path', type=str, default="slots_definitions.tsv",
                         help='The path of file with slot definitions')
 
-    parser.add_argument('--slot_train', dest='slot_train', action='store_true', default=False,
+    parser.add_argument('--trash_intent', dest='trash_intent', type=str, default="no_intent.tsv",
+                        help='The path of file with trash intent examples')
+
+    parser.add_argument('--slot_train', dest='slot_train', action='store_true', default=True,
                         help="Use flag to train slots' svms ")
 
-    parser.add_argument('--intent_train', dest='intent_train', action='store_true', default=False,
+    parser.add_argument('--intent_train', dest='intent_train', action='store_true', default=True,
                         help="Use flag to train intent multiclass svm")
 
     args = parser.parse_args(args)
@@ -48,15 +46,13 @@ def main(args=None):
 
     MODEL_FOLDER = params['model_folder']
     DUMP = params['dump']  # True to save model for each slot
-    SAVE_PIC = params['save_pic']
     DATA_PATH = params['data_path']
+    NO_INTENT = params['trash_intent']
     OVERSAMPLE = params['oversample']
     SLOT_PATH = params['slot_path']
     USE_CHAR = params['use_char']
     INTENT_TRAIN = params['intent_train']
     SLOT_TRAIN = params['slot_train']
-
-    random_state = RandomState(23)
 
     # just checking:
     print("Current configuration:\n")
@@ -81,6 +77,7 @@ def main(args=None):
 
     # ------------ making train data ---------------#
 
+    trash_data = list(set(pd.read_csv(NO_INTENT, sep='\t', header=None).ix[:, 0]))
     data = pd.read_csv(DATA_PATH, sep='\t')
     sents = []
     targets = defaultdict(list)
@@ -92,16 +89,18 @@ def main(args=None):
         for slot in slot_names:
             targets[slot].append(not pd.isnull(row[slot]))
 
-    X = np.array([pipe.feed(sent) for sent in sents])  # list of list of dicts;
-    y_intents = np.array(list(data['intent']))
+    y_intents = list(data['intent'])
+    X = [pipe.feed(sent) for sent in sents]
 
+    trash_sents = trash_data[:len(y_intents)]
+    X_intents = np.array(X + [pipe.feed(sent) for sent in trash_sents])
+    y_intents = np.array(y_intents + ['no_intent'] * len(trash_sents))
 
     # ---------------- validate & dump --------------#
 
-    def validate_train(model, X, y, oversample=OVERSAMPLE, n_splits=5, use_chars=USE_CHAR,
+    def validate_train(model, X, y, groups=data['template_id'], oversample=OVERSAMPLE, n_splits=5, use_chars=USE_CHAR,
                        dump_name='any.model', dump=DUMP, model_folder=MODEL_FOLDER, metric=f1_score, verbose=True):
         kf = GroupKFold(n_splits=n_splits)
-        groups = data['template_id']
         all_y = []
         all_predicted = []
         for train_index, test_index in kf.split(X, y, groups):
@@ -118,12 +117,17 @@ def main(args=None):
             all_y.extend(y_test)
             # test_score = metric(y_test, pred)
 
-            # print("     >>pred!: ", pred)
-            # print("     >>true!: ", y_test)
+            # print("     >>pred!: ", [int(p) for p in pred])
+            # print("     >>true!: ", [int(p) for p in y_test])
+            # print(" --- ")
             # print(">> ", test_score)
             # print("     test_len: ", len(y_test))
 
-        result = metric(all_y, all_predicted)
+        if metric is f1_score:
+            result = metric(all_y, all_predicted, average=None)
+        else:
+            result = metric(all_y, all_predicted)
+
         if dump:
             if oversample:
                 X_tmp, y_tmp = oversample_data(X, y, verbose=verbose)
@@ -134,8 +138,8 @@ def main(args=None):
             joblib.dump(model.model,
                         os.path.join(model_folder, dump_name))
             print('==Model dumped==')
+        print("classif_report:\n", classification_report(all_y, all_predicted))
         return result
-
 
     if INTENT_TRAIN:
         intent_clf = IntentClassifier(labels_list=y_intents)
@@ -144,10 +148,14 @@ def main(args=None):
         y_intents_idx = np.array([intent_clf.string2idx[t] for t in y_intents])
         if DUMP:
             joblib.dump(intent_clf.string2idx, os.path.join(MODEL_FOLDER, "string2idx_dict.model"))
-
-        result = validate_train(intent_clf, X, y_intents_idx, oversample=True, metric=f1_score,
+        tmp_max = max(data['template_id'])
+        tmp_groups = list(data['template_id'])+list(range(tmp_max+1, tmp_max+len(trash_sents)+1))
+        result = validate_train(intent_clf, X_intents, y_intents_idx,
+                                groups=tmp_groups,
+                                oversample=True, metric=f1_score,
                                 n_splits=8, dump_name="IntentClassifier.model", verbose=False)
         print("INTENT CLF: cv mean f1 score: {}".format(result))
+
         print('--------------')
 
     if SLOT_TRAIN:
@@ -156,7 +164,9 @@ def main(args=None):
                 continue
 
             print("SLOT: ", slot.id)
-            result = validate_train(slot, X, np.array(targets[slot.id]), n_splits=8, metric=f1_score,
+            result = validate_train(model=slot, X=np.array(X), y=np.array(targets[slot.id]),
+                                    n_splits=8,
+                                    metric=f1_score,
                                     dump_name="{}.model".format(slot.id), verbose=False)
             print("For slot: {} cv mean f1 score: {}".format(slot.id, result))
             print('--------------')

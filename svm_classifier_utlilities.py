@@ -1,6 +1,6 @@
 from collections import Counter
 import numpy as np
-from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.base import TransformerMixin
 from copy import deepcopy
 from numpy.random import RandomState
@@ -15,29 +15,35 @@ def oversample_data(X, y, verbose=False, seed=23):
     """
 
     random_state = RandomState(seed=seed)
+    y_new = deepcopy(y)
+    X_new = deepcopy(X)
 
     if verbose:
         print('Oversampling...')
     c = Counter(y)
     labels = list(set(y))
-    minor_label = min(labels, key=lambda x: c[x])
+    major_label = max(labels, key=lambda x: c[x])
     if verbose:
-        print("minor: ", minor_label)
-    offset = np.abs(list(c.values())[0] - list(c.values())[1])
-    if verbose:
-        print("offset: ", offset)
+        print("major: {}\n".format(major_label))
 
-    y_new = np.hstack((y, [minor_label] * offset))
-    tmp = X[np.array(y) == minor_label]
-    sampled = random_state.choice(np.arange(len(tmp)), size=offset)
+    assert major_label == c.most_common()[0][0]
 
-    if isinstance(X[0][0], dict):
-        X_new = list(deepcopy(X))
-        X_new.extend(tmp[sampled])
-    else:
-        X_new = np.vstack((X, tmp[sampled]))
+    for label, count in c.most_common()[1:]:
+        offset = c[major_label] - count
+        y_new = np.hstack((y_new, [label] * offset))
+        tmp = X[np.array(y) == label]
+        sampled = random_state.choice(np.arange(len(tmp)), size=offset)
+        if isinstance(X[0][0], dict):
+            X_new = list(deepcopy(X_new))
+            X_new.extend(tmp[sampled])
+        else:
+            X_new = np.vstack((X_new, tmp[sampled]))
+
+        if verbose:
+            print("offset: {} for label: {}\n".format(offset, label))
+
+    assert len(X_new) == len(c.keys()) * c[major_label]
     assert len(X_new) == len(y_new)
-    assert np.sum(y_new == minor_label) == len(y_new) // 2
 
     return X_new, y_new
 
