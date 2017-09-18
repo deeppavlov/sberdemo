@@ -11,6 +11,9 @@ from typing import List
 
 from slots import DictionarySlot
 
+import urllib.request
+from urllib.parse import urlencode
+
 
 class Sayer:
 
@@ -88,24 +91,42 @@ class Sayer:
         return text
 
     def show_vsp(self, ctx):
+        templates = self.templates['show_vsp']
         closest = []
-        if ctx['method_location'] == 'client_geo':
+        if ctx['method_location'] == 'client_address':
+            params = {
+                'format': 'json',
+                'bbox': '37.32624,55.491126~37.967682,55.957565',
+                'rspn': 1,
+                'geocode': '+'.join(ctx['client_address'].split(' '))
+            }
+            url = 'https://geocode-maps.yandex.ru/1.x/?' + urlencode(params)
+            response = json.loads(urllib.request.urlopen(url).read().decode('UTF8'))
+            response = response['response']['GeoObjectCollection']['featureMember']
+            if response:
+                point = [float(c) for c in response[0]['GeoObject']['Point']['pos'].split(' ')]
+                closest = (((self.branches_coordinates - point) ** 2).sum(axis=1) ** 0.5).argsort()[:3]
+        elif ctx['method_location'] == 'client_geo':
             point = ctx['client_geo']
             point = (point['longitude'], point['latitude'])
             closest = (((self.branches_coordinates - point) ** 2).sum(axis=1) ** 0.5).argsort()[:3]
         elif ctx['method_location'] == 'client_metro':
             metro = ctx['client_metro']
             closest = [i for i in range(len(self.branches)) if metro in self.branches[i]['closest_subway']]
-        text = ['Ближайшие отделения<a href="{}">:</a>']
+
+        if len(closest) == 0:
+            return templates['not_found']
+
+        text = [templates['start']]
         points = []
         n = 1
         for i in closest:
             points.append(','.join(self.branches[i]['point'] + ('pmgnm%i' % n,)))
-            text.append('🏦 ' + self.branches[i]['address'])
+            text.append(templates['branch'].format(branch=self.branches[i]))
             n += 1
         del n
         url = self.maps_api_url.format('~'.join(points))
-        text[0] = text[0].format(url)
+        text[0] = text[0].format(href=url)
         text = '\n'.join(text)
 
         return text
