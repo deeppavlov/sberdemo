@@ -74,5 +74,9 @@
       {"action": "say: show_vsp; goto:"}
     ],
     {"action": "say: what_now; goto:"}
+  ],
+
+  "no_intent": [
+    {"action": "say: no_intent; goto:"}
   ]
 }
