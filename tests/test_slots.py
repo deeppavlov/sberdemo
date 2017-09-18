@@ -30,8 +30,8 @@ class TestSlots(unittest.TestCase):
         for slot in self.slots:
             try:
                 self.assertEqual(target_values[slot.id], slot.infer_from_compositional_request(text),
-                                 msg='Slot {} expected to be "{}" but was "{}"'.format(slot.id, target_values[slot.id],
-                                                                                       slot.infer_from_compositional_request(text)))
+                                 msg='Slot {} expected to be "{}" but was "{}"'.format(
+                                     slot.id, slot.infer_from_compositional_request(text), target_values[slot.id]))
             except NotImplementedError:
                 pass
 
