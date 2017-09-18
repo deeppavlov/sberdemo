@@ -24,24 +24,26 @@ def oversample_data(X, y, verbose=False, seed=23):
     labels = list(set(y))
     major_label = max(labels, key=lambda x: c[x])
     if verbose:
-        print("major: {}\n".format(major_label))
+        print("major: {}".format(major_label))
 
     assert major_label == c.most_common()[0][0]
 
+    sampled_data = []
     for label, count in c.most_common()[1:]:
         offset = c[major_label] - count
         y_new = np.hstack((y_new, [label] * offset))
         tmp = X[np.array(y) == label]
         sampled = random_state.choice(np.arange(len(tmp)), size=offset)
-        if isinstance(X[0][0], dict):
-            X_new = list(deepcopy(X_new))
-            X_new.extend(tmp[sampled])
-        else:
-            X_new = np.vstack((X_new, tmp[sampled]))
+        # if isinstance(X[0][0], dict):
+        sampled_data.extend(tmp[sampled])
+        # else:
+        #     sampled_data.extend()X_new = np.vstack((X_new, tmp[sampled]))
 
         if verbose:
-            print("offset: {} for label: {}\n".format(offset, label))
+            print("offset: {} for label: {}".format(offset, label))
+    print()
 
+    X_new = np.concatenate((X_new, np.array(sampled_data)))
     assert len(X_new) == len(c.keys()) * c[major_label]
     assert len(X_new) == len(y_new)
 
@@ -115,7 +117,10 @@ class StickSentence(TransformerMixin):
     def _preproc(data):
         if not isinstance(data[0], list):
             data = [data]
-        return [" ".join([w['normal'] for w in sent]) for sent in data]
+        if isinstance(data[0][0], dict):
+            return [" ".join([w['normal'] for w in sent]) for sent in data]
+        else:
+            return [" ".join(sent) for sent in data]
 
     def fit_transform(self, data, y=None):
         return self._preproc(data)

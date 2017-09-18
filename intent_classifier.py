@@ -38,6 +38,8 @@ class IntentClassifier():
             y_idx = y
 
         clf = SVC()
+        # clf = SVC(class_weight="balanced")
+
         sticker_sent = StickSentence()
         self.model = Pipeline([("sticker_sent", sticker_sent), ('feature_extractor', feat_generator), ('svc', clf)])
         self.model.fit(X, y_idx)

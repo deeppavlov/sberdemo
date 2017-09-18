@@ -10,23 +10,65 @@ from slots import read_slots_from_tsv, ClassifierSlot
 import os
 import argparse
 
+DUMP_DEFAULT = True
+MODEL_FOLDER_DEFAULT = './models_nlu'
+USE_CHAR_DEFAULT = False
 
-def main(args=None):
+
+def validate_train(model, X, y, groups, oversample=True, n_splits=5, use_chars=USE_CHAR_DEFAULT,
+                   dump_name='any.model', dump=DUMP_DEFAULT, model_folder=MODEL_FOLDER_DEFAULT, metric=f1_score,
+                   class_weights=None, verbose=True):
+    kf = GroupKFold(n_splits=n_splits)
+    all_y = []
+    all_predicted = []
+    for train_index, test_index in kf.split(X, y, groups):
+        X_train, y_train = X[train_index], y[train_index]
+        X_test, y_test = X[test_index], y[test_index]
+        if oversample:
+            X_tmp, y_tmp = oversample_data(X_train, y_train, verbose=verbose)
+            model.train_model(X_tmp, y_tmp, use_chars=use_chars)
+        else:
+            model.train_model(X_train, y_train, use_chars=use_chars)
+        pred = model.predict_batch(X_test)
+
+        all_predicted.extend(pred)
+        all_y.extend(y_test)
+
+    if metric is f1_score:
+        result = metric(all_y, all_predicted, average=None)
+    else:
+        result = metric(all_y, all_predicted)
+
+    if dump:
+        if oversample:
+            X_tmp, y_tmp = oversample_data(X, y, verbose=verbose)
+            model.train_model(X_tmp, y_tmp, use_chars=use_chars)
+        else:
+            model.train_model(X, y, use_chars=use_chars)
+
+        joblib.dump(model.model,
+                    os.path.join(model_folder, dump_name))
+        print('==Model dumped==')
+    print("classif_report:\n", classification_report(all_y, all_predicted))
+    return result
+
+
+def main(args=''):
     parser = argparse.ArgumentParser(description='Train SVM and dump it')
 
-    parser.add_argument('--folder', dest='model_folder', type=str, default='./models_nlu',
+    parser.add_argument('--folder', dest='model_folder', type=str, default=MODEL_FOLDER_DEFAULT,
                         help='The path for trained model')
 
     parser.add_argument('--data', dest='data_path', type=str, default='./generated_dataset.tsv',
                         help='The path of generated dataset')
 
-    parser.add_argument('--dump', dest='dump', action='store_true', default=True,
+    parser.add_argument('--dump', dest='dump', action='store_true', default=DUMP_DEFAULT,
                         help='Use flag to dump trained svm')
 
-    parser.add_argument('--oversample', dest='oversample', action='store_false', default=True,
-                        help='Use flag to test and dump models !without! oversample; defaule -- use oversample;')
+    parser.add_argument('--oversample', dest='oversample', action='store_true', default=False,
+                        help='Use flag to test and dump models with oversample')
 
-    parser.add_argument('--use_char', dest='use_char', action='store_true', default=False,
+    parser.add_argument('--use_char', dest='use_char', action='store_true', default=USE_CHAR_DEFAULT,
                         help='Use flag to use char features in svm')
 
     parser.add_argument('--slot_path', dest='slot_path', type=str, default="slots_definitions.tsv",
@@ -35,10 +77,10 @@ def main(args=None):
     parser.add_argument('--trash_intent', dest='trash_intent', type=str, default="no_intent.tsv",
                         help='The path of file with trash intent examples')
 
-    parser.add_argument('--slot_train', dest='slot_train', action='store_true', default=True,
+    parser.add_argument('--slot_train', dest='slot_train', action='store_true', default=False,
                         help="Use flag to train slots' svms ")
 
-    parser.add_argument('--intent_train', dest='intent_train', action='store_true', default=True,
+    parser.add_argument('--intent_train', dest='intent_train', action='store_true', default=False,
                         help="Use flag to train intent multiclass svm")
 
     args = parser.parse_args(args)
@@ -90,49 +132,23 @@ def main(args=None):
             targets[slot].append(not pd.isnull(row[slot]))
 
     y_intents = list(data['intent'])
-    X = [pipe.feed(sent) for sent in sents]
+    # X = [pipe.feed(sent) for sent in sents]
+    X = []
+    for s in sents:
+        X.append([w['normal'] for w in pipe.feed(s)])
 
     trash_sents = trash_data[:len(y_intents)]
-    X_intents = np.array(X + [pipe.feed(sent) for sent in trash_sents])
+    # X_intents = np.array(X + [pipe.feed(sent) for sent in trash_sents])
+    X_intents = list(X)
+    for s in trash_data[:len(y_intents)]:
+        X_intents.append([w['normal'] for w in pipe.feed(s)])
+    X_intents = np.array(X_intents)
+
     y_intents = np.array(y_intents + ['no_intent'] * len(trash_sents))
 
     # ---------------- validate & dump --------------#
 
-    def validate_train(model, X, y, groups=data['template_id'], oversample=OVERSAMPLE, n_splits=5, use_chars=USE_CHAR,
-                       dump_name='any.model', dump=DUMP, model_folder=MODEL_FOLDER, metric=f1_score, verbose=True):
-        kf = GroupKFold(n_splits=n_splits)
-        all_y = []
-        all_predicted = []
-        for train_index, test_index in kf.split(X, y, groups):
-            X_train, y_train = X[train_index], y[train_index]
-            X_test, y_test = X[test_index], y[test_index]
-            if oversample:
-                X_tmp, y_tmp = oversample_data(X_train, y_train, verbose=verbose)
-                model.train_model(X_tmp, y_tmp, use_chars=use_chars)
-            else:
-                model.train_model(X_train, y_train, use_chars=use_chars)
-            pred = model.predict_batch(X_test)
 
-            all_predicted.extend(pred)
-            all_y.extend(y_test)
-
-        if metric is f1_score:
-            result = metric(all_y, all_predicted, average=None)
-        else:
-            result = metric(all_y, all_predicted)
-
-        if dump:
-            if oversample:
-                X_tmp, y_tmp = oversample_data(X, y, verbose=verbose)
-                model.train_model(X_tmp, y_tmp, use_chars=use_chars)
-            else:
-                model.train_model(X, y, use_chars=use_chars)
-
-            joblib.dump(model.model,
-                        os.path.join(model_folder, dump_name))
-            print('==Model dumped==')
-        print("classif_report:\n", classification_report(all_y, all_predicted))
-        return result
 
     if INTENT_TRAIN:
         intent_clf = IntentClassifier(labels_list=y_intents)
@@ -145,9 +161,11 @@ def main(args=None):
         tmp_groups = list(data['template_id']) + list(range(tmp_max + 1, tmp_max + len(trash_sents) + 1))
         result = validate_train(intent_clf, X_intents, y_intents_idx,
                                 groups=tmp_groups,
+                                oversample=OVERSAMPLE,
                                 metric=f1_score,
                                 n_splits=8,
-                                dump_name="IntentClassifier.model")
+                                dump_name="IntentClassifier.model",
+                                class_weights=None)
         print("INTENT CLF: cv mean f1 score: {}".format(result))
 
         print('--------------')
@@ -159,6 +177,8 @@ def main(args=None):
 
             print("SLOT: ", slot.id)
             result = validate_train(model=slot, X=np.array(X), y=np.array(targets[slot.id]),
+                                    groups=data['template_id'],
+                                    oversample=OVERSAMPLE,
                                     n_splits=8,
                                     metric=f1_score,
                                     dump_name="{}.model".format(slot.id))
