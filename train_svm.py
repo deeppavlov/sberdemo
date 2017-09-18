@@ -2,7 +2,7 @@ import pandas as pd
 from nlu import *
 from intent_classifier import IntentClassifier
 from collections import defaultdict
-from sklearn.metrics import confusion_matrix, classification_report, f1_score
+from sklearn.metrics import classification_report, f1_score
 from sklearn.model_selection import GroupKFold
 from sklearn.externals import joblib
 from svm_classifier_utlilities import oversample_data
@@ -115,13 +115,6 @@ def main(args=None):
 
             all_predicted.extend(pred)
             all_y.extend(y_test)
-            # test_score = metric(y_test, pred)
-
-            # print("     >>pred!: ", [int(p) for p in pred])
-            # print("     >>true!: ", [int(p) for p in y_test])
-            # print(" --- ")
-            # print(">> ", test_score)
-            # print("     test_len: ", len(y_test))
 
         if metric is f1_score:
             result = metric(all_y, all_predicted, average=None)
@@ -149,11 +142,12 @@ def main(args=None):
         if DUMP:
             joblib.dump(intent_clf.string2idx, os.path.join(MODEL_FOLDER, "string2idx_dict.model"))
         tmp_max = max(data['template_id'])
-        tmp_groups = list(data['template_id'])+list(range(tmp_max+1, tmp_max+len(trash_sents)+1))
+        tmp_groups = list(data['template_id']) + list(range(tmp_max + 1, tmp_max + len(trash_sents) + 1))
         result = validate_train(intent_clf, X_intents, y_intents_idx,
                                 groups=tmp_groups,
-                                oversample=True, metric=f1_score,
-                                n_splits=8, dump_name="IntentClassifier.model", verbose=False)
+                                metric=f1_score,
+                                n_splits=8,
+                                dump_name="IntentClassifier.model")
         print("INTENT CLF: cv mean f1 score: {}".format(result))
 
         print('--------------')
@@ -167,7 +161,7 @@ def main(args=None):
             result = validate_train(model=slot, X=np.array(X), y=np.array(targets[slot.id]),
                                     n_splits=8,
                                     metric=f1_score,
-                                    dump_name="{}.model".format(slot.id), verbose=False)
+                                    dump_name="{}.model".format(slot.id))
             print("For slot: {} cv mean f1 score: {}".format(slot.id, result))
             print('--------------')
 

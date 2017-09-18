@@ -26,6 +26,8 @@ class TestSVM(unittest.TestCase):
                 value = map_for_data[row[key]]
             else:
                 value = row[key]
+            if not isinstance(text, str):
+                continue
             pred = predict_single_func(self.pipe.feed(text))
             count += 1
             if value == pred:
@@ -46,15 +48,6 @@ class TestSVM(unittest.TestCase):
             print("-" * 50)
         return right / count
 
-    # TODO: update test for intent_clf
-    # def test_clf_intent(self):
-    #     print("== Testing Intent clf ==")
-    #     labels = list(set(self.table["intent"]))
-    #     overall_acc = self._test_binary_clf(predict_single_func=self.intent_clf.predict_single,
-    #                                         labels=labels,
-    #                                         key='intent')
-    #     self.assertGreater(overall_acc, 0.95)
-
     def test_clf_slots(self):
         print("== Testing slots clf ==")
         time_started = time()
@@ -64,10 +57,28 @@ class TestSVM(unittest.TestCase):
                 overall_acc = self._test_binary_clf(predict_single_func=slot.infer_from_compositional_request,
                                                     labels=[None, slot.true],
                                                     key=slot.id,
-                                                    map_for_data={np.nan: None, 'E': slot.true, None:None})
+                                                    map_for_data={np.nan: None, 'E': slot.true, None: None})
                 self.assertGreater(overall_acc, 0.7)
 
         print('\t\t{:.2f} seconds'.format(time() - time_started))
+
+    def test_clf_intent(self):
+        print("== Testing Intent clf ==")
+
+        labels = self.intent_clf.string2idx.keys()
+        print("labels: ", self.intent_clf.string2idx)
+        max_num = max(self.table.template_id)
+
+        trash_data = pd.read_csv("./no_intent.tsv", sep='\t', header=None, names=self.table.columns[2:])
+        trash_data.insert(0, 'intent', ['no_intent'] * len(trash_data))
+        trash_data.insert(0, 'template_id', np.arange(max_num + 1, max_num + 1 + len(trash_data)))
+        self.table = self.table.append(trash_data)
+
+        overall_acc = self._test_binary_clf(predict_single_func=self.intent_clf.predict_single,
+                                            labels=labels,
+                                            key='intent')
+        self.assertGreater(overall_acc, 0.95)
+
 
 if __name__ == '__main__':
     unittest.main()
