@@ -60,12 +60,20 @@
 1	Что нужно чтобы счет у вас открыть и как это происходит?	show_docs	open_account
 1	Меня интересует открытие счета, я #ИП#client_type#?		open_account
 1	Я тут, у вас на сайте, что сделать, чтобы счет зарезервировать?	online_reserving	open_account
+1	Возможно ли открыть счет в #евро#currency# онлайн?	online_reserving	open_account
+1	Можно ли зарезервировать у вас счет в #евро#currency# не выходя из дома? Как-нибудь через сайт.	online_reserving	open_account
 1	Что нужно для открытия в вашем банке #р/счета#account_type#?		open_account
 1	Куда мне обращаться, чтобы счет открыть?		open_account
 1	А можно у вас открыть #расчетный счет#account_type#?		open_account
 1	Мне нужен счет #капитального ремонта#account_type# – что от меня требуется?		open_account
 1	Как мне открыть через СББОЛ #валютный#currency# счет?	online_reserving	open_account
-1	Какие условия обслуживания?		open_account
+1	Хочу дистанционно открыть счет. Это возможно?	online_reserving	open_account
+1	открыть счет онлайн без регистрации и смс	online_reserving	open_account
+1	Возможно ли открыть счет онлайн?	online_reserving	open_account
+1	Можно через ваш сайт открыть счет?	online_reserving	open_account
+1	счет онлайн	online_reserving	open_account
+1	открыть дистанционно счет через сайт	online_reserving	open_account
+1	Какие условия обслуживания?	cost_of_service	open_account
 1	Я могу у Вас в банке открыть #ООО#client_type#		open_account
 1	Какие тарифы на открытие счета в вашем банке?~Какие тарифы на открытие счета в Сбербанке~Какие тарифы на открытие счета	cost_of_service	open_account
 1	Хочу открыть #ИП#client_type#, скажите тарифы на открытие #рс#account_type# в вашем банке~Хочу открыть #ИП#client_type#, скажите тарифы на открытие #расчетного счета#account_type# в вашем банке?	cost_of_service	open_account
@@ -108,3 +116,25 @@
 1	Дайте информацию по банку на #улице Труда#client_address#	show_phone,show_schedule,search_vsp	search_bank
 1	График и телефон банка рядом со мной	show_phone,show_schedule,search_vsp	search_bank
 1	Где ближайший банк, работающий с #юридическими лицами#client_type#. График и телефон.	show_phone,show_schedule,search_vsp	search_bank
+1	А телефон этого офиса скажете?	show_phone	search_bank
+1	Можно номер этого офиса, пожалуйста	show_phone	search_bank
+1	Можно номер телефона их	show_phone	search_bank
+1	где найти сбероофис	search_vsp	search_bank
+1	офис хочу найти	search_vsp	search_bank
+1	помогите найти отделение сберовское	search_vsp	search_bank
+1	хочу найти офис	search_vsp	search_bank
+1	офис найти	search_vsp	search_bank
+1	найти отделение	search_vsp	search_bank
+1	найдите отделение банка вашего	search_vsp	search_bank
+1	найти банк ближайший	search_vsp	search_bank
+1	ищу банковский офис ваш	search_vsp	search_bank
+1	хочу найти ближайший банк	search_vsp	search_bank
+1	покажите адреса ближайших к #м. Савеловская#client_metro# офисов	search_vsp	search_bank
+1	хочу найти офис поблизости ко мне	search_vsp	search_bank
+1	есть ли поблизости к #улице Труда#client_address# офис сбербанка?	search_vsp	search_bank
+1	подскажите номер телефона офиса поблизости ко мне	search_vsp, show_phone	search_bank
+1	подскажите до скольки работает это отделение и его номер телефона, пожалуйста	show_phone,show_schedule	search_bank
+1	можно телефон офиса, пожалуйста	show_phone	search_bank
+1	хочу узнать расписание этих офисов	show_schedule	search_bank
+1	где мне найти офис, чтобы открыть там счет в иностранной валюте?	search_vsp	search_bank
+1	офис найти поблизости я хочу	search_vsp	search_bank
