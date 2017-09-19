@@ -2,7 +2,7 @@ import os
 from sklearn.externals import joblib
 from svm_classifier_utlilities import FeatureExtractor, StickSentence
 from sklearn.pipeline import Pipeline
-from sklearn.svm import SVC, LinearSVC
+from sklearn.svm import LinearSVC
 from typing import Dict, List, Any
 
 

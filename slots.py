@@ -10,7 +10,7 @@ from fuzzywuzzy import fuzz
 from natasha.extractors import Matches
 from sklearn.externals import joblib
 from sklearn.pipeline import Pipeline
-from sklearn.svm import SVC
+from sklearn.svm import LinearSVC
 
 from svm_classifier_utlilities import FeatureExtractor
 from svm_classifier_utlilities import StickSentence
@@ -139,7 +139,7 @@ class ClassifierSlot(DictionarySlot):
 
         """
         feat_generator = FeatureExtractor(use_chars=use_chars)
-        clf = SVC()
+        clf = LinearSVC()
         sticker_sent = StickSentence()
         self.model = Pipeline([("sticker_sent", sticker_sent), ('feature_extractor', feat_generator), ('svc', clf)])
         self.model.fit(X, y)
