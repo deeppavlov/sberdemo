@@ -26,7 +26,7 @@ def main():
     generate_from_templates(args)
 
     args = ['--folder', directory, '--data', dataset, '--slot_path', slot_definitions, '--slot_train', '--oversample']
-    # train_svm(args)
+    train_svm(args)
 
     args = ['--folder', directory, '--data', dataset, '--slot_path', slot_definitions, '--intent_train', '--oversample']
     train_svm(args)
