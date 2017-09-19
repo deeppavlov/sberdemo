@@ -2,7 +2,7 @@ import os
 from sklearn.externals import joblib
 from svm_classifier_utlilities import FeatureExtractor, StickSentence
 from sklearn.pipeline import Pipeline
-from sklearn.svm import SVC
+from sklearn.svm import SVC, LinearSVC
 from typing import Dict, List, Any
 
 
@@ -37,8 +37,7 @@ class IntentClassifier():
         else:
             y_idx = y
 
-        clf = SVC()
-        # clf = SVC(class_weight="balanced")
+        clf = LinearSVC()
 
         sticker_sent = StickSentence()
         self.model = Pipeline([("sticker_sent", sticker_sent), ('feature_extractor', feat_generator), ('svc', clf)])
