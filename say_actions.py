@@ -122,11 +122,17 @@ class Sayer:
         n = 1
         for i in closest:
             points.append(','.join(self.branches[i]['point'] + ('pmgnm%i' % n,)))
-            text.append(templates['branch'].format(branch=self.branches[i]))
+            branch = [self.branches[i]['address']]
+            if ctx.get('show_schedule') == self.slots['show_schedule'].true:
+                working_hours = ['🕒 ' + _ for _ in self.branches[i]['working_hours'].split(', ')]
+                branch.append('\n'.join(working_hours))
+            if ctx.get('show_phone') == self.slots['show_phone'].true:
+                branch.append('📞 ' + self.branches[i]['phone'])
+            text.append(templates['branch'].format(branch='\n'.join(branch)))
             n += 1
         del n
         url = self.maps_api_url.format('~'.join(points))
         text[0] = text[0].format(href=url)
-        text = '\n'.join(text)
+        text = '\n\n'.join(text)
 
         return text
