@@ -104,6 +104,14 @@ class StatisticalNLUModel:
                 elif val is not None:
                     res['slots'][slot.id] = val
         else:
+
+            for slot in self.slots.values():
+                val = slot.infer_from_compositional_request(message, message_type)
+                if isinstance(val, dict):
+                    res['slots'].update(val)
+                elif val is not None:
+                    res['slots'][slot.id] = val
+
             slot = self.slots[self.expect]
             val = slot.infer_from_single_slot(message, message_type)
             if isinstance(val, dict):
