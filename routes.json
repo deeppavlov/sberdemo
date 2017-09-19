@@ -16,7 +16,7 @@
           "condition": "true",
           "not_ask": 1
         },
-        {"action": "say: cant_reserve"}
+        {"action": "say: cant_reserve; goto: search_bank"}
       ],
       [
         {"true": "show_docs"},
@@ -61,7 +61,7 @@
         "condition": "true",
         "not_ask": 1
       },
-      {"action": "say: cant_reserve_acc_type"}
+      {"action": "say: cant_reserve_acc_type; goto: search_bank"}
     ],
 
     [
