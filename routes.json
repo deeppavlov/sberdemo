@@ -51,9 +51,29 @@
 
     [
       {
+        "slot": "account_type",
+        "condition": "not_in",
+        "value": "расчетный счет,гособрзаказ",
+        "not_ask": 1
+      },
+      {
+        "slot": "online_reserving",
+        "condition": "true",
+        "not_ask": 1
+      },
+      {"action": "say: cant_reserve_acc_type; goto:"}
+    ],
+
+    [
+      {
         "slot": "currency",
         "condition": "eq",
         "value": "rub"
+      },
+      {
+        "slot": "account_type",
+        "condition": "in",
+        "value": "Расчетный счет,ГосОбрЗаказ"
       },
       {"true": "online_reserving"},
       {"action": "say: reserve_new_acc_online; goto:"}

@@ -36,8 +36,12 @@ class DictionarySlot:
 
         self.filters = {
             'any': lambda x, _: True,
+
             'eq': lambda x, y: x == y,
-            'not_eq': lambda x, y: x != y
+            'not_eq': lambda x, y: x != y,
+
+            'in': lambda x, y: x in y.split(','),
+            'not_in': lambda x, y: x not in y.split(',')
         }
 
     def infer_from_compositional_request(self, text, input_type='text'):
