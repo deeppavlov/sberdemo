@@ -46,8 +46,11 @@ class Dialog:
         self.policy_model = policy_model
         self.user = user
 
+        self.logger = get_logger()
+        self.logger.info("{user.id}:{user.name} : started new dialog".format(user=self.user))
+
     def generate_response(self, client_utterance: str) -> List[str]:
-        get_logger().info("{user.id}:{user.name} >>> {msg}".format(user=self.user, msg=repr(client_utterance)))
+        self.logger.info("{user.id}:{user.name} >>> {msg}".format(user=self.user, msg=repr(client_utterance)))
         message_type = 'text'
         if client_utterance.startswith('__geo__'):
             text = eval(client_utterance.split(' ', 1)[1])
@@ -58,19 +61,19 @@ class Dialog:
         try:
             nlu_result = self.nlu_model.forward(text, message_type)
         except Exception as e:
-            get_logger().error(e)
+            self.logger.error(e)
             return ['NLU ERROR: {}'.format(str(e))]
-        get_logger().debug("{user.id}:{user.name} : nlu parsing result: {msg}".format(user=self.user, msg=nlu_result))
+        self.logger.debug("{user.id}:{user.name} : nlu parsing result: {msg}".format(user=self.user, msg=nlu_result))
         try:
             response, expect = self.policy_model.forward(nlu_result)
         except Exception as e:
-            get_logger().error(e)
+            self.logger.error(e)
             return ['ERROR: {}'.format(str(e))]
         self.nlu_model.set_expectation(expect)
         for msg in response:
-            get_logger().info("{user.id}:{user.name} <<< {msg}".format(user=self.user, msg=repr(msg)))
+            self.logger.info("{user.id}:{user.name} <<< {msg}".format(user=self.user, msg=repr(msg)))
         if expect:
-            get_logger().debug("{user.id}:{user.name} : expecting slot `{msg}`".format(user=self.user, msg=expect))
+            self.logger.debug("{user.id}:{user.name} : expecting slot `{msg}`".format(user=self.user, msg=expect))
         return response
 
 
