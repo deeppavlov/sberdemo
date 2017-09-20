@@ -84,7 +84,7 @@ def main(args=''):
     parser.add_argument('--dump', dest='dump', action='store_true', default=DUMP_DEFAULT,
                         help='Use flag to dump trained svm')
 
-    parser.add_argument('--oversample', dest='oversample', action='store_true', default=True,
+    parser.add_argument('--oversample', dest='oversample', action='store_true', default=False,
                         help='Use flag to test and dump models with oversample')
 
     parser.add_argument('--use_char', dest='use_char', action='store_true', default=USE_CHAR_DEFAULT,
@@ -96,10 +96,10 @@ def main(args=''):
     parser.add_argument('--trash_intent', dest='trash_intent', type=str, default="no_intent.tsv",
                         help='The path of file with trash intent examples')
 
-    parser.add_argument('--slot_train', dest='slot_train', action='store_true', default=True,
+    parser.add_argument('--slot_train', dest='slot_train', action='store_true', default=False,
                         help="Use flag to train slots' svms ")
 
-    parser.add_argument('--intent_train', dest='intent_train', action='store_true', default=True,
+    parser.add_argument('--intent_train', dest='intent_train', action='store_true', default=False,
                         help="Use flag to train intent multiclass svm")
 
     parser.add_argument('--num_importance', dest='num_importance', type=int, default=20,
