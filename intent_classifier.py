@@ -22,9 +22,9 @@ class IntentClassifier():
         if folder is not None:
             self.load_model(folder)
 
-    def train_model(self, X: List[List[Dict[str, Any]]], y: List[str], use_chars=False):
+    def train_model(self, X: List[List[str]], y: List[str], use_chars=False):
         """
-        :param X: List[List[Dict[str, Any]]] -- pipelinePreprocess output
+        :param X: batch of pipelinePreprocess outputs
         :param y: List[str]
         :param use_chars: True if use char features
         :return: None
@@ -39,19 +39,18 @@ class IntentClassifier():
 
         clf = LinearSVC()
 
-        sticker_sent = StickSentence()
-        self.model = Pipeline([("sticker_sent", sticker_sent), ('feature_extractor', feat_generator), ('svc', clf)])
+        self.model = Pipeline([('sticker_sent', StickSentence()),
+                               ('feature_extractor', feat_generator),
+                               ('classifier', clf)])
         self.model.fit(X, y_idx)
 
     def predict_single(self, text: List[Dict[str, Any]]):
-        if self.model is None:
-            raise NotImplementedError("No model specified!")
+        assert self.model, 'No model specified!'
         label = self.model.predict(text)[0]
         return self.idx2string[label]
 
     def predict_batch(self, list_texts: List[List[Dict[str, Any]]]):
-        if self.model is None:
-            raise NotImplementedError("No model specified!")
+        assert self.model, 'No model specified!'
         labels = self.model.predict(list_texts)
         return labels
 
