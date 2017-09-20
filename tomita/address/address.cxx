@@ -1,12 +1,10 @@
 #encoding "utf8"
 #GRAMMAR_ROOT House
 
-StreetCapW -> 'Проспект' | 'Проезд' | 'Улица' | 'Шоссе' | 'Площадь';
 StreetW -> 'проспект' | 'проезд' | 'улица' | 'шоссе' | 'площадь';
-StreetCapSokr -> 'Пр' | 'Просп' | 'Пр-д' | 'Ул' | 'Ш' | 'Пл';
 StreetSokr -> 'пр' | 'просп' | 'пр-д' | 'ул' | 'ш' | 'пл';
 
-StreetDescr -> StreetW | StreetCapW | StreetSokr | StreetCapSokr;
+StreetDescr -> StreetW | StreetSokr;
 
 
 StreetNameNoun -> (Adj<gnc-agr[1]>) Word<gnc-agr[1],rt> (Word<gram="род">);
@@ -32,8 +30,8 @@ Street -> StreetSokr interp (Street.Descr) StreetNameAdj interp (Street.StreetNa
 
 
 DomDeskr -> 'д' | 'дом';
-Dom -> (DomDeskr) AnyWord<wff="\\d+(к\\d*)?">;
-Dom -> AnyWord<wff="(д|(дом))?\\d+(к\\d*)?">;
+Dom -> (DomDeskr) AnyWord<wff="\\d+((к|/)\\d*)?">;
+Dom -> AnyWord<wff="(д|(дом))?\\d+((к|/)\\d*)?">;
 
 
 House -> Street (Dom interp (Street.House));
