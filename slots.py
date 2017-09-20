@@ -31,7 +31,7 @@ class DictionarySlot:
             t = phrase.split()
             self.ngrams[len(t)].append(phrase)
 
-        self.threshold = 95
+        self.threshold = 90
         self.input_type = {'text'}
 
         self.filters = {
@@ -100,6 +100,17 @@ class DictionarySlot:
 
     def ask(self) -> str:
         return random.choice(self.ask_sentences)
+
+
+class AskOnlyDictionarySlot(DictionarySlot):
+    def __init__(self, slot_id: str, ask_sentence: str, generative_dict: Dict[str, str],
+                 nongenerative_dict: Dict[str, str], values_order: List[str], prev_created_slots, *args):
+        super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict, values_order, prev_created_slots,
+                         *args)
+
+    def _infer_from_compositional_request(self, text: List[Dict[str, Any]]):
+        # restrict pasring compositional requests
+        return None
 
 
 class CurrencySlot(DictionarySlot):
