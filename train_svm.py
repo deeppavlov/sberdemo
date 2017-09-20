@@ -6,6 +6,7 @@ from sklearn.metrics import classification_report, f1_score
 from sklearn.model_selection import GroupKFold
 from sklearn.externals import joblib
 from svm_classifier_utlilities import oversample_data
+from sklearn.svm import LinearSVC
 from slots import read_slots_from_tsv, ClassifierSlot
 import os
 import argparse
@@ -17,7 +18,8 @@ USE_CHAR_DEFAULT = False
 
 def validate_train(model, X, y, groups, oversample=True, n_splits=5, use_chars=USE_CHAR_DEFAULT,
                    dump_name='any.model', dump=DUMP_DEFAULT, model_folder=MODEL_FOLDER_DEFAULT, metric=f1_score,
-                   class_weights=None, verbose=True):
+                   class_weights=None, verbose=False, num_importance = 20):
+
     kf = GroupKFold(n_splits=n_splits)
     all_y = []
     all_predicted = []
@@ -34,6 +36,8 @@ def validate_train(model, X, y, groups, oversample=True, n_splits=5, use_chars=U
         all_predicted.extend(pred)
         all_y.extend(y_test)
 
+    print(">>> MODEL: ", dump_name)
+
     if metric is f1_score:
         result = metric(all_y, all_predicted, average=None)
     else:
@@ -48,6 +52,21 @@ def validate_train(model, X, y, groups, oversample=True, n_splits=5, use_chars=U
 
         joblib.dump(model.model,
                     os.path.join(model_folder, dump_name))
+
+        if isinstance(model.model.steps[2][1], LinearSVC):
+            print("---Feature importance for {} ---".format(dump_name))
+            coefs = model.model.steps[2][1].coef_[0]
+            names = model.model.steps[1][1].words_vectorizer.get_feature_names()
+            weights = sorted(list(zip(names, coefs)), key=lambda x: x[1], reverse=True)
+            print("\n --- TOP {} most important --- \n".format(num_importance))
+            for n, val in weights[:num_importance]:
+
+                print("{}\t{}".format(n, np.round(val, 3)))
+            print(print("\n --- TOP {} anti features --- \n".format(num_importance)))
+            for n, val in weights[::-1][:num_importance]:
+                print("{}\t{}".format(n, np.round(val, 3)))
+        else:
+            print("WHAT: ", type(model.model.steps[2][1]))
         print('==Model dumped==')
     print("classif_report:\n", classification_report(all_y, all_predicted))
     return result
@@ -65,7 +84,7 @@ def main(args=''):
     parser.add_argument('--dump', dest='dump', action='store_true', default=DUMP_DEFAULT,
                         help='Use flag to dump trained svm')
 
-    parser.add_argument('--oversample', dest='oversample', action='store_true', default=False,
+    parser.add_argument('--oversample', dest='oversample', action='store_true', default=True,
                         help='Use flag to test and dump models with oversample')
 
     parser.add_argument('--use_char', dest='use_char', action='store_true', default=USE_CHAR_DEFAULT,
@@ -77,11 +96,15 @@ def main(args=''):
     parser.add_argument('--trash_intent', dest='trash_intent', type=str, default="no_intent.tsv",
                         help='The path of file with trash intent examples')
 
-    parser.add_argument('--slot_train', dest='slot_train', action='store_true', default=False,
+    parser.add_argument('--slot_train', dest='slot_train', action='store_true', default=True,
                         help="Use flag to train slots' svms ")
 
-    parser.add_argument('--intent_train', dest='intent_train', action='store_true', default=False,
+    parser.add_argument('--intent_train', dest='intent_train', action='store_true', default=True,
                         help="Use flag to train intent multiclass svm")
+
+    parser.add_argument('--num_importance', dest='num_importance', type=int, default=20,
+                        help="How many samples to show in feature importance")
+
 
     args = parser.parse_args(args)
     params = vars(args)
@@ -95,6 +118,7 @@ def main(args=''):
     USE_CHAR = params['use_char']
     INTENT_TRAIN = params['intent_train']
     SLOT_TRAIN = params['slot_train']
+    NUM_IMPORTANCE = params['num_importance']
 
     # just checking:
     print("Current configuration:\n")
@@ -132,13 +156,11 @@ def main(args=''):
             targets[slot].append(not pd.isnull(row[slot]))
 
     y_intents = list(data['intent'])
-    # X = [pipe.feed(sent) for sent in sents]
     X = []
     for s in sents:
         X.append([w['normal'] for w in pipe.feed(s)])
 
     trash_sents = trash_data[:len(y_intents)]
-    # X_intents = np.array(X + [pipe.feed(sent) for sent in trash_sents])
     X_intents = list(X)
     for s in trash_data[:len(y_intents)]:
         X_intents.append([w['normal'] for w in pipe.feed(s)])
@@ -165,6 +187,7 @@ def main(args=''):
                                 metric=f1_score,
                                 n_splits=8,
                                 dump_name="IntentClassifier.model",
+                                num_importance=NUM_IMPORTANCE,
                                 class_weights=None)
         print("INTENT CLF: cv mean f1 score: {}".format(result))
 
@@ -174,13 +197,12 @@ def main(args=''):
         for slot in slot_list:
             if slot.id not in slot_names:
                 continue
-
-            print("SLOT: ", slot.id)
             result = validate_train(model=slot, X=np.array(X), y=np.array(targets[slot.id]),
                                     groups=data['template_id'],
                                     oversample=OVERSAMPLE,
                                     n_splits=8,
                                     metric=f1_score,
+                                    num_importance=NUM_IMPORTANCE,
                                     dump_name="{}.model".format(slot.id))
             print("For slot: {} cv mean f1 score: {}".format(slot.id, result))
             print('--------------')
