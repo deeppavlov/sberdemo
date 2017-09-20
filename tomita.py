@@ -31,7 +31,8 @@ class Tomita:
         if not raw:  # empty result
             return []
         if raw.startswith(b'<document'):
-            return xmltodict.parse(raw.decode('UTF8'))['document']
+            raw = raw.decode('UTF8').split('\r\n')[0]
+            return xmltodict.parse(raw)['document']
         # todo: do something with protobuf and (maybe) text
         raise RuntimeError('Expected xml document, got {}'.format(raw))
 
