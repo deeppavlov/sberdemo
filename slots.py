@@ -199,7 +199,8 @@ class TomitaSlot(DictionarySlot):
         wd = os.path.dirname(config_real_path)
         assert 'TOMITA_PATH' in os.environ, 'Specify path to Tomita binary in $TOMITA_PATH'
         tomita_path = os.environ['TOMITA_PATH']
-        self.tomita = Tomita(tomita_path, config_real_path, cwd=wd)
+        logfile = open(os.path.join('.', 'logs', '{}.log'.format(slot_id)), 'wb')
+        self.tomita = Tomita(tomita_path, config_real_path, cwd=wd, logfile=logfile)
 
     def _infer(self, text: List[Dict[str, Any]]):
         joined_text = ' '.join(w['_orig'] for w in text)

@@ -172,7 +172,7 @@ def set_logger(level=logging.DEBUG):
     logger = logging.getLogger('router')
     logger.setLevel(level)
 
-    fh = logging.FileHandler('router.log')
+    fh = logging.FileHandler(os.path.join('.', 'logs', 'router.log'))
     fh.setLevel(level)
 
     ch = logging.StreamHandler()

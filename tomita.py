@@ -9,10 +9,10 @@ import os
 
 class Tomita:
 
-    def __init__(self, executable, config, cwd=None):
+    def __init__(self, executable, config, cwd=None, logfile=None):
         assert os.path.isfile(config), 'Config file "{}" not found'.format(config)
         self.name = 'Tomita'
-        self.p = pexpect.spawn(executable, [config], cwd=cwd)
+        self.p = pexpect.spawn(executable, [config], cwd=cwd, logfile=logfile)
         self.p.expect('.* Start.*$')
 
     def communicate(self, text):
