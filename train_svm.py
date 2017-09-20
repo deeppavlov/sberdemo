@@ -11,6 +11,8 @@ from slots import read_slots_from_tsv, ClassifierSlot
 import os
 import argparse
 
+import urllib.request
+
 DUMP_DEFAULT = True
 MODEL_FOLDER_DEFAULT = './models_nlu'
 USE_CHAR_DEFAULT = False
@@ -93,7 +95,7 @@ def main(args=''):
     parser.add_argument('--slot_path', dest='slot_path', type=str, default="slots_definitions.tsv",
                         help='The path of file with slot definitions')
 
-    parser.add_argument('--trash_intent', dest='trash_intent', type=str, default="no_intent.tsv",
+    parser.add_argument('--trash_intent', dest='trash_intent', type=str, default="sberdemo_no_intent.tsv.gz",
                         help='The path of file with trash intent examples')
 
     parser.add_argument('--slot_train', dest='slot_train', action='store_true', default=False,
@@ -143,7 +145,14 @@ def main(args=''):
 
     # ------------ making train data ---------------#
 
-    trash_data = list(set(pd.read_csv(NO_INTENT, sep='\t', header=None).ix[:, 0]))
+    if not os.path.isfile(NO_INTENT):
+        url = 'http://share.ipavlov.mipt.ru:8080/repository/datasets/' + os.path.basename(NO_INTENT)
+        try:
+            urllib.request.urlretrieve(url, NO_INTENT)
+        except:
+            pass
+
+    trash_data = list(set(pd.read_csv(NO_INTENT, compression='gzip',  sep='\t', header=None).ix[:, 0]))
     data = pd.read_csv(DATA_PATH, sep='\t')
     sents = []
     targets = defaultdict(list)
