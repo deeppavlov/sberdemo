@@ -60,6 +60,19 @@ class Lower(Preprocessor):
         return res
 
 
+class Replacer(Preprocessor):
+    def __init__(self, *replacement_from_to_pairs):
+        self.pairs = replacement_from_to_pairs
+
+    def process(self, words: List[Dict]):
+        res = []
+        for w in words:
+            for old, new in self.pairs:
+                w['_text'] = w['_text'].replace(old, new)
+            res.append(w)
+        return res
+
+
 class PreprocessorPipeline:
     def __init__(self,
                  sent_tokenizer: Callable[[str], List[str]],
@@ -126,7 +139,9 @@ class StatisticalNLUModel:
 
 
 def create_pipe():
-    return PreprocessorPipeline(sent_tokenize, word_tokenize, [PyMorphyPreproc(), Lower()])
+    return PreprocessorPipeline(sent_tokenize, word_tokenize, [Replacer(('ё', 'е')),
+                                                               PyMorphyPreproc(),
+                                                               Lower()])
 
 
 if __name__ == '__main__':
