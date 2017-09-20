@@ -22,22 +22,22 @@ class TestSlots(unittest.TestCase):
     def test_infer_from_single_slot(self):
         self.assertEqual('савеловская', self['client_metro'].infer_from_single_slot(self.pipe.feed('рядом с метро савеловская')))
 
-    def _test_infer_from_compositional_request(self, message_text, **slot_values):
+    def _test_fuzzywuzzy_infer_from_compositional_request(self, message_text, **slot_values):
         text = self.pipe.feed(message_text)
         target_values = defaultdict(lambda: None)
         for slot_name, slot_expected_value in slot_values.items():
             target_values[slot_name] = slot_expected_value
         for slot in self.slots:
-            try:
-                self.assertEqual(target_values[slot.id], slot.infer_from_compositional_request(text),
-                                 msg='Slot {} expected to be "{}" but was "{}"'.format(
-                                     slot.id, slot.infer_from_compositional_request(text), target_values[slot.id]))
-            except NotImplementedError:
-                pass
+            if type(slot) != DictionarySlot:
+                continue
+            self.assertEqual(target_values[slot.id], slot.infer_from_compositional_request(text),
+                             msg='Slot {} expected to be "{}" but was "{}"'.format(
+                                 slot.id, slot.infer_from_compositional_request(text), target_values[slot.id]))
+
 
     def test_infer_from_compositional_request(self):
-        self._test_infer_from_compositional_request('Добрый день! Могу ли я открыть отдельный счет по 275ФЗ и что для этого нужно? ', account_type='расчетный счет')
-        self._test_infer_from_compositional_request('Есть рядом с метро савеловская какое-нибудь отделение поблизости?', client_metro='савеловская')
+        self._test_fuzzywuzzy_infer_from_compositional_request('Добрый день! Могу ли я открыть отдельный счет по 275ФЗ и что для этого нужно? ', account_type='расчетный счет')
+        self._test_fuzzywuzzy_infer_from_compositional_request('Есть рядом с метро савеловская какое-нибудь отделение поблизости?', client_metro='савеловская')
 
     def test_tomita(self):
         tomita = self['client_tomita_address']
