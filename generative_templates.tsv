@@ -97,7 +97,7 @@
 1	В какое отделение в Москве обратиться для открытия р\с?	search_vsp	search_bank
 1	хочу счет		open_account
 1	Куда пойти, чтобы мне открыли счет?	search_vsp	search_bank
-1	получить хочу, какие документы нужны	show_docs	open_account
+1	открыть счёт хочу, какие документы нужны	show_docs	open_account
 1	надо #счет#account_type# открыть~нужен #счет#account_type#~хочу #счет#account_type#~#счет#account_type# нужен~мне нужен #счет#account_type#~хочу #счет#account_type#, что делать?		open_account
 1	#счет#account_type# открой		open_account
 1	#счет#account_type#		open_account
