@@ -72,6 +72,8 @@ class Dialog:
         self.nlu_model.set_expectation(expect)
         for msg in response:
             self.logger.info("{user.id}:{user.name} <<< {msg}".format(user=self.user, msg=repr(msg)))
+        self.logger.debug("{user.id}:{user.name} : filled slots: `{msg}`".format(user=self.user,
+                                                                                 msg=str(self.policy_model.slots)))
         if expect:
             self.logger.debug("{user.id}:{user.name} : expecting slot `{msg}`".format(user=self.user, msg=expect))
         return response
@@ -205,7 +207,7 @@ def main():
     humans = {}
 
     def new_dialog(user):
-        debug = get_logger().level <= logging.DEBUG
+        debug = True
         return Dialog(pipe, StatisticalNLUModel(slots, IntentClassifier(folder=models_path)),
                       GraphBasedSberdemoPolicy(data, slots, sayer, debug=debug), user)
 
