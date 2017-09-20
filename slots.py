@@ -7,7 +7,6 @@ from itertools import chain
 from typing import Dict, List, Any, Union
 
 from fuzzywuzzy import fuzz
-from natasha.extractors import Matches
 from sklearn.externals import joblib
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
@@ -184,31 +183,6 @@ class CompositionalSlot(DictionarySlot):
             if rv is not None:
                 return {s.id: rv, self.id: s.id}
         return None
-
-
-class NatashaSlot(DictionarySlot):
-    def __init__(self, slot_id: str, ask_sentence: str, generative_dict: Dict[str, str],
-                 nongenerative_dict: Dict[str, str], values_order: List[str], prev_created_slots, *args):
-        super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict, values_order, prev_created_slots,
-                         *args)
-
-        assert len(args) == 1, 'Slot {} has exactly 1 arguments'.format(NatashaSlot.__name__)
-
-        module_name, = args
-        mod = importlib.import_module(module_name)
-        self.extractor = mod.extractor()
-
-    def _infer(self, text: List[Dict[str, Any]]):
-        joined_text = ' '.join(w['_orig'] for w in text)
-        for p in '.,!?:;':
-            joined_text = joined_text.replace(' ' + p, '')
-        joined_text = joined_text.replace('.', ' ')
-
-        matches = self.extractor(joined_text)  # type: Matches
-        if matches.matches:
-            match = matches.matches[0]
-            start, end = match.span
-            return matches.text[start:end]
 
 
 class TomitaSlot(DictionarySlot):

@@ -15,7 +15,7 @@ class TestSlots(unittest.TestCase):
         return self.slots_map[item]
 
     def test_reading_from_definitions(self):
-        self.assertEqual(len(self.slots), 17)
+        self.assertEqual(len(self.slots), 16)
         self.assertIn('евро', self['currency'].gen_dict)
         self.assertIn('библиотека', self['client_metro'].gen_dict)
 
@@ -40,7 +40,7 @@ class TestSlots(unittest.TestCase):
         self._test_fuzzywuzzy_infer_from_compositional_request('Есть рядом с метро савеловская какое-нибудь отделение поблизости?', client_metro='савеловская')
 
     def test_tomita(self):
-        tomita = self['client_tomita_address']
+        tomita = self['client_address']
         self.assertEqual('улица Победы 44', tomita.infer_from_single_slot(self.pipe.feed('улица Победы 44 проспект Сахара 33')), msg='Only first address is recognized')
         self.assertEqual('улица правды', tomita.infer_from_single_slot(self.pipe.feed('мой адрес улица правды')))
         addresses = ['улица Победы',
@@ -60,28 +60,6 @@ class TestSlots(unittest.TestCase):
                      'Первомайская ул']
         for a in addresses:
             self.assertEqual(a.replace('. ', ' ').replace('.', ' ').strip(), tomita.infer_from_single_slot(self.pipe.feed(a)))
-
-    def test_natasha(self):
-        natasha = self['client_address']
-        self.assertEqual('улица Победы 44', natasha.infer_from_single_slot(self.pipe.feed('улица Победы 44 проспект Сахара 33')), msg='Only first address is recognized')
-        self.assertEqual('улица Правды', natasha.infer_from_single_slot(self.pipe.feed('мой адрес улица Правды')))
-        addresses = ['улица Победы',
-                     'ул Поражения',
-                     'ул. Правды',
-                     'ул Дружинников',
-                     'Сенная площадь',
-                     'площадь Революции',
-                     # 'Пл джихаддистов',
-                     'пр.Бешенных панд',
-                     'Московский проспект',
-                     'Ленинградский пр.',
-                     'Санк-Петербургское шоссе',
-                     'Ленинский Проезд',
-                     'пл Морской Славы',
-                     'ул. Маяковского',
-                     'Первомайская ул']
-        for a in addresses:
-            self.assertEqual(a.replace('. ', ' ').replace('.', ' ').strip(), natasha.infer_from_single_slot(self.pipe.feed(a)))
 
     def test_dictionary_slots(self):
         import pandas as pd
