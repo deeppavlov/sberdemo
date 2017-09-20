@@ -15,7 +15,7 @@ class TestSlots(unittest.TestCase):
         return self.slots_map[item]
 
     def test_reading_from_definitions(self):
-        self.assertEqual(len(self.slots), 16)
+        self.assertEqual(len(self.slots), 17)
         self.assertIn('евро', self['currency'].gen_dict)
         self.assertIn('библиотека', self['client_metro'].gen_dict)
 
@@ -41,7 +41,7 @@ class TestSlots(unittest.TestCase):
 
     def test_tomita(self):
         tomita = self['client_tomita_address']
-        self.assertEqual('улица Победы', tomita.infer_from_single_slot(self.pipe.feed('улица Победы 44 проспект Сахара 33')), msg='Only first address is recognized')
+        self.assertEqual('улица Победы 44', tomita.infer_from_single_slot(self.pipe.feed('улица Победы 44 проспект Сахара 33')), msg='Only first address is recognized')
         self.assertEqual('улица правды', tomita.infer_from_single_slot(self.pipe.feed('мой адрес улица правды')))
         addresses = ['улица Победы',
                      'ул Поражения',
