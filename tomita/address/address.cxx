@@ -22,12 +22,12 @@ StreetNameAdj -> Adj Adj*;
 StreetNameAdj -> NumberW<gnc-agr[1]> Adj<gnc-agr[1]>;
 
 
-Street -> StreetDescr interp (Street.Descr) StreetNameNoun<gram="род"> interp (Street.StreetName::not_norm) Dom interp (Street.House);
-Street -> StreetDescr interp (Street.Descr) StreetNameNoun<gram="им"> interp (Street.StreetName::not_norm);
+Street -> StreetDescr interp (Street.Descr) StreetNameNoun<gram="род"> interp (Street.StreetName::not_norm) (Dom interp (Street.House));
+Street -> StreetDescr interp (Street.Descr) StreetNameNoun<gram="им"> interp (Street.StreetName::not_norm) (Dom interp (Street.House));
 
-Street -> StreetNameAdj<gnc-agr[1]> interp (Street.StreetName) StreetW<gnc-agr[1]> interp (Street.Descr);
-Street -> StreetNameAdj interp (Street.StreetName) StreetSokr interp (Street.Descr);
-Street -> StreetW<gnc-agr[1]> interp (Street.Descr) StreetNameAdj<gnc-agr[1]> interp (Street.StreetName);
-Street -> StreetSokr interp (Street.Descr) StreetNameAdj interp (Street.StreetName);
+Street -> StreetNameAdj<gnc-agr[1]> interp (Street.StreetName) StreetW<gnc-agr[1]> interp (Street.Descr) (Dom interp (Street.House));
+Street -> StreetNameAdj interp (Street.StreetName) StreetSokr interp (Street.Descr) (Dom interp (Street.House));
+Street -> StreetW<gnc-agr[1]> interp (Street.Descr) StreetNameAdj<gnc-agr[1]> interp (Street.StreetName) (Dom interp (Street.House));
+Street -> StreetSokr interp (Street.Descr) StreetNameAdj interp (Street.StreetName) (Dom interp (Street.House));
 
 // House -> Street Dom interp (Street.House);
