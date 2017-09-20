@@ -1,5 +1,7 @@
 import os
 from sklearn.externals import joblib
+from sklearn.linear_model import LogisticRegression
+
 from svm_classifier_utlilities import FeatureExtractor, StickSentence
 from sklearn.pipeline import Pipeline
 from sklearn.svm import LinearSVC
@@ -37,7 +39,8 @@ class IntentClassifier():
         else:
             y_idx = y
 
-        clf = LinearSVC()
+        # clf = LinearSVC()
+        clf = LogisticRegression(penalty='l1', C=10)
 
         self.model = Pipeline([('sticker_sent', StickSentence()),
                                ('feature_extractor', feat_generator),

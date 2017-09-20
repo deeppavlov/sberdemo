@@ -9,6 +9,7 @@ from typing import Dict, List, Any, Union
 from fuzzywuzzy import fuzz
 from natasha.extractors import Matches
 from sklearn.externals import joblib
+from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
 from sklearn.svm import LinearSVC
 
@@ -140,7 +141,8 @@ class ClassifierSlot(DictionarySlot):
 
         """
         feat_generator = FeatureExtractor(use_chars=use_chars)
-        clf = LinearSVC()
+        # clf = LinearSVC(1)
+        clf = LogisticRegression(penalty='l1', C=0.5)
         sticker_sent = StickSentence()
         self.model = Pipeline([("sticker_sent", sticker_sent), ('feature_extractor', feat_generator), ('svc', clf)])
         self.model.fit(X, y)
