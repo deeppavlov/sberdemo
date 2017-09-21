@@ -1,6 +1,11 @@
 # Tomita temp files
 *.bin
 
+# build artifacts
+sberdemo_no_intent.tsv.gz
+generated_dataset.tsv
+models_nlu
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
