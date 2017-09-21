@@ -20,8 +20,7 @@ USE_CHAR_DEFAULT = False
 
 def validate_train(model, X, y, groups, oversample=True, n_splits=5, use_chars=USE_CHAR_DEFAULT,
                    dump_name='any.model', dump=DUMP_DEFAULT, model_folder=MODEL_FOLDER_DEFAULT, metric=f1_score,
-                   class_weights=None, verbose=False, num_importance = 20):
-
+                   class_weights=None, verbose=False, num_importance=20):
     kf = GroupKFold(n_splits=n_splits)
     all_y = []
     all_predicted = []
@@ -62,7 +61,6 @@ def validate_train(model, X, y, groups, oversample=True, n_splits=5, use_chars=U
             weights = sorted(list(zip(names, coefs)), key=lambda x: x[1], reverse=True)
             print("\n --- TOP {} most important --- \n".format(num_importance))
             for n, val in weights[:num_importance]:
-
                 print("{}\t{}".format(n, np.round(val, 3)))
             print(print("\n --- TOP {} anti features --- \n".format(num_importance)))
             for n, val in weights[::-1][:num_importance]:
@@ -98,15 +96,14 @@ def main(args=''):
     parser.add_argument('--trash_intent', dest='trash_intent', type=str, default="sberdemo_no_intent.tsv.gz",
                         help='The path of file with trash intent examples')
 
-    parser.add_argument('--slot_train', dest='slot_train', action='store_true', default=False,
+    parser.add_argument('--slot_train', dest='slot_train', action='store_true', default=True,
                         help="Use flag to train slots' svms ")
 
-    parser.add_argument('--intent_train', dest='intent_train', action='store_true', default=False,
+    parser.add_argument('--intent_train', dest='intent_train', action='store_true', default=True,
                         help="Use flag to train intent multiclass svm")
 
     parser.add_argument('--num_importance', dest='num_importance', type=int, default=20,
                         help="How many samples to show in feature importance")
-
 
     args = parser.parse_args(args)
     params = vars(args)
@@ -173,9 +170,12 @@ def main(args=''):
     X_intents = list(X)
     for s in trash_data[:len(y_intents)]:
         X_intents.append([w['normal'] for w in pipe.feed(s)])
+
     X_intents = np.array(X_intents)
 
     y_intents = np.array(y_intents + ['no_intent'] * len(trash_sents))
+    tmp_max = max(data['template_id'])
+    tmp_groups = list(data['template_id']) + list(range(tmp_max + 1, tmp_max + len(trash_sents) + 1))
 
     # ---------------- validate & dump --------------#
 
@@ -188,8 +188,6 @@ def main(args=''):
         y_intents_idx = np.array([intent_clf.string2idx[t] for t in y_intents])
         if DUMP:
             joblib.dump(intent_clf.string2idx, os.path.join(MODEL_FOLDER, "string2idx_dict.model"))
-        tmp_max = max(data['template_id'])
-        tmp_groups = list(data['template_id']) + list(range(tmp_max + 1, tmp_max + len(trash_sents) + 1))
         result = validate_train(intent_clf, X_intents, y_intents_idx,
                                 groups=tmp_groups,
                                 oversample=OVERSAMPLE,
@@ -206,8 +204,9 @@ def main(args=''):
         for slot in slot_list:
             if slot.id not in slot_names:
                 continue
-            result = validate_train(model=slot, X=np.array(X), y=np.array(targets[slot.id]),
-                                    groups=data['template_id'],
+
+            result = validate_train(model=slot, X=X_intents, y=np.array(targets[slot.id] + [False] * len(trash_sents)),
+                                    groups=tmp_groups,
                                     oversample=OVERSAMPLE,
                                     n_splits=8,
                                     metric=f1_score,
