@@ -30,6 +30,8 @@ class Tomita:
         raw = self.communicate(text)
         if not raw:  # empty result
             return []
+        if raw.startswith(b'Time:'):  # debug(?) output from tomita, ignore
+            return []
         if raw.startswith(b'<document'):
             raw = raw.decode('UTF8').split('\r\n')[0]
             return xmltodict.parse(raw)['document']
