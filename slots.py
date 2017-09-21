@@ -151,8 +151,8 @@ class ClassifierSlot(DictionarySlot):
 
         """
         feat_generator = FeatureExtractor(use_chars=use_chars)
-        # clf = LinearSVC(1)
-        clf = LogisticRegression(penalty='l1', C=0.5)
+        clf = LinearSVC()
+        # clf = LogisticRegression(penalty='l1', C=0.5)
         sticker_sent = StickSentence()
         self.model = Pipeline([("sticker_sent", sticker_sent), ('feature_extractor', feat_generator), ('svc', clf)])
         self.model.fit(X, y)
