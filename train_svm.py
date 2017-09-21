@@ -72,7 +72,7 @@ def validate_train(model, X, y, groups, oversample=True, n_splits=5, use_chars=U
     return result
 
 
-def main(args=''):
+def main(args=None):
     parser = argparse.ArgumentParser(description='Train SVM and dump it')
 
     parser.add_argument('--folder', dest='model_folder', type=str, default=MODEL_FOLDER_DEFAULT,
@@ -96,10 +96,10 @@ def main(args=''):
     parser.add_argument('--trash_intent', dest='trash_intent', type=str, default="sberdemo_no_intent.tsv.gz",
                         help='The path of file with trash intent examples')
 
-    parser.add_argument('--slot_train', dest='slot_train', action='store_true', default=True,
+    parser.add_argument('--slot_train', dest='slot_train', action='store_true', default=False,
                         help="Use flag to train slots' svms ")
 
-    parser.add_argument('--intent_train', dest='intent_train', action='store_true', default=True,
+    parser.add_argument('--intent_train', dest='intent_train', action='store_true', default=False,
                         help="Use flag to train intent multiclass svm")
 
     parser.add_argument('--num_importance', dest='num_importance', type=int, default=20,
