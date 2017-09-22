@@ -190,7 +190,8 @@ def main(args=None):
 
     pipe = create_pipe()
     slot_list = read_slots_from_tsv(pipeline=pipe, filename=SLOT_PATH)
-    slot_names = [s.id for s in slot_list if isinstance(s, ClassifierSlot)]
+    slots = [[s.id, s] for s in slot_list if isinstance(s, ClassifierSlot)]
+    slot_names = [name for name, slot in slots]
     print("Slot names: ", slot_names)
 
     # ------------ making train data ---------------#
@@ -211,9 +212,9 @@ def main(args=None):
         sents.append(row['request'])
 
         # add targets
-        for slot in slot_names:
-            label = '_' if pd.isnull(row[slot]) else slot
-            targets[slot].append(label)
+        for name, slot in slots:
+            label = '_' if pd.isnull(row[name]) else slot.true
+            targets[name].append(label)
 
     y_intents = list(data['intent'])
     X = []
