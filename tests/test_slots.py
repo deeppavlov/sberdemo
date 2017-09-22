@@ -63,7 +63,8 @@ class TestSlots(unittest.TestCase):
                      'пер. Ангельский 2',
                      'Ангельский пер.',
                      'туп. Речной',
-                     'тупик Речной'
+                     'тупик Речной',
+                     '2-я линия Нефтяников'
                      ]
         for a in addresses:
             self.assertEqual(a.replace(',', '.').replace('. ', ' ').replace('.', ' ').strip(), tomita.infer_from_single_slot(self.pipe.feed(a)))
