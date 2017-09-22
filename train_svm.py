@@ -18,9 +18,9 @@ MODEL_FOLDER_DEFAULT = './models_nlu'
 USE_CHAR_DEFAULT = False
 STOP_WORDS_INTENT = None
 STOP_WORDS_SLOTS = None
-BASE_CLF = LogisticRegression(penalty='l1', C=1)
-BASE_CLF_INTENT = BASE_CLF
-BASE_CLF_SLOTS = BASE_CLF
+BASE_CLF = LinearSVC(C=0.01)
+BASE_CLF_INTENT = LogisticRegression()
+BASE_CLF_SLOTS = LinearSVC(C=0.01)
 
 
 def validate_train(model, X, y, groups, oversample=True, n_splits=5, use_chars=USE_CHAR_DEFAULT,
@@ -43,6 +43,7 @@ def validate_train(model, X, y, groups, oversample=True, n_splits=5, use_chars=U
         all_y.extend(y_test)
 
     print(">>> MODEL: ", dump_name)
+    print("Params:", model.get_description())
     all_y = model.encode2idx(all_y)
 
     if metric is f1_score:
