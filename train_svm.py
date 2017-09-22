@@ -16,11 +16,16 @@ import urllib.request
 DUMP_DEFAULT = True
 MODEL_FOLDER_DEFAULT = './models_nlu'
 USE_CHAR_DEFAULT = False
+STOP_WORDS_INTENT = None
+STOP_WORDS_SLOTS = None
+BASE_CLF = LogisticRegression(penalty='l1', C=1)
+BASE_CLF_INTENT = BASE_CLF
+BASE_CLF_SLOTS = BASE_CLF
 
 
 def validate_train(model, X, y, groups, oversample=True, n_splits=5, use_chars=USE_CHAR_DEFAULT,
                    dump_name='any.model', dump=DUMP_DEFAULT, model_folder=MODEL_FOLDER_DEFAULT, metric=f1_score,
-                   class_weights=None, verbose=False, num_importance=20):
+                   class_weights=None, verbose=False, stop_words=None, num_importance=20, base_clf = BASE_CLF):
     kf = GroupKFold(n_splits=n_splits)
     all_y = []
     all_predicted = []
@@ -29,15 +34,16 @@ def validate_train(model, X, y, groups, oversample=True, n_splits=5, use_chars=U
         X_test, y_test = X[test_index], y[test_index]
         if oversample:
             X_tmp, y_tmp = oversample_data(X_train, y_train, verbose=verbose)
-            model.train_model(X_tmp, y_tmp, use_chars=use_chars)
+            model.train_model(X_tmp, y_tmp, use_chars=use_chars, stop_words=stop_words, base_clf=base_clf)
         else:
-            model.train_model(X_train, y_train, use_chars=use_chars)
+            model.train_model(X_train, y_train, use_chars=use_chars, stop_words=stop_words, base_clf=base_clf)
         pred = model.predict_batch(X_test)
 
         all_predicted.extend(pred)
         all_y.extend(y_test)
 
     print(">>> MODEL: ", dump_name)
+    all_y = model.encode2idx(all_y)
 
     if metric is f1_score:
         result = metric(all_y, all_predicted, average=None)
@@ -47,27 +53,30 @@ def validate_train(model, X, y, groups, oversample=True, n_splits=5, use_chars=U
     if dump:
         if oversample:
             X_tmp, y_tmp = oversample_data(X, y, verbose=verbose)
-            model.train_model(X_tmp, y_tmp, use_chars=use_chars)
+            model.train_model(X_tmp, y_tmp, use_chars=use_chars, stop_words=stop_words, base_clf=base_clf)
         else:
-            model.train_model(X, y, use_chars=use_chars)
+            model.train_model(X, y, use_chars=use_chars, stop_words=stop_words, base_clf=base_clf)
 
-        joblib.dump(model.model,
-                    os.path.join(model_folder, dump_name))
+        print("FEATURE_IMPORTANCE")
 
-        if isinstance(model.model.steps[2][1], LinearSVC):
-            print("---Feature importance for {} ---".format(dump_name))
-            coefs = model.model.steps[2][1].coef_[0]
-            names = model.model.steps[1][1].words_vectorizer.get_feature_names()
-            weights = sorted(list(zip(names, coefs)), key=lambda x: x[1], reverse=True)
+        importances = model.get_feature_importance()
+        labels = model.get_labels()
+        print("=== labels {} ===".format(labels))
+        for imp_line, label in zip(importances, labels):
+            print("\nLABEL: ", label)
+            print("*"*20)
             print("\n --- TOP {} most important --- \n".format(num_importance))
-            for n, val in weights[:num_importance]:
+            for n, val in imp_line[:num_importance]:
                 print("{}\t{}".format(n, np.round(val, 3)))
-            print(print("\n --- TOP {} anti features --- \n".format(num_importance)))
-            for n, val in weights[::-1][:num_importance]:
+
+            print("\n --- TOP {} anti features --- \n".format(num_importance))
+            for n, val in imp_line[::-1][:num_importance]:
                 print("{}\t{}".format(n, np.round(val, 3)))
-        else:
-            print("WHAT: ", type(model.model.steps[2][1]))
-        print('==Model dumped==')
+
+
+        model.dump_model(os.path.join(model_folder, dump_name))
+        print("== MODEL DUMPED ==")
+
     print("classif_report:\n", classification_report(all_y, all_predicted))
     return result
 
@@ -149,7 +158,7 @@ def main(args=None):
         except:
             pass
 
-    trash_data = list(set(pd.read_csv(NO_INTENT, compression='gzip',  sep='\t', header=None).ix[:, 0]))
+    trash_data = list(set(pd.read_csv(NO_INTENT, compression='gzip', sep='\t', header=None).ix[:, 0]))
     data = pd.read_csv(DATA_PATH, sep='\t')
     sents = []
     targets = defaultdict(list)
@@ -159,7 +168,8 @@ def main(args=None):
 
         # add targets
         for slot in slot_names:
-            targets[slot].append(not pd.isnull(row[slot]))
+            label = '_' if pd.isnull(row[slot]) else slot
+            targets[slot].append(label)
 
     y_intents = list(data['intent'])
     X = []
@@ -183,37 +193,40 @@ def main(args=None):
 
     if INTENT_TRAIN:
         intent_clf = IntentClassifier(labels_list=y_intents)
-        print("intent_clf.string2idx: ", intent_clf.string2idx)
+        print("intent_clf.string2idx: ", intent_clf.get_labels())
         print("\n-------\n")
-        y_intents_idx = np.array([intent_clf.string2idx[t] for t in y_intents])
-        if DUMP:
-            joblib.dump(intent_clf.string2idx, os.path.join(MODEL_FOLDER, "string2idx_dict.model"))
-        result = validate_train(intent_clf, X_intents, y_intents_idx,
+        result = validate_train(intent_clf, X_intents, y_intents,
                                 groups=tmp_groups,
                                 oversample=OVERSAMPLE,
                                 metric=f1_score,
                                 n_splits=8,
-                                dump_name="IntentClassifier.model",
+                                dump_name="",
                                 num_importance=NUM_IMPORTANCE,
-                                class_weights=None)
+                                class_weights=None,
+                                use_chars=USE_CHAR,
+                                stop_words=STOP_WORDS_INTENT,
+                                base_clf=BASE_CLF_INTENT)
         print("INTENT CLF: cv mean f1 score: {}".format(result))
 
-        print('--------------')
+        print('--------------\n\n')
 
     if SLOT_TRAIN:
         for slot in slot_list:
             if slot.id not in slot_names:
                 continue
 
-            result = validate_train(model=slot, X=X_intents, y=np.array(targets[slot.id] + [False] * len(trash_sents)),
+            result = validate_train(model=slot, X=X_intents, y=np.array(targets[slot.id] + ['_'] * len(trash_sents)),
                                     groups=tmp_groups,
                                     oversample=OVERSAMPLE,
                                     n_splits=8,
                                     metric=f1_score,
                                     num_importance=NUM_IMPORTANCE,
-                                    dump_name="{}.model".format(slot.id))
+                                    dump_name="{}.model".format(slot.id),
+                                    use_chars=USE_CHAR,
+                                    stop_words=STOP_WORDS_SLOTS,
+                                    base_clf=BASE_CLF_SLOTS)
             print("For slot: {} cv mean f1 score: {}".format(slot.id, result))
-            print('--------------')
+            print('--------------\n\n')
 
 
 if __name__ == '__main__':

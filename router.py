@@ -213,7 +213,10 @@ def main():
 
     def start(bot: Bot, update: Update):
         chat_id = update.message.chat_id
-        humans[chat_id] = new_dialog(update.effective_user)
+        try:
+            humans[chat_id] = new_dialog(update.effective_user)
+        except Exception as e:
+            get_logger().error(e)
         bot.send_message(chat_id=chat_id, text='Здрасте. Чего хотели?')
 
     def send_delayed(bot: Bot, chat_id, messages: list, interval=0.7):
