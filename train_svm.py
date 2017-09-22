@@ -2,7 +2,7 @@ import pandas as pd
 from nlu import *
 from intent_classifier import IntentClassifier
 from collections import defaultdict
-from sklearn.metrics import classification_report, f1_score
+from sklearn.metrics import classification_report, f1_score, precision_recall_fscore_support
 from sklearn.model_selection import GroupKFold
 from sklearn.externals import joblib
 from svm_classifier_utlilities import oversample_data
@@ -12,6 +12,8 @@ import os
 import argparse
 
 import urllib.request
+import csv
+import datetime
 
 DUMP_DEFAULT = True
 MODEL_FOLDER_DEFAULT = './models_nlu'
@@ -23,9 +25,34 @@ BASE_CLF_INTENT = LogisticRegression()
 BASE_CLF_SLOTS = LinearSVC(C=0.01)
 
 
+def log_results(y_true, y_predicted, model_name, model):
+    folder = os.path.join('.', 'logs', 'models')
+    if not os.path.isdir(folder):
+        os.mkdir(path=folder)
+    path = os.path.join(folder, '{}.tsv'.format(model_name))
+
+    p, r, f1, s = precision_recall_fscore_support(y_true, y_predicted)
+    labels = sorted(list(set(y_true)))
+    labels = [str(model.idx2string[_]) for _ in labels]
+
+    log_exists = os.path.isfile(path)
+
+    with open(path, 'a') as tsv_file:
+        headers = ['Time', 'Description']
+        data = [datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), model.get_description()]
+        for i in range(len(labels)):
+            headers += [_.format(labels[i]) for _ in ['{}_precision', '{}_recall', '{}_f1', '{}_support']]
+            data += [p[i], r[i], f1[i], s[i]]
+        writer = csv.writer(tsv_file, delimiter='\t', lineterminator='\n')
+
+        if not log_exists:
+            writer.writerow(headers)
+        writer.writerow(data)
+
+
 def validate_train(model, X, y, groups, oversample=True, n_splits=5, use_chars=USE_CHAR_DEFAULT,
                    dump_name='any.model', dump=DUMP_DEFAULT, model_folder=MODEL_FOLDER_DEFAULT, metric=f1_score,
-                   class_weights=None, verbose=False, stop_words=None, num_importance=20, base_clf = BASE_CLF):
+                   class_weights=None, verbose=False, stop_words=None, num_importance=20, base_clf=BASE_CLF):
     kf = GroupKFold(n_splits=n_splits)
     all_y = []
     all_predicted = []
@@ -74,11 +101,11 @@ def validate_train(model, X, y, groups, oversample=True, n_splits=5, use_chars=U
             for n, val in imp_line[::-1][:num_importance]:
                 print("{}\t{}".format(n, np.round(val, 3)))
 
-
         model.dump_model(os.path.join(model_folder, dump_name))
         print("== MODEL DUMPED ==")
 
     print("classif_report:\n", classification_report(all_y, all_predicted))
+    log_results(all_y, all_predicted, dump_name or model.model_name, model)
     return result
 
 
