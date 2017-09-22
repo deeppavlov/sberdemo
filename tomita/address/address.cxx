@@ -15,6 +15,8 @@ NumberW_3 -> AnyWord<wff=/[1-9][0-9]?-?((ее)|(ье)|(ое)|е)/> {outgram="с�
 
 NumberW -> NumberW_1 | NumberW_2 | NumberW_3;
 
+StreetDescr -> NumberW<gnc-agr[1]> interp (Street.LineNumber) StreetW<gnc-agr[1]>;
+
 StreetNameAdj -> Adj Adj*;
 StreetNameAdj -> NumberW<gnc-agr[1]> Adj<gnc-agr[1]>;
 
