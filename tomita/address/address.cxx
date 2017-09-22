@@ -1,8 +1,8 @@
 #encoding "utf8"
 #GRAMMAR_ROOT House
 
-StreetW -> 'аллея'| 'бульвар'| 'вал'| 'взвоз'| 'въезд'| 'дорога'| 'заезд'| 'кольцо'| 'линия'| 'линнея'| 'луч'| 'магистраль'| 'набережная'| 'переулок'| 'перспектива'| 'площадь'| 'проезд'| 'проспект'| 'проулок'| 'разъезд'| 'спуск'| 'съезд'| 'территория'| 'тракт'| 'тупик'| 'улица'| 'шоссе';
-StreetSokr -> Word<kwset=["сокр_тип_улицы"]>;
+StreetW ->  Word<kwset=["тип_улицы"]> interp (Street.Descr);
+StreetSokr -> Word<kwset=["сокр_тип_улицы"]> interp (Street.Descr::not_norm) {outgram="сокр"} ;
 
 StreetDescr -> StreetW | StreetSokr;
 
@@ -19,13 +19,13 @@ StreetNameAdj -> Adj Adj*;
 StreetNameAdj -> NumberW<gnc-agr[1]> Adj<gnc-agr[1]>;
 
 
-Street -> StreetDescr interp (Street.Descr) StreetNameNoun<gram="род"> interp (Street.StreetName::not_norm);
-Street -> StreetDescr interp (Street.Descr) StreetNameNoun<gram="им"> interp (Street.StreetName::not_norm);
+Street -> StreetDescr StreetNameNoun<gram="род"> interp (Street.StreetName::not_norm);
+Street -> StreetDescr StreetNameNoun<gram="им"> interp (Street.StreetName::not_norm);
 
-Street -> StreetNameAdj<gnc-agr[1]> interp (Street.StreetName) StreetW<gnc-agr[1]> interp (Street.Descr);
-Street -> StreetNameAdj interp (Street.StreetName) StreetSokr interp (Street.Descr);
-Street -> StreetW<gnc-agr[1]> interp (Street.Descr) StreetNameAdj<gnc-agr[1]> interp (Street.StreetName);
-Street -> StreetSokr interp (Street.Descr) StreetNameAdj interp (Street.StreetName);
+Street -> StreetNameAdj<gnc-agr[1]> interp (Street.StreetName) StreetW<gnc-agr[1]>;
+Street -> StreetNameAdj interp (Street.StreetName) StreetSokr;
+Street -> StreetW<gnc-agr[1]> StreetNameAdj<gnc-agr[1]> interp (Street.StreetName);
+Street -> StreetSokr StreetNameAdj interp (Street.StreetName);
 
 
 
