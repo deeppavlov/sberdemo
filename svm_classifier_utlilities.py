@@ -250,7 +250,8 @@ class SentenceClassifier:
 
     def get_description(self):
         descr = str(type(self.clf))
-        params = str(self.clf.get_params())
+        params = sorted(['{}: {}'.format(repr(k), repr(v)) for k, v in self.clf.get_params().items()])
+        params = '{{{}}}'.format(', '.join(params))
         result = "{}\n{}\nstop_words: {}\nuse_chars: {}".format(descr, params, self.stop_words, self.use_chars)
         return result
 
