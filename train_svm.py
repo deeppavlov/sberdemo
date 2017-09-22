@@ -25,29 +25,45 @@ BASE_CLF_INTENT = LogisticRegression()
 BASE_CLF_SLOTS = LinearSVC(C=0.01)
 
 
-def log_results(y_true, y_predicted, model_name, model):
+def write_to_tsv(fname, headers, data):
+    exists = os.path.isfile(fname)
+
+    with open(fname, 'a') as tsv_file:
+        writer = csv.writer(tsv_file, delimiter='\t', lineterminator='\n')
+        if not exists:
+            writer.writerow(headers)
+        writer.writerow(data)
+
+
+def ensure_log_folder():
     folder = os.path.join('.', 'logs', 'models')
     if not os.path.isdir(folder):
         os.mkdir(path=folder)
-    path = os.path.join(folder, '{}.tsv'.format(model_name))
+    return folder
+
+
+def log_results(y_true, y_predicted, model_name, model):
+    path = os.path.join(ensure_log_folder(), '{}.tsv'.format(model_name))
 
     p, r, f1, s = precision_recall_fscore_support(y_true, y_predicted)
     labels = sorted(list(set(y_true)))
     labels = [str(model.idx2string[_]) for _ in labels]
 
-    log_exists = os.path.isfile(path)
+    headers = ['Time', 'Description']
+    data = [datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), model.get_description()]
+    for i in range(len(labels)):
+        headers += [_.format(labels[i]) for _ in ['{}_precision', '{}_recall', '{}_f1', '{}_support']]
+        data += [p[i], r[i], f1[i], s[i]]
 
-    with open(path, 'a') as tsv_file:
-        headers = ['Time', 'Description']
-        data = [datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), model.get_description()]
-        for i in range(len(labels)):
-            headers += [_.format(labels[i]) for _ in ['{}_precision', '{}_recall', '{}_f1', '{}_support']]
-            data += [p[i], r[i], f1[i], s[i]]
-        writer = csv.writer(tsv_file, delimiter='\t', lineterminator='\n')
+    write_to_tsv(path, headers, data)
 
-        if not log_exists:
-            writer.writerow(headers)
-        writer.writerow(data)
+
+def log_slots_aggr_results(results):
+    headers, data = [list(_) for _ in zip(*results)]
+    path = os.path.join(ensure_log_folder(), 'slots_aggr.tsv')
+    headers.insert(0, ['Time'])
+    data.insert(0, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+    write_to_tsv(path, headers, data)
 
 
 def validate_train(model, X, y, groups, oversample=True, n_splits=5, use_chars=USE_CHAR_DEFAULT,
@@ -217,8 +233,6 @@ def main(args=None):
 
     # ---------------- validate & dump --------------#
 
-
-
     if INTENT_TRAIN:
         intent_clf = IntentClassifier(labels_list=y_intents)
         print("intent_clf.string2idx: ", intent_clf.get_labels())
@@ -239,22 +253,29 @@ def main(args=None):
         print('--------------\n\n')
 
     if SLOT_TRAIN:
+        results = []
         for slot in slot_list:
             if slot.id not in slot_names:
                 continue
 
+            model_name = "{}.model".format(slot.id)
             result = validate_train(model=slot, X=X_intents, y=np.array(targets[slot.id] + ['_'] * len(trash_sents)),
                                     groups=tmp_groups,
                                     oversample=OVERSAMPLE,
                                     n_splits=8,
                                     metric=f1_score,
                                     num_importance=NUM_IMPORTANCE,
-                                    dump_name="{}.model".format(slot.id),
+                                    dump_name=model_name,
                                     use_chars=USE_CHAR,
                                     stop_words=STOP_WORDS_SLOTS,
                                     base_clf=BASE_CLF_SLOTS)
             print("For slot: {} cv mean f1 score: {}".format(slot.id, result))
+            results.append((model_name, sum(result)/len(result)))
+
             print('--------------\n\n')
+
+        if results:
+            log_slots_aggr_results(results)
 
 
 if __name__ == '__main__':
