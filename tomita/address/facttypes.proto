@@ -6,4 +6,5 @@ message Street: NFactType.TFact
 		required string StreetName = 1;
 		optional string Descr = 2;
 		optional string House = 3;
+		optional string LineNumber = 4;
 	}
