@@ -12,8 +12,9 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
 from sklearn.svm import LinearSVC
 
-from svm_classifier_utlilities import FeatureExtractor
-from svm_classifier_utlilities import StickSentence
+from svm_classifier_utlilities import SentenceClassifier
+# from svm_classifier_utlilities import FeatureExtractor
+# from svm_classifier_utlilities import StickSentence
 from tomita import Tomita
 
 import importlib
@@ -63,7 +64,7 @@ class DictionarySlot:
         n = len(text)
         res = set()
         for i in range(n):
-            for k in range(i+1, n+1):
+            for k in range(i + 1, n + 1):
                 c = self._infer(text[i:k])
                 if c:
                     res.add(c)
@@ -80,8 +81,8 @@ class DictionarySlot:
         best_score = 0
         best_candidate = None
         for window, candidates in self.ngrams.items():
-            for w in range(0, n-window+1):
-                query = ' '.join(x['_text'] for x in text[w:w+window])
+            for w in range(0, n - window + 1):
+                query = ' '.join(x['_text'] for x in text[w:w + window])
                 if query:
                     for c in candidates:
                         score = fuzz.ratio(c, query)
@@ -125,7 +126,7 @@ class CurrencySlot(DictionarySlot):
         self.filters['not_supported_currency'] = lambda x, _: x not in self.supported_currencies
 
 
-class ClassifierSlot(DictionarySlot):
+class ClassifierSlot(DictionarySlot, SentenceClassifier):
     def __init__(self, slot_id: str, ask_sentence: str, generative_dict: Dict[str, str],
                  nongenerative_dict: Dict[str, str], values_order: List[str], prev_created_slots, *args):
         super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict, values_order, prev_created_slots,
@@ -135,39 +136,10 @@ class ClassifierSlot(DictionarySlot):
             'true': lambda x, _: x == self.true,
             'false': lambda x, _: x != self.true
         })
-        self.model = None
-
-    def load_model(self, model_path):
-        if not os.path.exists(model_path):
-            raise Exception("Model path: '{}' doesnt exist".format(model_path))
-        self.model = joblib.load(model_path)
-
-    def train_model(self, X: List[List[Dict[str, Any]]], y, use_chars=False):
-        """
-        :param X: iterable with strings
-        :param y: target binary labels
-        :param use_chars: True if use char features
-        :return: None
-
-        """
-        feat_generator = FeatureExtractor(use_chars=use_chars)
-        clf = LinearSVC()
-        # clf = LogisticRegression(penalty='l1', C=0.5)
-        sticker_sent = StickSentence()
-        self.model = Pipeline([("sticker_sent", sticker_sent), ('feature_extractor', feat_generator), ('svc', clf)])
-        self.model.fit(X, y)
-
-    def predict_batch(self, list_texts: List[List[Dict[str, Any]]]):
-        if self.model is None:
-            raise NotImplementedError("No model specified!")
-        labels = self.model.predict(list_texts)
-        return labels
 
     def _infer_from_compositional_request(self, text: List[Dict[str, Any]]):
-        if self.model is None:
-            raise NotImplementedError("No model specified!")
-        label = bool(self.model.predict(text)[0])
-        return self.true if label else None
+        return super().predict_single(text)
+
 
 
 class CompositionalSlot(DictionarySlot):
@@ -228,7 +200,7 @@ class TomitaSlot(DictionarySlot):
 
             pos = int(target_vals['@pos'])
             ln = int(target_vals['@len'])
-            return joined_text[pos:pos+ln]
+            return joined_text[pos:pos + ln]
 
 
 class GeoSlot(DictionarySlot):
@@ -278,13 +250,13 @@ def read_slots_from_tsv(pipeline, filename=None):
                 normal_names_order.append(normal_name)
 
                 if generative_syns:
-                    generative_syns = generative_syns.replace(', ', ',').replace('“', '').replace('”', '').\
+                    generative_syns = generative_syns.replace(', ', ',').replace('“', '').replace('”', ''). \
                         replace('"', '').split(',')
                 else:
                     generative_syns = []
 
                 if nongenerative_syns:
-                    nongenerative_syns = nongenerative_syns.replace(', ', ',').replace('“', '').replace('”', '').\
+                    nongenerative_syns = nongenerative_syns.replace(', ', ',').replace('“', '').replace('”', ''). \
                         replace('"', '').split(',')
                 else:
                     nongenerative_syns = []
