@@ -25,7 +25,7 @@ class Tomita:
                 raw += self.p.read_nonblocking(1, 1)
         except TIMEOUT:
             pass
-        return raw or None
+        return raw.strip() or None
 
     def get_json(self, text):
         raw = self.communicate(text)
