@@ -121,7 +121,7 @@ class CurrencySlot(DictionarySlot):
                          *args)
 
         self.supported_currencies = ['rub', 'aud', 'byn', 'cad', 'chf', 'cny', 'czk', 'dkk', 'eur', 'gbp', 'hkd', 'hrk',
-                                     'huf', 'jpy', 'kzt', 'nok', 'pln', 'sgd', 'sek', 'uah', 'usd', 'ytl']
+                                     'huf', 'jpy', 'kzt', 'nok', 'pln', 'sgd', 'sek', 'uah', 'usd', 'try']
         self.filters['supported_currency'] = lambda x, _: x in self.supported_currencies
         self.filters['not_supported_currency'] = lambda x, _: x not in self.supported_currencies
 

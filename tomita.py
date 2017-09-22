@@ -12,7 +12,8 @@ class Tomita:
     def __init__(self, executable, config, cwd=None, logfile=None):
         assert os.path.isfile(config), 'Config file "{}" not found'.format(config)
         self.name = 'Tomita'
-        self.p = pexpect.spawn(executable, [config], cwd=cwd, logfile=logfile)
+        self.p = pexpect.spawn(executable, [config], cwd=cwd)
+        self.p.logfile_read = logfile
         self.p.expect('.* Start.*$')
 
     def communicate(self, text):
@@ -24,11 +25,13 @@ class Tomita:
                 raw += self.p.read_nonblocking(1, 1)
         except TIMEOUT:
             pass
-        return raw or None
+        return raw.strip() or None
 
     def get_json(self, text):
         raw = self.communicate(text)
         if not raw:  # empty result
+            return []
+        if raw.startswith(b'Time:'):  # debug(?) output from tomita, ignore
             return []
         if raw.startswith(b'<document'):
             raw = raw.decode('UTF8').split('\r\n')[0]

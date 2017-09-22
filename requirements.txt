@@ -8,3 +8,4 @@ nltk
 pandas
 python-Levenshtein
 python-telegram-bot
+pymorphy2

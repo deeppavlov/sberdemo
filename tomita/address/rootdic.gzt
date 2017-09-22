@@ -3,6 +3,11 @@ import "base.proto";
 import "articles_base.proto";
 import "facttypes.proto";
 
+TAuxDicArticle "сокр_тип_улицы"
+{
+key = { "!ал" | "!бул" | "!б-р" | "!дор" | "!маг" | "!наб" | "!пер" | "!пл" | "!пр" | "!пр-д" | "!просп" | "!пр-кт" | "!туп" | "!ул" | "!ш" }
+}
+
 TAuxDicArticle "адрес"
 {
 key = {"tomita:address.cxx" type=CUSTOM}

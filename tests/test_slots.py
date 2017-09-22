@@ -59,7 +59,12 @@ class TestSlots(unittest.TestCase):
                      'ул. маяковского 1',
                      'Первомайская ул 32/4',
                      'красная площадь',
-                     'красный пр-кт']
+                     'красный пр-кт',
+                     'пер. Ангельский 2',
+                     'Ангельский пер.',
+                     'туп. Речной',
+                     'тупик Речной'
+                     ]
         for a in addresses:
             self.assertEqual(a.replace(',', '.').replace('. ', ' ').replace('.', ' ').strip(), tomita.infer_from_single_slot(self.pipe.feed(a)))
 
