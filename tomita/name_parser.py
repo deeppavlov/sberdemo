@@ -20,7 +20,9 @@ class NameParser:
         logfile = open(os.path.join(root, '..', 'logs', 'name_parser.log'), 'wb')
         self.tomita = Tomita(tomita_path, config_path, cwd, logfile)
 
-    def parse(self, text: str):
+    def parse(self, text):
+        if isinstance(text, list):
+            text = ' '.join(w['_orig'] for w in text)
         res = self.tomita.get_json(text.title())
         if not res:
             return None

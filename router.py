@@ -14,6 +14,7 @@ from telegram.ext import CommandHandler, MessageHandler, Filters
 import threading
 
 from slots import read_slots_serialized
+from tomita.name_parser import NameParser
 
 
 def format_route(route):
@@ -85,12 +86,15 @@ class GraphBasedSberdemoPolicy(object):
         self.routes = routes
         self.slots_objects = {s.id: s for s in slots_objects}  # type: Dict[str, DictionarySlot]
         self.sayer = sayer
+        self.intent_name = None
         self.intent = None
+        self.persistent_slots = {}
         self.slots = {}
         self.debug = debug
 
     def set_intent(self, intent):
-        self.slots = dict()
+        self.intent_name = intent or None
+        self.slots = copy.deepcopy(self.persistent_slots)
         if not intent:
             self.intent = None
             return
@@ -141,11 +145,20 @@ class GraphBasedSberdemoPolicy(object):
     def forward(self, client_nlu):
         if 'intent' in client_nlu:
             self.set_intent(client_nlu['intent'])
+
         self.slots.update(client_nlu['slots'])
 
         actions, _ = self.get_actions(self.intent)
         if not actions:
             actions = [['say', 'no_intent']]
+
+        if 'name' in client_nlu and client_nlu['name']:
+            self.persistent_slots['client_name'] = client_nlu['name']
+            self.slots['client_name'] = client_nlu['name']
+
+            for i in range(len(actions)):
+                if actions[i] == ['say', 'no_intent']:
+                    actions[i] = ['say', 'no_intent_named']
 
         expect = None
         responses = []
@@ -202,13 +215,15 @@ def main():
     models_path = './models_nlu'
     slots = read_slots_serialized(models_path, pipe)
 
+    name_parser = NameParser()
+
     sayer = Sayer(slots, pipe)
 
     humans = {}
 
     def new_dialog(user):
         debug = True
-        return Dialog(pipe, StatisticalNLUModel(slots, IntentClassifier(folder=models_path)),
+        return Dialog(pipe, StatisticalNLUModel(slots, IntentClassifier(folder=models_path), name_parser),
                       GraphBasedSberdemoPolicy(data, slots, sayer, debug=debug), user)
 
     def start(bot: Bot, update: Update):

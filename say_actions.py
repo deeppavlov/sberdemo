@@ -69,7 +69,7 @@ class Sayer:
     def say(self, method_name, ctx):
         if hasattr(self, method_name):
             return getattr(self, method_name)(ctx)
-        return random.choice(self.templates[method_name])
+        return random.choice(self.templates[method_name]).format(**ctx)
 
     def new_acc_documents_list(self, ctx):
         docs = self.documents_data[ctx['resident']]

@@ -9,6 +9,8 @@ from nltk.tokenize import sent_tokenize, word_tokenize
 from svm_classifier_utlilities import *
 
 # fasttext_file = '/home/marat/data/rusfasttext_on_news/model_yalen_sg_300.bin'
+from tomita.name_parser import NameParser
+
 FASTTEXT_MODEL = '/home/marat/data/rusfasttext_on_news/ft_0.8.3_yalen_sg_300.bin'
 
 
@@ -97,15 +99,22 @@ class PreprocessorPipeline:
 
 
 class StatisticalNLUModel:
-    def __init__(self, slots: List[DictionarySlot], intent_classifier: IntentClassifier):
+    def __init__(self, slots: List[DictionarySlot], intent_classifier: IntentClassifier, name_parser: NameParser):
         self.slots = {s.id: s for s in slots}  # type: Dict[str, DictionarySlot]
         self.intent_classifier = intent_classifier
         self.expect = None
+
+        self.expect_name = True
+        self.name_parser = name_parser
 
     def forward(self, message, message_type='text'):
         res = {
             'slots': {}
         }
+
+        if self.expect_name and message_type == 'text':
+            res['name'] = self.name_parser.parse(message)
+            self.expect_name = False
 
         if self.expect is None:
             res['intent'] = self.intent_classifier.predict_single(message)

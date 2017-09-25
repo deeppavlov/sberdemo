@@ -31,6 +31,7 @@
   ],
 
   "greeting": ["Зравствуйте! Как я могу к вам обращаться?"],
+  "no_intent_named": ["Чем я могу вам помочь, {client_name[formal]}?"],
 
   "no_intent": ["Простите, не поняла"],
   "weird_route": ["You were not supposed to see this"]

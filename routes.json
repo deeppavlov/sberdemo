@@ -93,5 +93,9 @@
 
   "no_intent": [
     {"action": "say: no_intent; goto:"}
+  ],
+
+  "no_intent_but_name": [
+    {"action": "say: no_intent; goto:"}
   ]
 }
