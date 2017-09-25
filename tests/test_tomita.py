@@ -4,7 +4,8 @@ import unittest
 import os
 
 # from tomita import Tomita
-from tomita import Tomita
+from tomita.tomita import Tomita
+from tomita.name_parser import NameParser
 
 
 class TomitaTestCase(unittest.TestCase):
@@ -28,6 +29,15 @@ class TomitaTestCase(unittest.TestCase):
         self.assertEqual(r, [], 'expected empty array')
 
         print('end')
+
+    def test_name_parser(self):
+        parser = NameParser()
+
+        r = parser.parse('Николаев Сергей Петрович')
+        self.assertTrue(r)
+        self.assertEqual(r['formal'], 'Сергей Петрович')
+
+        self.assertEqual(parser.parse('Владлен увидел картину и ужаснулся')['formal'], 'Владлен')
 
 
 if __name__ == '__main__':

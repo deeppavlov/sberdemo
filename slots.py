@@ -15,7 +15,7 @@ from sklearn.svm import LinearSVC
 from svm_classifier_utlilities import SentenceClassifier
 # from svm_classifier_utlilities import FeatureExtractor
 # from svm_classifier_utlilities import StickSentence
-from tomita import Tomita
+from tomita.tomita import Tomita
 
 import importlib
 
