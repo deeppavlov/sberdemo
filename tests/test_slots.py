@@ -20,7 +20,7 @@ class TestSlots(unittest.TestCase):
         self.assertIn('библиотека', self['client_metro'].gen_dict)
 
     def test_infer_from_single_slot(self):
-        self.assertEqual('савеловская', self['client_metro'].infer_from_single_slot(self.pipe.feed('рядом с метро савеловская')))
+        self.assertEqual('савеловский', self['client_metro'].infer_from_single_slot(self.pipe.feed('рядом с метро савеловская')))
 
     def _test_fuzzywuzzy_infer_from_compositional_request(self, message_text, **slot_values):
         text = self.pipe.feed(message_text)
@@ -37,7 +37,7 @@ class TestSlots(unittest.TestCase):
 
     def test_infer_from_compositional_request(self):
         self._test_fuzzywuzzy_infer_from_compositional_request('Добрый день! Могу ли я открыть отдельный счет по 275ФЗ и что для этого нужно? ', account_type='расчетный счет')
-        self._test_fuzzywuzzy_infer_from_compositional_request('Есть рядом с метро савеловская какое-нибудь отделение поблизости?', client_metro='савеловская')
+        self._test_fuzzywuzzy_infer_from_compositional_request('Есть рядом с метро савеловская какое-нибудь отделение поблизости?', client_metro='савеловский')
 
     def test_tomita(self):
         tomita = self['client_address']

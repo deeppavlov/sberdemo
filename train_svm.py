@@ -18,11 +18,15 @@ import datetime
 DUMP_DEFAULT = True
 MODEL_FOLDER_DEFAULT = './models_nlu'
 USE_CHAR_DEFAULT = False
-STOP_WORDS_INTENT = None
-STOP_WORDS_SLOTS = None
-BASE_CLF = LinearSVC(C=0.01)
-BASE_CLF_INTENT = LogisticRegression()
-BASE_CLF_SLOTS = LinearSVC(C=0.01)
+STOP_WORDS_INTENT = ["здравствовать", "добрый", "день"]
+STOP_WORDS_SLOTS = {"online_reserving":['ли', 'открыть', "счет", "здравствовать"],
+                    "show_docs":["открытие", "счет", "здравствовать"],
+                    "cost_of_service":["по", "здравствовать"],
+                    "show_phone":["график", "пожалуйста", "здравствовать"],
+                    "show_schedule":["телефон","здравствовать"]}
+BASE_CLF = LinearSVC(C=1)
+BASE_CLF_INTENT = BASE_CLF
+BASE_CLF_SLOTS = BASE_CLF
 
 
 def write_to_tsv(fname, headers, data):
@@ -268,7 +272,7 @@ def main(args=None):
                                     num_importance=NUM_IMPORTANCE,
                                     dump_name=model_name,
                                     use_chars=USE_CHAR,
-                                    stop_words=STOP_WORDS_SLOTS,
+                                    stop_words=STOP_WORDS_SLOTS.get(slot.id,None),
                                     base_clf=BASE_CLF_SLOTS)
             print("For slot: {} cv mean f1 score: {}".format(slot.id, result))
             results.append((model_name, sum(result)/len(result)))

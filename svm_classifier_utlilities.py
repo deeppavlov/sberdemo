@@ -140,7 +140,7 @@ class StickSentence(TransformerMixin):
 
 
 class SentenceClassifier:
-    def __init__(self, base_clf=LogisticRegression(penalty='l1', C=10),
+    def __init__(self, base_clf=None,
                  stop_words=None, use_chars=False, labels_list=None, model_path=None):
         """
         :param stop_words: list of words to exclude from feature matrix
@@ -154,9 +154,11 @@ class SentenceClassifier:
                              use_chars=use_chars, labels_list=labels_list,
                              model_path=model_path)
 
-    def _initialization(self, base_clf=LogisticRegression(penalty='l1', C=10),
+    def _initialization(self, base_clf=None,
                         stop_words=None, use_chars=False, labels_list=None, model_path=None):
 
+        if base_clf is None:
+            base_clf=LinearSVC(C=1)
         self.model = None
         self.use_chars = use_chars
         self.stop_words = stop_words
