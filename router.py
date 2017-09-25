@@ -232,7 +232,7 @@ def main():
             humans[chat_id] = new_dialog(update.effective_user)
         except Exception as e:
             get_logger().error(e)
-        bot.send_message(chat_id=chat_id, text=sayer.say('greeting', None))
+        bot.send_message(chat_id=chat_id, text=sayer.say('greeting', {}))
 
     def send_delayed(bot: Bot, chat_id, messages: list, interval=0.7):
         m = messages.pop(0)
