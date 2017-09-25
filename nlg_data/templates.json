@@ -30,6 +30,8 @@
     "Мы закончили?"
   ],
 
+  "greeting": ["Зравствуйте! Как я могу к вам обращаться?"],
+
   "no_intent": ["Простите, не поняла"],
   "weird_route": ["You were not supposed to see this"]
 }
