@@ -1,0 +1,9 @@
+import "base.proto";
+import "facttypes_base.proto";
+
+message ProperName: NFactType.TFact
+	{
+		required string First = 1;
+		optional string Middle = 2;
+		optional string Last = 3;
+	}
