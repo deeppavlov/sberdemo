@@ -82,7 +82,7 @@ class DictionarySlot:
         best_candidate = None
         for window, candidates in self.ngrams.items():
             for w in range(0, n - window + 1):
-                query = ' '.join(x['_text'] for x in text[w:w + window])
+                query = ' '.join(x['normal'] for x in text[w:w + window])
                 if query:
                     for c in candidates:
                         score = fuzz.ratio(c, query)
@@ -227,7 +227,7 @@ def read_slots_from_tsv(pipeline, filename=None):
         nongenerative_slot_values = {}
 
         def pipe(text):
-            return ' '.join([w['_text'] for w in pipeline.feed(text)])
+            return ' '.join([w['normal'] for w in pipeline.feed(text)])
 
         result_slots = []
         for row in csv_rows:
