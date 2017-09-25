@@ -19,14 +19,15 @@ class Preprocessor:
         raise NotImplemented()
 
 
-class Fasttext(Preprocessor):
-    def __init__(self, model_path):
-        import fasttext
-        self.model = fasttext.load_model(model_path)
+class FastTextPreproc(Preprocessor):
+    def __init__(self, model_path, normalized=True):
+        self.k = 'normal' if normalized else '_text'
+        from gensim.models.wrappers import FastText
+        self.model = FastText.load_fasttext_format(model_path)
 
     def process(self, words: List[Dict]):
         for w in words:
-            w['_vec'].append(self.model[w['_text']])
+            w['_vec'].append(self.model[w[self.k]])
         return words
 
 
@@ -147,10 +148,12 @@ class StatisticalNLUModel:
         self.expect = expect
 
 
-def create_pipe():
-    return PreprocessorPipeline(sent_tokenize, word_tokenize, [Replacer(('ё', 'е')),
-                                                               PyMorphyPreproc(),
-                                                               Lower()])
+def create_pipe(fasttext_model_path=None):
+    preprocessors = [Replacer(('ё', 'е')), PyMorphyPreproc(), Lower()]
+    if fasttext_model_path:
+        preprocessors.append(FastTextPreproc(model_path=fasttext_model_path))
+
+    return PreprocessorPipeline(sent_tokenize, word_tokenize, preprocessors)
 
 
 if __name__ == '__main__':
