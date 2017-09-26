@@ -1,11 +1,11 @@
 import json
-import os
-import copy
 import logging
 
 from telegram import Update, User, Bot
 
+from dialog import Dialog
 from nlu import *
+from policy import GraphBasedSberdemoPolicy
 from say_actions import Sayer
 
 from telegram.ext import Updater
@@ -38,147 +38,6 @@ def parse_route(file_name):
         format_route(route)
 
     return data
-
-
-class Dialog:
-    def __init__(self, preproc_pipeline, nlu_model, policy_model, user: User):
-        self.pipeline = preproc_pipeline
-        self.nlu_model = nlu_model
-        self.policy_model = policy_model
-        self.user = user
-
-        self.logger = get_logger()
-        self.logger.info("{user.id}:{user.name} : started new dialog".format(user=self.user))
-
-    def generate_response(self, client_utterance: str) -> List[str]:
-        self.logger.info("{user.id}:{user.name} >>> {msg}".format(user=self.user, msg=repr(client_utterance)))
-        message_type = 'text'
-        if client_utterance.startswith('__geo__'):
-            text = eval(client_utterance.split(' ', 1)[1])
-            message_type = 'geo'
-        else:
-            text = self.pipeline.feed(client_utterance)
-
-        try:
-            nlu_result = self.nlu_model.forward(text, message_type)
-        except Exception as e:
-            self.logger.error(e)
-            return ['NLU ERROR: {}'.format(str(e))]
-        self.logger.debug("{user.id}:{user.name} : nlu parsing result: {msg}".format(user=self.user, msg=nlu_result))
-        try:
-            response, expect = self.policy_model.forward(nlu_result)
-        except Exception as e:
-            self.logger.error(e)
-            return ['ERROR: {}'.format(str(e))]
-        self.nlu_model.set_expectation(expect)
-        for msg in response:
-            self.logger.info("{user.id}:{user.name} <<< {msg}".format(user=self.user, msg=repr(msg)))
-        self.logger.debug("{user.id}:{user.name} : filled slots: `{msg}`".format(user=self.user,
-                                                                                 msg=str(self.policy_model.slots)))
-        if expect:
-            self.logger.debug("{user.id}:{user.name} : expecting slot `{msg}`".format(user=self.user, msg=expect))
-        return response
-
-
-class GraphBasedSberdemoPolicy(object):
-
-    def __init__(self, routes, slots_objects, sayer, debug=False):
-        self.routes = routes
-        self.slots_objects = {s.id: s for s in slots_objects}  # type: Dict[str, DictionarySlot]
-        self.sayer = sayer
-        self.intent_name = None
-        self.intent = None
-        self.persistent_slots = {}
-        self.slots = {}
-        self.debug = debug
-
-    def set_intent(self, intent):
-        self.intent_name = intent or None
-        self.slots = copy.deepcopy(self.persistent_slots)
-        if not intent:
-            self.intent = None
-            return
-        if intent not in self.routes:
-            raise RuntimeError('Unknown intent: ' + str(intent))
-        self.intent = copy.deepcopy(self.routes[intent])
-
-    def get_actions(self, tree):
-        if not tree:
-            return [], False
-        actions = []
-        done = False
-        for i in range(len(tree)):
-            branch = tree[i]
-            if isinstance(branch, list):
-                branch_actions, done = self.get_actions(branch)
-                actions += branch_actions
-                if done:
-                    break
-            elif isinstance(branch, dict):
-                if 'slot' in branch:
-                    if branch['slot'] not in self.slots:
-                        if branch.get('not_ask'):
-                            break
-                        actions.append(['ask', str(branch['slot'])])
-                        done = True
-                        break
-                    slot_filter = self.slots_objects[branch['slot']].filters[branch['condition']]
-                    if not slot_filter(self.slots[branch['slot']], branch.get('value')):
-                        break
-                elif 'action' in branch:
-                    if branch.get('executed'):
-                        continue
-                    branch_actions = [[x.strip() for x in action.split(':')] for action in branch['action'].split(';')
-                                      if action]
-                    for act, _ in branch_actions:
-                        if 'say' != act:
-                            done = True
-                            break
-                    actions += branch_actions
-                    branch['executed'] = True
-                    if done:
-                        break
-                else:
-                    raise RuntimeError('Node does not have slot nor action')
-        return actions, done
-
-    def forward(self, client_nlu):
-        if 'intent' in client_nlu:
-            self.set_intent(client_nlu['intent'])
-
-        self.slots.update(client_nlu['slots'])
-
-        actions, _ = self.get_actions(self.intent)
-        if not actions:
-            actions = [['say', 'no_intent']]
-
-        if 'name' in client_nlu and client_nlu['name']:
-            self.persistent_slots['client_name'] = client_nlu['name']
-            self.slots['client_name'] = client_nlu['name']
-
-            for i in range(len(actions)):
-                if actions[i] == ['say', 'no_intent']:
-                    actions[i] = ['say', 'no_intent_named']
-
-        expect = None
-        responses = []
-        for action, value in actions:
-            if action == 'ask':
-                expect = value
-                responses.append(self.slots_objects[value].ask())
-            elif action == 'say':
-                responses.append(self.sayer.say(value, self.slots))
-            elif action == 'goto':
-                if not value:
-                    self.intent = None
-                    continue
-                new_intent_responses, expect = self.forward({"slots": {}, "intent": value})
-                responses += new_intent_responses
-
-        if self.debug:
-            responses[0] = responses[0] + '\n\nslots: {}'.format(self.slots)
-
-        return responses, expect
 
 
 def set_logger(level=logging.DEBUG):
