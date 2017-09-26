@@ -5,6 +5,8 @@ import logging
 
 from faq import faq
 
+from concurrent.futures import ThreadPoolExecutor
+
 
 class Dialog:
     def __init__(self, preproc_pipeline, nlu_model, policy_model, user: User, debug=False):
@@ -18,6 +20,8 @@ class Dialog:
 
         self.debug = debug
 
+        self.executor = ThreadPoolExecutor(max_workers=1)
+
     def generate_response(self, client_utterance: str) -> List[str]:
         self.logger.info("{user.id}:{user.name} >>> {msg}".format(user=self.user, msg=repr(client_utterance)))
         message_type = 'text'
@@ -26,6 +30,8 @@ class Dialog:
             message_type = 'geo'
         else:
             text = self.pipeline.feed(client_utterance)
+
+        faq_future = self.executor.submit(faq, client_utterance)
 
         try:
             nlu_result = self.nlu_model.forward(text, message_type)
@@ -40,10 +46,14 @@ class Dialog:
             return ['ERROR: {}'.format(str(e))]
         self.nlu_model.set_expectation(expect)
 
+        faq_answer, faq_response = faq_future.result()
+
         if self.debug:
             debug_message = {
                 'intent_name': self.policy_model.intent_name,
-                'slots': self.policy_model.slots
+                'slots': self.policy_model.slots,
+                'faq_answer': faq_answer,
+                'faq_response': faq_response
             }
             response.insert(0, repr(debug_message))
 
