@@ -26,6 +26,12 @@ class PreprocessorPipelineTest(unittest.TestCase):
         self.assertEqual([w['_text'] for w in text], ['добрый', 'день', '!', 'могу', 'ли', 'я', 'открыть', 'отдельный',
                                                       'счет', 'по', '275фз', 'и', 'что', 'для', 'этого', 'нужно', '?'])
 
+    def test_embedder(self):
+        pipe = PreprocessorPipeline(sent_tokenize, word_tokenize, [PyMorphyPreproc(), FastTextPreproc('fasttext.sber.bin')])
+        emb = Embedder(FastText.load('fasttext.sber.bin'))
+        emb.fit([pipe.feed(s) for s in ['добрый день!', 'хочу открыть счёт', 'ближайший всп']])
+        print(emb.transform(pipe.feed('как отрыть счёт')))
+
 
 if __name__ == '__main__':
     unittest.main()

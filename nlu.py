@@ -1,6 +1,7 @@
 from functools import lru_cache
 
 import pymorphy2
+from gensim.models.wrappers import FastText
 from typing import List, Dict, Callable
 
 from intent_classifier import IntentClassifier
@@ -22,12 +23,15 @@ class Preprocessor:
 class FastTextPreproc(Preprocessor):
     def __init__(self, model_path, normalized=True):
         self.k = 'normal' if normalized else '_text'
-        from gensim.models.wrappers import FastText
-        self.model = FastText.load_fasttext_format(model_path)
+        self.model = FastText.load(model_path)
+        self.zero = np.zeros(self.model.vector_size)
 
     def process(self, words: List[Dict]):
         for w in words:
-            w['_vec'].append(self.model[w[self.k]])
+            try:
+                w['_vec'].append(self.model[w[self.k]])
+            except KeyError:
+                w['_vec'].append(self.zero)
         return words
 
 
@@ -86,7 +90,7 @@ class PreprocessorPipeline:
         self.feature_gens = feature_gens
 
     @lru_cache()
-    def feed(self, raw_input: str) -> List[str]:
+    def feed(self, raw_input: str) -> List[Dict]:
         # TODO: is it OK to merge words from sentences?
         words = []
         for s in self.sent_tokenizer(raw_input):

@@ -9,7 +9,7 @@ from sklearn.base import BaseEstimator
 from sklearn.externals import joblib
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Union
 from copy import deepcopy
 from numpy.random import RandomState
 
@@ -65,6 +65,8 @@ class FeatureExtractor(TransformerMixin):
         self.use_chars = use_chars
         # taking into account pairs of words
         self.words_vectorizer = TfidfVectorizer(ngram_range=(1, 2), stop_words=self.stop_words)
+        # TODO: it breaks, why?
+        # self.words_vectorizer = TfidfVectorizer(ngram_range=(1, 2, 3), stop_words=self.stop_words)
         if self.use_chars:
             self.chars_vectorizer = TfidfVectorizer(analyzer='char_wb',
                                                     ngram_range=(2, 4))  # taking into account
@@ -137,6 +139,41 @@ class StickSentence(TransformerMixin):
 
     def transform(self, data, y=None):
         return self._preproc(data)
+
+
+class Embedder(TransformerMixin):
+    def __init__(self, fasttext, stop_words=()):
+        self.fasttext = fasttext
+        self.words_vectorizer = TfidfVectorizer(ngram_range=(1, 1), stop_words=stop_words)
+        self.default_k = 1.0
+
+    def _normalize(self, unnormalized: List[Dict]):
+        return [w['normal'] for w in unnormalized]
+
+    def fit(self, data: Union[List[List[Dict]], List[Dict]], y=None):
+        if not isinstance(data[0], list):
+            data = [data]
+        self.words_vectorizer.fit([' '.join(self._normalize(d)) for d in data], y)
+        return self
+
+    def transform(self, data, y=None):
+        if not isinstance(data[0], list):
+            data = [data]
+        res = []
+        for row in data:
+            vecs = []
+            word2id = self.words_vectorizer.vocabulary_
+            id2idf = self.words_vectorizer.idf_
+            for x, nw in zip(row, self._normalize(row)):
+                v = self.fasttext[x['_text']]
+                wid = word2id.get(nw, None)
+                if wid is None:
+                    k = self.default_k
+                else:
+                    k = id2idf[wid]
+                vecs.append(k * v)
+            res.append(np.array(vecs).sum(axis=0))
+        return np.vstack(res)
 
 
 class SentenceClassifier:
