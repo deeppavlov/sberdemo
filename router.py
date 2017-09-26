@@ -81,9 +81,8 @@ def main():
     humans = {}
 
     def new_dialog(user):
-        debug = True
         return Dialog(pipe, StatisticalNLUModel(slots, IntentClassifier(folder=models_path), name_parser),
-                      GraphBasedSberdemoPolicy(data, slots, sayer, debug=debug), user)
+                      GraphBasedSberdemoPolicy(data, slots, sayer), user, debug=True)
 
     def start(bot: Bot, update: Update):
         chat_id = update.message.chat_id

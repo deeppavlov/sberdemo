@@ -3,9 +3,11 @@ from telegram import User
 
 import logging
 
+from faq import faq
+
 
 class Dialog:
-    def __init__(self, preproc_pipeline, nlu_model, policy_model, user: User):
+    def __init__(self, preproc_pipeline, nlu_model, policy_model, user: User, debug=False):
         self.pipeline = preproc_pipeline
         self.nlu_model = nlu_model
         self.policy_model = policy_model
@@ -13,6 +15,8 @@ class Dialog:
 
         self.logger = logging.getLogger('router')
         self.logger.info("{user.id}:{user.name} : started new dialog".format(user=self.user))
+
+        self.debug = debug
 
     def generate_response(self, client_utterance: str) -> List[str]:
         self.logger.info("{user.id}:{user.name} >>> {msg}".format(user=self.user, msg=repr(client_utterance)))
@@ -35,10 +39,19 @@ class Dialog:
             self.logger.error(e)
             return ['ERROR: {}'.format(str(e))]
         self.nlu_model.set_expectation(expect)
+
+        if self.debug:
+            debug_message = {
+                'intent_name': self.policy_model.intent_name,
+                'slots': self.policy_model.slots
+            }
+            response.insert(0, repr(debug_message))
+
         for msg in response:
             self.logger.info("{user.id}:{user.name} <<< {msg}".format(user=self.user, msg=repr(msg)))
         self.logger.debug("{user.id}:{user.name} : filled slots: `{msg}`".format(user=self.user,
                                                                                  msg=str(self.policy_model.slots)))
         if expect:
             self.logger.debug("{user.id}:{user.name} : expecting slot `{msg}`".format(user=self.user, msg=expect))
+
         return response
