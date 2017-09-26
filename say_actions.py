@@ -14,6 +14,8 @@ from slots import DictionarySlot
 import urllib.request
 from urllib.parse import urlencode
 
+import random
+
 
 class Sayer:
 
@@ -69,7 +71,14 @@ class Sayer:
     def say(self, method_name, ctx):
         if hasattr(self, method_name):
             return getattr(self, method_name)(ctx)
-        return random.choice(self.templates[method_name]).format(**ctx)
+        params = {
+            'name_front': ''
+        }
+        params.update(ctx)
+        if params.get('client_name') and random.random() < 0.3:
+            params['name_front'] = '{}, '.format(params['client_name']['formal'])
+        res = random.choice(self.templates[method_name]).format(**params)
+        return res[0].upper() + res[1:]
 
     def new_acc_documents_list(self, ctx):
         docs = self.documents_data[ctx['resident']]
