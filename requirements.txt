@@ -9,4 +9,4 @@ pandas
 python-Levenshtein
 python-telegram-bot
 pymorphy2
-gensim
+gensim>=2.3.0
