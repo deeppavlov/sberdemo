@@ -9,7 +9,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 
 class Dialog:
-    def __init__(self, preproc_pipeline, nlu_model, policy_model, user: User, debug=False):
+    def __init__(self, preproc_pipeline, nlu_model, policy_model, user: User, debug=False, patience=3):
         self.pipeline = preproc_pipeline
         self.nlu_model = nlu_model
         self.policy_model = policy_model
@@ -21,6 +21,9 @@ class Dialog:
         self.debug = debug
 
         self.executor = ThreadPoolExecutor(max_workers=2)
+
+        self.patience = patience
+        self.impatience = 0
 
     def generate_response(self, client_utterance: str) -> List[str]:
         self.logger.info("{user.id}:{user.name} >>> {msg}".format(user=self.user, msg=repr(client_utterance)))
@@ -48,19 +51,28 @@ class Dialog:
         self.logger.debug("{user.id}:{user.name} : chit-chat response: `{msg}`".format(user=self.user,
                                                                                        msg=repr(chat_response)))
 
+        if not nlu_result['slots'] and nlu_result.get('intent', 'no_intent') == 'no_intent' and not faq_answer:
+            self.impatience += 1
+        else:
+            self.impatience = 0
+
         expect = None
         if faq_answer:
-            response = [faq_answer]
-        else:
+            response = ["FAQ\n\n" + faq_answer]
+        elif self.impatience < self.patience:
             try:
                 response, expect = self.policy_model.forward(nlu_result)
+                for i in range(len(response)):
+                    response[i] = "GOAL-ORIENTED\n\n" + response[i]
             except Exception as e:
                 self.logger.error(e)
                 return ['ERROR: {}'.format(str(e))]
             self.nlu_model.set_expectation(expect)
+        else:
+            response = ["CHIT-CHAT\n\n" + chat_response]
 
         if self.debug:
-            debug_message = 'nlu: {nlu}\n\npolicy: {policy}\n\nfaq: {faq}\n\nchit-chat: {chat}'
+            debug_message = 'DEBUG\n\nnlu: {nlu}\n\npolicy: {policy}\n\nfaq: {faq}\n\nchit-chat: {chat}'
             debug_message = debug_message.format(nlu=repr(nlu_result),
                                                  policy=repr({
                                                      'intent_name': self.policy_model.intent_name,
