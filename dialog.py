@@ -39,23 +39,34 @@ class Dialog:
             self.logger.error(e)
             return ['NLU ERROR: {}'.format(str(e))]
         self.logger.debug("{user.id}:{user.name} : nlu parsing result: {msg}".format(user=self.user, msg=nlu_result))
-        try:
-            response, expect = self.policy_model.forward(nlu_result)
-        except Exception as e:
-            self.logger.error(e)
-            return ['ERROR: {}'.format(str(e))]
-        self.nlu_model.set_expectation(expect)
 
         faq_answer, faq_response = faq_future.result()
+        self.logger.debug("{user.id}:{user.name} : faq response: `{msg}`".format(user=self.user,
+                                                                                 msg=repr(faq_response)))
+
+        expect = None
+        if faq_answer:
+            response = [faq_answer]
+        else:
+            try:
+                response, expect = self.policy_model.forward(nlu_result)
+            except Exception as e:
+                self.logger.error(e)
+                return ['ERROR: {}'.format(str(e))]
+            self.nlu_model.set_expectation(expect)
 
         if self.debug:
-            debug_message = {
-                'intent_name': self.policy_model.intent_name,
-                'slots': self.policy_model.slots,
-                'faq_answer': faq_answer,
-                'faq_response': faq_response
-            }
-            response.insert(0, repr(debug_message))
+            debug_message = 'nlu: {nlu}\n\npolicy: {policy}\n\nfaq: {faq}'
+            debug_message = debug_message.format(nlu=repr(nlu_result),
+                                                 policy=repr({
+                                                     'intent_name': self.policy_model.intent_name,
+                                                     'slots': self.policy_model.slots,
+                                                 }),
+                                                 faq={
+                                                     'faq_answer': faq_answer,
+                                                     'faq_response': faq_response
+                                                 })
+            response.insert(0, debug_message)
 
         for msg in response:
             self.logger.info("{user.id}:{user.name} <<< {msg}".format(user=self.user, msg=repr(msg)))
