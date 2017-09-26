@@ -18,12 +18,29 @@ import datetime
 DUMP_DEFAULT = True
 MODEL_FOLDER_DEFAULT = './models_nlu'
 USE_CHAR_DEFAULT = False
-STOP_WORDS_INTENT = ["здравствовать", "добрый", "день"]
-STOP_WORDS_SLOTS = {"online_reserving":['ли', 'открыть', "счет", "здравствовать"],
-                    "show_docs":["открытие", "счет", "здравствовать"],
-                    "cost_of_service":["по", "здравствовать"],
-                    "show_phone":["график", "пожалуйста", "здравствовать"],
-                    "show_schedule":["телефон","здравствовать"]}
+STOP_WORDS_INTENT = ["здравствовать", "добрый", "день", "для", "хотеть", "нужный"]
+STOP_WORDS_SLOTS = {"online_reserving":['ли', 'открыть', "счет", "здравствовать", "возможно",
+                                        "через", "приходить", "банк", "как", "через", "без", "день"],
+
+
+                    "show_docs":["открытие", "счет", "здравствовать", "это", "при", "для",
+                                 "какой", "нужный", "необходимый", "по", "сбербанк", "хотеть", "открыть", "бы"],
+
+
+                    "cost_of_service":["по", "здравствовать", "рассказать", "открытие", "день",
+                                       "хотеть", "открыть", "сказать", "какой", "бы", "счет", "для", "мочь", "счет", "сбер"],
+
+                    "show_phone":["график", "пожалуйста", "здравствовать", "можно", "работать",
+                                  "это", "офис", "строгино", "банк", "работать", "сказать", "ленинский",
+                                  "отделение", "банка" "ряд", "чертановский", "где", "ближний", "банк", "день"],
+
+
+                    "show_schedule":["телефон","здравствовать", "работа", "ряд", "офис"],
+
+
+                    "search_vsp":["здравствовать"],
+
+                    "not_first":["открыть", "что", "заявление", "мочь", "здравствовать", "необходимый", "комплект документ"]}
 BASE_CLF = LinearSVC(C=1)
 BASE_CLF_INTENT = BASE_CLF
 BASE_CLF_SLOTS = BASE_CLF
@@ -159,7 +176,7 @@ def main(args=None):
     parser.add_argument('--intent_train', dest='intent_train', action='store_true', default=False,
                         help="Use flag to train intent multiclass svm")
 
-    parser.add_argument('--num_importance', dest='num_importance', type=int, default=20,
+    parser.add_argument('--num_importance', dest='num_importance', type=int, default=30,
                         help="How many samples to show in feature importance")
 
     args = parser.parse_args(args)
