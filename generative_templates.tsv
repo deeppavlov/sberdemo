@@ -79,7 +79,7 @@
 1	Хочу открыть #ИП#client_type#, скажите тарифы на открытие #рс#account_type# в вашем банке~Хочу открыть #ИП#client_type#, скажите тарифы на открытие #расчетного счета#account_type# в вашем банке?	cost_of_service	open_account
 1	Расскажите по тарифам #расчетного счета#account_type#~Расскажите по тарифам #расчетного счета#account_type# в Сбере ?~Расскажите по тарифам #расчетного счета#account_type# в вашем банке ?~Тарифы какие по #расчетному счету#account_type#?~Тарифы какие по #расчетному счету#account_type# в Сбербанке?~Тарифы на открытие #расчетного счета#account_type# в Сбербанке какие?	cost_of_service	open_account
 1	Сколько стоит открытие счета для #ИП#client_type# в Сбербанке?~Столько стоит открытие счета для #ИП#client_type#?	cost_of_service	open_account
-1	Могли бы рассказать по открытию счета в Сберабанке?	show_docs,cost_of_service	open_account
+1	Могли бы рассказать по открытию счета в Сбербанке?	show_docs,cost_of_service	open_account
 1	Расскажи по тарифам расчетного счета для #ИП#client_type#	cost_of_service	open_account
 1	Планирую открыть #ООО#client_type# какие тарифы в вашем банке?~Планирую открыть #ООО#client_type# какие тарифы?~Хочу открыть #ООО#client_type# какие тарифы	cost_of_service	open_account
 1	Хочу узнать тарифы по #расчетному счету#account_type#~Хочу узнать у вас тарифы по #расчетному счету#account_type#~Могли бы вы рассказать тарифы по #расчетному счету#account_type#?	cost_of_service	open_account
