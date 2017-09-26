@@ -3,6 +3,7 @@
 
 # build artifacts
 sberdemo_no_intent.tsv.gz
+no_intent_corpus.txt
 generated_dataset.tsv
 models_nlu
 

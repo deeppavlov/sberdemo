@@ -9,3 +9,4 @@ pandas
 python-Levenshtein
 python-telegram-bot
 pymorphy2
+gensim
