@@ -122,7 +122,10 @@ class StatisticalNLUModel:
             self.expect_name = False
 
         if self.expect is None:
-            res['intent'] = self.intent_classifier.predict_single(message)
+            if message_type == 'text':
+                res['intent'] = self.intent_classifier.predict_single(message)
+            else:
+                res['intent'] = 'no_intent'
 
             for slot in self.slots.values():
                 val = slot.infer_from_compositional_request(message, message_type)
