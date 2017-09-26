@@ -37,6 +37,8 @@ class NameParser:
             pos = int(fact['@pos'])
             ln = int(fact['@len'])
             name = {
+                'pos': pos,
+                'len': ln,
                 'raw': text[pos:pos+ln].title(),
                 'firstname': get_value(fact, 'First'),
                 'middlename': get_value(fact, 'Middle'),

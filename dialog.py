@@ -69,7 +69,16 @@ class Dialog:
                 return ['ERROR: {}'.format(str(e))]
             self.nlu_model.set_expectation(expect)
         else:
-            response = ["CHIT-CHAT\n" + chat_response]
+            response = chat_response
+            try:
+                names = self.nlu_model.name_parser.parse(chat_response)
+                if names:
+                    for name in reversed(names):
+                        response = response[:name['pos']] + response[name['pos']+name['len']:]
+                response = ["CHIT-CHAT\n" + response]
+            except Exception as e:
+                self.logger.error(e)
+                response = ['CHIT-CHAT ERROR: {}'.format(e)]
 
         if self.debug:
             debug_message = 'DEBUG\nnlu: {nlu}\n\npolicy: {policy}\n\nfaq: {faq}\n\nchit-chat: {chat}'

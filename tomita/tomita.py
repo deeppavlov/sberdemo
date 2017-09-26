@@ -17,6 +17,7 @@ class Tomita:
         self.p.expect('.* Start.*$')
 
     def communicate(self, text):
+        text = text.strip()
         self.p.sendline(text)
         self.p.expect_exact((text + '\r\n').encode('UTF8'))
         raw = b''
