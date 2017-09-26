@@ -63,16 +63,16 @@ class Dialog:
             try:
                 response, expect = self.policy_model.forward(nlu_result)
                 for i in range(len(response)):
-                    response[i] = "GOAL-ORIENTED\n\n" + response[i]
+                    response[i] = "GOAL-ORIENTED\n" + response[i]
             except Exception as e:
                 self.logger.error(e)
                 return ['ERROR: {}'.format(str(e))]
             self.nlu_model.set_expectation(expect)
         else:
-            response = ["CHIT-CHAT\n\n" + chat_response]
+            response = ["CHIT-CHAT\n" + chat_response]
 
         if self.debug:
-            debug_message = 'DEBUG\n\nnlu: {nlu}\n\npolicy: {policy}\n\nfaq: {faq}\n\nchit-chat: {chat}'
+            debug_message = 'DEBUG\nnlu: {nlu}\n\npolicy: {policy}\n\nfaq: {faq}\n\nchit-chat: {chat}'
             debug_message = debug_message.format(nlu=repr(nlu_result),
                                                  policy=repr({
                                                      'intent_name': self.policy_model.intent_name,
