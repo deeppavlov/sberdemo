@@ -118,7 +118,10 @@ class StatisticalNLUModel:
         }
 
         if self.expect_name and message_type == 'text':
-            res['name'] = self.name_parser.parse(message)
+            name = self.name_parser.parse(message)
+            if isinstance(name, list):
+                name = name[0]
+            res['name'] = name
             self.expect_name = False
 
         if self.expect is None:

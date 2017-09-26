@@ -23,19 +23,27 @@ class NameParser:
     def parse(self, text):
         if isinstance(text, list):
             text = ' '.join(w['_orig'] for w in text)
-        res = self.tomita.get_json(text.title())
-        if not res:
+        facts = self.tomita.get_json(text.title())
+
+        if not facts:
             return None
-        res = res['facts']['ProperName']
-        pos = int(res['@pos'])
-        ln = int(res['@len'])
-        res = {
-            'raw': text[pos:pos+ln].title(),
-            'firstname': get_value(res, 'First'),
-            'middlename': get_value(res, 'Middle'),
-            'lastname': get_value(res, 'Last')
-        }
-        res['formal'] = res['firstname']
-        if res['middlename']:
-            res['formal'] += ' ' + res['middlename']
+
+        facts = facts['facts']['ProperName']
+        if not isinstance(facts, list):
+            facts = [facts]
+
+        res = []
+        for fact in facts:
+            pos = int(fact['@pos'])
+            ln = int(fact['@len'])
+            name = {
+                'raw': text[pos:pos+ln].title(),
+                'firstname': get_value(fact, 'First'),
+                'middlename': get_value(fact, 'Middle'),
+                'lastname': get_value(fact, 'Last')
+            }
+            name['formal'] = name['firstname']
+            if name['middlename']:
+                name['formal'] += ' ' + name['middlename']
+            res.append(name)
         return res
