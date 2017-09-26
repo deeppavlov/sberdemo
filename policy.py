@@ -3,7 +3,7 @@ import copy
 
 class GraphBasedSberdemoPolicy(object):
 
-    def __init__(self, routes, slots_objects, sayer, debug=False):
+    def __init__(self, routes, slots_objects, sayer):
         self.routes = routes
         self.slots_objects = {s.id: s for s in slots_objects}  # type: Dict[str, DictionarySlot]
         self.sayer = sayer
@@ -11,7 +11,6 @@ class GraphBasedSberdemoPolicy(object):
         self.intent = None
         self.persistent_slots = {}
         self.slots = {}
-        self.debug = debug
 
     def set_intent(self, intent):
         self.intent_name = intent or None
@@ -95,8 +94,5 @@ class GraphBasedSberdemoPolicy(object):
                     continue
                 new_intent_responses, expect = self.forward({"slots": {}, "intent": value})
                 responses += new_intent_responses
-
-        if self.debug:
-            responses[0] = responses[0] + '\n\nslots: {}'.format(self.slots)
 
         return responses, expect
