@@ -76,6 +76,8 @@ class Dialog:
                 if names:
                     for name in reversed(names):
                         response = response[:name['pos']] + response[name['pos']+name['len']:]
+                response = response.strip(' \t\n\r\x0b\x0c,')
+                response = response[0].upper() + response[1:]
                 response = ["CHIT-CHAT\n" + response]
             except Exception as e:
                 self.logger.error(e)
