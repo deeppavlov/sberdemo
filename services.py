@@ -18,9 +18,19 @@ def faq(text: str, threshold=0.95):
     return answer, response
 
 
-def chat(text: str):
+def init_chat(chat_id):
     params = {
-        "q": text
+        "session": chat_id
+    }
+    url = 'http://lnsigo.dc.phystech.edu:5100/init_session?' + urlencode(params)
+    response = json.loads(urllib.request.urlopen(url).read().decode('UTF8'))
+    return response
+
+
+def chat(text: str, chat_id):
+    params = {
+        "q": text,
+        "session": chat_id
     }
     url = 'http://lnsigo.dc.phystech.edu:5100/answer?' + urlencode(params)
     response = json.loads(urllib.request.urlopen(url).read().decode('UTF8'))['answer']

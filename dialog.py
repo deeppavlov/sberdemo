@@ -3,7 +3,7 @@ from telegram import User
 
 import logging
 
-from services import faq, chat
+from services import faq, init_chat, chat
 
 from concurrent.futures import ThreadPoolExecutor
 
@@ -14,6 +14,8 @@ class Dialog:
         self.nlu_model = nlu_model
         self.policy_model = policy_model
         self.user = user
+
+        init_chat(self.user.id)
 
         self.logger = logging.getLogger('router')
         self.logger.info("{user.id}:{user.name} : started new dialog".format(user=self.user))
@@ -35,7 +37,7 @@ class Dialog:
             text = self.pipeline.feed(client_utterance)
 
         faq_future = self.executor.submit(faq, client_utterance)
-        chat_future = self.executor.submit(chat, client_utterance)
+        chat_future = self.executor.submit(chat, client_utterance, self.user.id)
 
         try:
             nlu_result = self.nlu_model.forward(text, message_type)
