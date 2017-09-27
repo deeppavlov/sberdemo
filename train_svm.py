@@ -1,4 +1,7 @@
 import pandas as pd
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.tree import DecisionTreeClassifier
+
 from nlu import *
 from intent_classifier import IntentClassifier
 from collections import defaultdict
@@ -6,8 +9,9 @@ from sklearn.metrics import classification_report, f1_score, precision_recall_fs
 from sklearn.model_selection import GroupKFold
 from sklearn.externals import joblib
 from svm_classifier_utlilities import oversample_data
-from sklearn.svm import LinearSVC
+from sklearn.svm import LinearSVC, SVC
 from slots import read_slots_from_tsv, ClassifierSlot
+from sklearn.ensemble import VotingClassifier
 import os
 import argparse
 
@@ -40,7 +44,15 @@ STOP_WORDS_SLOTS = {"online_reserving":['ли', 'открыть', "счет", "�
                     "search_vsp":["здравствовать"],
 
                     "not_first":["открыть", "что", "заявление", "мочь", "здравствовать", "необходимый", "комплект документ"]}
-BASE_CLF = LinearSVC(C=1)
+
+clf1 = DecisionTreeClassifier(max_depth=4)
+clf2 = KNeighborsClassifier(n_neighbors=7)
+clf3 = SVC(probability=True)
+eclf = VotingClassifier(estimators=[('dt', clf1), ('knn', clf2), ('svc', clf3)], voting='soft')
+
+# BASE_CLF = LinearSVC(C=1)
+BASE_CLF = eclf
+
 BASE_CLF_INTENT = BASE_CLF
 BASE_CLF_SLOTS = BASE_CLF
 
@@ -126,16 +138,17 @@ def validate_train(model, X, y, groups, oversample=True, n_splits=5, use_chars=U
         importances = model.get_feature_importance()
         labels = model.get_labels()
         print("=== labels {} ===".format(labels))
-        for imp_line, label in zip(importances, labels):
-            print("\nLABEL: ", label)
-            print("*"*20)
-            print("\n --- TOP {} most important --- \n".format(num_importance))
-            for n, val in imp_line[:num_importance]:
-                print("{}\t{}".format(n, np.round(val, 3)))
+        if importances is not None:
+            for imp_line, label in zip(importances, labels):
+                print("\nLABEL: ", label)
+                print("*"*20)
+                print("\n --- TOP {} most important --- \n".format(num_importance))
+                for n, val in imp_line[:num_importance]:
+                    print("{}\t{}".format(n, np.round(val, 3)))
 
-            print("\n --- TOP {} anti features --- \n".format(num_importance))
-            for n, val in imp_line[::-1][:num_importance]:
-                print("{}\t{}".format(n, np.round(val, 3)))
+                print("\n --- TOP {} anti features --- \n".format(num_importance))
+                for n, val in imp_line[::-1][:num_importance]:
+                    print("{}\t{}".format(n, np.round(val, 3)))
 
         model.dump_model(os.path.join(model_folder, dump_name))
         print("== MODEL DUMPED ==")
