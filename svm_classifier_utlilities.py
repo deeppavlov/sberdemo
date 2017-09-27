@@ -2,8 +2,9 @@ from collections import Counter
 import numpy as np
 import os
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.base import TransformerMixin
+from sklearn.base import TransformerMixin, clone
 from sklearn.linear_model.base import LinearClassifierMixin
+from sklearn.multiclass import OneVsRestClassifier
 from sklearn.svm import LinearSVC
 from sklearn.base import BaseEstimator
 from sklearn.externals import joblib
@@ -178,26 +179,17 @@ class Embedder(TransformerMixin):
 
 
 class SentenceClassifier:
-    def __init__(self, base_clf=None,
-                 stop_words=None, use_chars=False, labels_list=None, model_path=None):
+    def __init__(self, base_clf: Union[BaseEstimator, None], stop_words=None, use_chars=False, labels_list=None, model_path=None, model_name=None):
         """
         :param stop_words: list of words to exclude from feature matrix
         :param use_chars: default False
         :param labels_list: list of possible targets; optional
         :param model_path: path to load model from
-
         """
-        # TODO: make this ugly thing more acceptable
-        self._initialization(base_clf=base_clf, stop_words=stop_words,
-                             use_chars=use_chars, labels_list=labels_list,
-                             model_path=model_path)
+        self.model_name = model_name
+        self.base_clf = base_clf
+        assert (base_clf is None) or isinstance(self.base_clf, BaseEstimator), "Wrong classifier type"
 
-    def _initialization(self, base_clf=None,
-                        stop_words=None, use_chars=False, labels_list=None, model_path=None):
-
-        if base_clf is None:
-            base_clf=LinearSVC(C=1)
-        self.model = None
         self.use_chars = use_chars
         self.stop_words = stop_words
 
@@ -208,28 +200,20 @@ class SentenceClassifier:
         else:
             self.labels_list = None
 
-        self.feat_generator = FeatureExtractor(use_chars=use_chars, stop_words=self.stop_words)
+        self.model = None
+        self.feat_generator = None
+        if model_path and os.path.isfile(model_path):
+            self.load_model(model_path)
 
-        if isinstance(base_clf, BaseEstimator):
-            self.clf = base_clf
-        else:
-            raise Exception("Wrong classifier type")
-
+    def train_model(self, X: List[List[Dict[str, Any]]], y: List):
+        self.feat_generator = FeatureExtractor(use_chars=self.use_chars, stop_words=self.stop_words)
+        self.clf = clone(self.base_clf)
         self.model = Pipeline([('sticker_sent', StickSentence()),
                                ('feature_extractor', self.feat_generator),
                                ('classifier', self.clf)])
         # from gensim.models.wrappers import FastText
         # self.model = Pipeline([('vector_summer', Embedder(FastText.load('fasttext.sber.bin'))),
         #                        ('classifier', self.clf)])
-        if model_path is not None:
-            self.load_model(model_path)
-
-    def train_model(self, X: List[List[Dict[str, Any]]], y: List,
-                    base_clf=LogisticRegression(penalty='l1', C=10),
-                    stop_words=None, use_chars=False, labels_list=None):
-
-        self._initialization(base_clf=base_clf, stop_words=stop_words,
-                             use_chars=use_chars, labels_list=labels_list)
 
         if None in y:
             y = [i if i is not None else '_' for i in y]
@@ -282,7 +266,14 @@ class SentenceClassifier:
             self.string2idx[None] = self.string2idx['_']
 
     def get_feature_importance(self):
-        if isinstance(self.clf, LinearClassifierMixin):
+        if isinstance(self.clf, OneVsRestClassifier):
+            names = self.model.named_steps['feature_extractor'].words_vectorizer.get_feature_names()
+            result = []
+            for est in self.clf.estimators_:
+                weights = sorted(list(zip(names, est.coef_)), key=lambda x: x[1], reverse=True)
+                result.append(weights)
+            return result
+        elif isinstance(self.clf, LinearClassifierMixin):
             coefs = self.clf.coef_
             names = self.model.named_steps['feature_extractor'].words_vectorizer.get_feature_names()
             results = []

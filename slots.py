@@ -126,11 +126,14 @@ class CurrencySlot(DictionarySlot):
         self.filters['not_supported_currency'] = lambda x, _: x not in self.supported_currencies
 
 
-class ClassifierSlot(DictionarySlot, SentenceClassifier):
+class ClassifierSlot(DictionarySlot):
     def __init__(self, slot_id: str, ask_sentence: str, generative_dict: Dict[str, str],
                  nongenerative_dict: Dict[str, str], values_order: List[str], prev_created_slots, *args):
         super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict, values_order, prev_created_slots,
                          *args)
+        model_path = os.path.join('models_nlu', self.id + '.model')
+        self.classifier = SentenceClassifier(None, model_path=model_path)
+
         self.true = values_order[0]
         self.filters.update({
             'true': lambda x, _: x == self.true,
@@ -138,8 +141,7 @@ class ClassifierSlot(DictionarySlot, SentenceClassifier):
         })
 
     def _infer_from_compositional_request(self, text: List[Dict[str, Any]]):
-        return super().predict_single(text)
-
+        return self.classifier.predict_single(text)
 
 
 class CompositionalSlot(DictionarySlot):

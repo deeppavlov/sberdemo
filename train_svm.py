@@ -1,4 +1,7 @@
 import pandas as pd
+from sklearn.linear_model import ElasticNet
+from sklearn.multiclass import OneVsRestClassifier
+
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
 
@@ -21,40 +24,38 @@ import datetime
 DUMP_DEFAULT = True
 MODEL_FOLDER_DEFAULT = './models_nlu'
 USE_CHAR_DEFAULT = False
-STOP_WORDS_INTENT = ["здравствовать", "добрый", "день", "для", "хотеть", "нужный"]
-STOP_WORDS_SLOTS = {"online_reserving":['ли', 'открыть', "счет", "здравствовать", "возможно",
-                                        "через", "приходить", "банк", "как", "через", "без", "день"],
+COMMON_STOP_WORDS = ['здравствовать', 'добрый', 'день', 'для', 'хотеть', 'нужный', 'бы', 'ли', 'не', 'через', 'без', 'это', 'при', 'по', 'на', 'вечер']
+STOP_WORDS_INTENT = []
+STOP_WORDS_SLOTS = {'online_reserving':['открыть', 'счет', 'возможно', 'приходить', 'банк', 'как'],
+
+                    'show_docs':['открытие', 'счет', 'какой', 'нужный', 'необходимый', 'сбербанк', 'хотеть', 'открыть'],
+
+                    'cost_of_service':['рассказать', 'открытие', 'хотеть', 'открыть', 'сказать', 'какой', 'счет', 'мочь', 'счет', 'сбер'],
+
+                    'show_phone':['график', 'пожалуйста', 'можно', 'работать',
+                                  'офис', 'строгино', 'банк', 'работать', 'сказать', 'ленинский',
+                                  'отделение', 'банка' 'ряд', 'чертановский', 'где', 'ближний', 'банк', 'день'],
+
+                    'show_schedule':['телефон', 'работа', 'ряд', 'офис'],
+
+                    'search_vsp':[],
+
+                    'not_first':['открыть', 'что', 'заявление', 'мочь', 'необходимый', 'комплект документ']}
+
+# clf1 = DecisionTreeClassifier(max_depth=4)
+# clf2 = KNeighborsClassifier(n_neighbors=7)
+# clf3 = SVC(probability=True)
+# BASE_CLF = VotingClassifier(estimators=[('dt', clf1), ('knn', clf2), ('svc', clf3)], voting='soft')
+#
+# # BASE_CLF = LinearSVC(C=1)
+# BASE_CLF_INTENT = BASE_CLF
+# BASE_CLF_SLOTS = BASE_CLF
 
 
-                    "show_docs":["открытие", "счет", "здравствовать", "это", "при", "для",
-                                 "какой", "нужный", "необходимый", "по", "сбербанк", "хотеть", "открыть", "бы"],
-
-
-                    "cost_of_service":["по", "здравствовать", "рассказать", "открытие", "день",
-                                       "хотеть", "открыть", "сказать", "какой", "бы", "счет", "для", "мочь", "счет", "сбер"],
-
-                    "show_phone":["график", "пожалуйста", "здравствовать", "можно", "работать",
-                                  "это", "офис", "строгино", "банк", "работать", "сказать", "ленинский",
-                                  "отделение", "банка" "ряд", "чертановский", "где", "ближний", "банк", "день"],
-
-
-                    "show_schedule":["телефон","здравствовать", "работа", "ряд", "офис"],
-
-
-                    "search_vsp":["здравствовать"],
-
-                    "not_first":["открыть", "что", "заявление", "мочь", "здравствовать", "необходимый", "комплект документ"]}
-
-clf1 = DecisionTreeClassifier(max_depth=4)
-clf2 = KNeighborsClassifier(n_neighbors=7)
-clf3 = SVC(probability=True)
-eclf = VotingClassifier(estimators=[('dt', clf1), ('knn', clf2), ('svc', clf3)], voting='soft')
-
-# BASE_CLF = LinearSVC(C=1)
-BASE_CLF = eclf
-
-BASE_CLF_INTENT = BASE_CLF
-BASE_CLF_SLOTS = BASE_CLF
+# BASE_CLF_INTENT = LinearSVC(C=1)
+BASE_CLF_INTENT = OneVsRestClassifier(ElasticNet(alpha=0.0001, l1_ratio=0.1))
+# BASE_CLF_SLOTS = LinearSVC(C=1)
+BASE_CLF_SLOTS = OneVsRestClassifier(ElasticNet(alpha=0.01, l1_ratio=0.5))
 
 
 def write_to_tsv(fname, headers, data):
@@ -98,9 +99,9 @@ def log_slots_aggr_results(results):
     write_to_tsv(path, headers, data)
 
 
-def validate_train(model, X, y, groups, oversample=True, n_splits=5, use_chars=USE_CHAR_DEFAULT,
-                   dump_name='any.model', dump=DUMP_DEFAULT, model_folder=MODEL_FOLDER_DEFAULT, metric=f1_score,
-                   class_weights=None, verbose=False, stop_words=None, num_importance=20, base_clf=BASE_CLF):
+def validate_train(model, X, y, groups, oversample=True, n_splits=5,
+                   dump=DUMP_DEFAULT, model_folder=MODEL_FOLDER_DEFAULT, metric=f1_score,
+                   verbose=False, num_importance=20):
     kf = GroupKFold(n_splits=n_splits)
     all_y = []
     all_predicted = []
@@ -109,15 +110,15 @@ def validate_train(model, X, y, groups, oversample=True, n_splits=5, use_chars=U
         X_test, y_test = X[test_index], y[test_index]
         if oversample:
             X_tmp, y_tmp = oversample_data(X_train, y_train, verbose=verbose)
-            model.train_model(X_tmp, y_tmp, use_chars=use_chars, stop_words=stop_words, base_clf=base_clf)
+            model.train_model(X_tmp, y_tmp)
         else:
-            model.train_model(X_train, y_train, use_chars=use_chars, stop_words=stop_words, base_clf=base_clf)
+            model.train_model(X_train, y_train)
         pred = model.predict_batch(X_test)
 
         all_predicted.extend(pred)
         all_y.extend(y_test)
 
-    print(">>> MODEL: ", dump_name)
+    print(">>> MODEL: ", model.model_name)
     print("Params:", model.get_description())
     all_y = model.encode2idx(all_y)
 
@@ -129,9 +130,9 @@ def validate_train(model, X, y, groups, oversample=True, n_splits=5, use_chars=U
     if dump:
         if oversample:
             X_tmp, y_tmp = oversample_data(X, y, verbose=verbose)
-            model.train_model(X_tmp, y_tmp, use_chars=use_chars, stop_words=stop_words, base_clf=base_clf)
+            model.train_model(X_tmp, y_tmp)
         else:
-            model.train_model(X, y, use_chars=use_chars, stop_words=stop_words, base_clf=base_clf)
+            model.train_model(X, y)
 
         print("FEATURE_IMPORTANCE")
 
@@ -150,11 +151,11 @@ def validate_train(model, X, y, groups, oversample=True, n_splits=5, use_chars=U
                 for n, val in imp_line[::-1][:num_importance]:
                     print("{}\t{}".format(n, np.round(val, 3)))
 
-        model.dump_model(os.path.join(model_folder, dump_name))
+        model.dump_model(os.path.join(model_folder, model.model_name))
         print("== MODEL DUMPED ==")
 
     print("classif_report:\n", classification_report(all_y, all_predicted))
-    log_results(all_y, all_predicted, dump_name or model.model_name, model)
+    log_results(all_y, all_predicted, model.model_name or model.model_name, model)
     return result
 
 
@@ -250,7 +251,8 @@ def main(args=None):
     # ---------------- validate & dump --------------#
 
     if INTENT_TRAIN:
-        intent_clf = IntentClassifier(labels_list=y_intents)
+        intent_stop_words = STOP_WORDS_INTENT + COMMON_STOP_WORDS
+        intent_clf = IntentClassifier(BASE_CLF_INTENT, labels_list=y_intents, stop_words=intent_stop_words)
         print("intent_clf.string2idx: ", intent_clf.get_labels())
         print("\n-------\n")
         result = validate_train(intent_clf, X_intents, y_intents,
@@ -258,12 +260,7 @@ def main(args=None):
                                 oversample=OVERSAMPLE,
                                 metric=f1_score,
                                 n_splits=8,
-                                dump_name="",
-                                num_importance=NUM_IMPORTANCE,
-                                class_weights=None,
-                                use_chars=USE_CHAR,
-                                stop_words=STOP_WORDS_INTENT,
-                                base_clf=BASE_CLF_INTENT)
+                                num_importance=NUM_IMPORTANCE)
         print("INTENT CLF: cv mean f1 score: {}".format(result))
 
         print('--------------\n\n')
@@ -273,18 +270,18 @@ def main(args=None):
         for slot in slot_list:
             if slot.id not in slot_names:
                 continue
-
             model_name = "{}.model".format(slot.id)
-            result = validate_train(model=slot, X=X_intents, y=np.array(targets[slot.id] + ['_'] * len(trash_sents)),
+            slot_stop_words = STOP_WORDS_SLOTS.get(slot.id, None) + COMMON_STOP_WORDS
+            slot.classifier = SentenceClassifier(BASE_CLF_SLOTS, stop_words=slot_stop_words,
+                                                 use_chars=USE_CHAR, model_name=model_name)
+
+            result = validate_train(model=slot.classifier,
+                                    X=X_intents, y=np.array(targets[slot.id] + ['_'] * len(trash_sents)),
                                     groups=tmp_groups,
                                     oversample=OVERSAMPLE,
                                     n_splits=8,
                                     metric=f1_score,
-                                    num_importance=NUM_IMPORTANCE,
-                                    dump_name=model_name,
-                                    use_chars=USE_CHAR,
-                                    stop_words=STOP_WORDS_SLOTS.get(slot.id,None),
-                                    base_clf=BASE_CLF_SLOTS)
+                                    num_importance=NUM_IMPORTANCE)
             print("For slot: {} cv mean f1 score: {}".format(slot.id, result))
             results.append((model_name, sum(result)/len(result)))
 
