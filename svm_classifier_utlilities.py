@@ -165,7 +165,11 @@ class Embedder(TransformerMixin):
             word2id = self.words_vectorizer.vocabulary_
             id2idf = self.words_vectorizer.idf_
             for x, nw in zip(row, self._normalize(row)):
-                v = self.fasttext[x['_text']]
+                try:
+                    v = self.fasttext[x['_text']]
+                except KeyError:
+                    # print('FastText can''t find vector for "{}"'.format(x['_text']))
+                    v = np.zeros(self.fasttext.vector_size)
                 wid = word2id.get(nw, None)
                 if wid is None:
                     k = self.default_k
@@ -217,6 +221,9 @@ class SentenceClassifier:
         self.model = Pipeline([('sticker_sent', StickSentence()),
                                ('feature_extractor', self.feat_generator),
                                ('classifier', self.clf)])
+        # from gensim.models.wrappers import FastText
+        # self.model = Pipeline([('vector_summer', Embedder(FastText.load('fasttext.sber.bin'))),
+        #                        ('classifier', self.clf)])
         if model_path is not None:
             self.load_model(model_path)
 
@@ -280,7 +287,7 @@ class SentenceClassifier:
     def get_feature_importance(self):
         if isinstance(self.clf, LinearClassifierMixin):
             coefs = self.clf.coef_
-            names = self.model.steps[1][1].words_vectorizer.get_feature_names()
+            names = self.model.named_steps['feature_extractor'].words_vectorizer.get_feature_names()
             results = []
             for line in coefs:
                 weights = sorted(list(zip(names, line)), key=lambda x: x[1], reverse=True)
