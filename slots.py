@@ -306,5 +306,5 @@ def read_slots_serialized(folder, pipe):
         if isinstance(s, ClassifierSlot):
             if not os.path.exists(name):
                 raise Exception("{} does not exist".format(name))
-            s.load_model(name)
+            s.classifier.load_model(name)
     return slots_array

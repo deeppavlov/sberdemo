@@ -15,6 +15,7 @@ import threading
 
 from slots import read_slots_serialized
 from tomita.name_parser import NameParser
+from train_svm import BASE_CLF_INTENT
 
 
 def format_route(route):
@@ -81,7 +82,7 @@ def main():
     humans = {}
 
     def new_dialog(user):
-        return Dialog(pipe, StatisticalNLUModel(slots, IntentClassifier(folder=models_path), name_parser),
+        return Dialog(pipe, StatisticalNLUModel(slots, IntentClassifier(BASE_CLF_INTENT, folder=models_path), name_parser),
                       GraphBasedSberdemoPolicy(data, slots, sayer), user, debug=True)
 
     def start(bot: Bot, update: Update):
