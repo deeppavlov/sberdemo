@@ -1,9 +1,9 @@
 #encoding "utf8"
 #GRAMMAR_ROOT ProperName
 
-Name -> Word<gnc-agr[1],gram="имя,им"> interp (ProperName.First) (Word<gnc-agr[1],gram="отч"> interp (ProperName.Middle));
-Name -> Word<gnc-agr[1],gram="имя,твор"> interp (ProperName.First) (Word<gnc-agr[1],gram="отч"> interp (ProperName.Middle));
-LastName -> Word<gram="фам"> interp (ProperName.Last);
+Name -> Word<gnc-agr[1],gram="имя,им",rt> interp (ProperName.First) (Word<gnc-agr[1],gram="отч"> interp (ProperName.Middle));
+Name -> Word<gnc-agr[1],gram="имя,твор",rt> interp (ProperName.First) (Word<gnc-agr[1],gram="отч"> interp (ProperName.Middle));
+LastName -> Word<gram="фам",rt> interp (ProperName.Last);
 
-ProperName -> (LastName) Name;
-ProperName -> Name (LastName);
+ProperName -> (LastName<gnc-agr[1]>) Name<gnc-agr[1]>;
+ProperName -> Name<gnc-agr[1]> (LastName<gnc-agr[1]>);
