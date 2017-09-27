@@ -7,6 +7,6 @@ xmltodict
 nltk
 pandas
 python-Levenshtein
-python-telegram-bot
+python-telegram-bot>=8.0
 pymorphy2
 gensim>=2.3.0
