@@ -1,7 +1,7 @@
 import json
 import logging
 
-from telegram import Update, User, Bot
+from telegram import Update, User, Bot, ChatAction
 
 from dialog import Dialog
 from nlu import *
@@ -105,6 +105,7 @@ def main():
             humans[chat_id] = new_dialog(update.effective_user)
         user_msg = update.message.text or '__geo__ ' + str(update.message.location)
         dialog = humans[chat_id]
+        bot.send_chat_action(chat_id, ChatAction.TYPING)
         bot_responses = dialog.generate_response(user_msg)
         send_delayed(bot, chat_id, bot_responses, 0.7)
 
