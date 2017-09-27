@@ -105,7 +105,9 @@ def main():
             humans[chat_id] = new_dialog(update.effective_user)
         user_msg = update.message.text or '__geo__ ' + str(update.message.location)
         dialog = humans[chat_id]
-        bot.send_chat_action(chat_id, ChatAction.TYPING)
+
+        threading.Timer(0.5, bot.send_chat_action, [chat_id, ChatAction.TYPING]).start()
+
         bot_responses = dialog.generate_response(user_msg)
         send_delayed(bot, chat_id, bot_responses, 0.7)
 
