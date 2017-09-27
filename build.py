@@ -17,7 +17,9 @@ def main():
     root = os.path.dirname(os.path.realpath(__file__))
     models_dir = 'models_nlu'
     directory = os.path.join(root, models_dir)
-    fasttext_model = os.path.join(root, 'fasttext.sber.bin')
+
+    templates = 'generative_templates.tsv'
+    slot_definitions = 'slots_definitions.tsv'
 
     dataset = os.path.join(root, 'generated_dataset.tsv')
 
@@ -50,13 +52,6 @@ def main():
         print('{} has been preprocessed'.format(NO_INTENT))
 
     print()
-
-    print('training FastText...')
-    train_fasttext('--fasttext_model', fasttext_model, '--dataset_file', no_intent_preprocessed)
-    print('FastText trained')
-
-    templates = 'generative_templates.tsv'
-    slot_definitions = 'slots_definitions.tsv'
 
     args = ['--output', dataset, '--templates', templates]
     generate_from_templates(args)

@@ -11,7 +11,6 @@ from slots import read_slots_from_tsv, ClassifierSlot
 import os
 import argparse
 
-import urllib.request
 import csv
 import datetime
 
@@ -193,19 +192,12 @@ def main(args=None):
     SLOT_TRAIN = params['slot_train']
     NUM_IMPORTANCE = params['num_importance']
 
-    # just checking:
-    print("Current configuration:\n")
-    print(params)
-
     # if there's no folder to save model
     # create folder
     if not os.path.exists(MODEL_FOLDER):
         os.mkdir(MODEL_FOLDER)
 
-    # if there's no file with generated data
-    # generate data
-    if not os.path.exists(DATA_PATH):
-        os.system('python generate_from_templates.py')
+    assert os.path.exists(DATA_PATH), 'File "{}" not found'.format(DATA_PATH)
 
     # ------------ load slots ----------------------#
 
@@ -216,13 +208,6 @@ def main(args=None):
     print("Slot names: ", slot_names)
 
     # ------------ making train data ---------------#
-
-    if not os.path.isfile(NO_INTENT):
-        url = 'http://share.ipavlov.mipt.ru:8080/repository/datasets/' + os.path.basename(NO_INTENT)
-        try:
-            urllib.request.urlretrieve(url, NO_INTENT)
-        except:
-            pass
 
     trash_data = list(set(pd.read_csv(NO_INTENT, compression='gzip', sep='\t', header=None).ix[:, 0]))
     data = pd.read_csv(DATA_PATH, sep='\t')
@@ -238,14 +223,10 @@ def main(args=None):
             targets[name].append(label)
 
     y_intents = list(data['intent'])
-    X = []
-    for s in sents:
-        X.append([w['normal'] for w in pipe.feed(s)])
+    X = [pipe.feed(s) for s in sents]
 
     trash_sents = trash_data[:len(y_intents)]
-    X_intents = list(X)
-    for s in trash_data[:len(y_intents)]:
-        X_intents.append([w['normal'] for w in pipe.feed(s)])
+    X_intents = list(X) + [pipe.feed(s) for s in trash_data[:len(y_intents)]]
 
     X_intents = np.array(X_intents)
 
