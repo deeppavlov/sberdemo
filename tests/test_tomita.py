@@ -34,10 +34,10 @@ class TomitaTestCase(unittest.TestCase):
         parser = NameParser()
 
         r = parser.parse('Николаев Сергей Петрович')
-        self.assertTrue(r)
-        self.assertEqual(r['formal'], 'Сергей Петрович')
+        self.assertEqual(1, len(r))
+        self.assertEqual(r[0]['formal'], 'Сергей Петрович')
 
-        self.assertEqual(parser.parse('Владлен увидел картину и ужаснулся')['formal'], 'Владлен')
+        self.assertEqual(parser.parse('Владлен увидел картину и ужаснулся')[0]['formal'], 'Владлен')
 
 
 if __name__ == '__main__':
