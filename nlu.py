@@ -1,7 +1,6 @@
 from functools import lru_cache
 
 import pymorphy2
-from gensim.models.wrappers import FastText
 from typing import List, Dict, Callable
 
 from intent_classifier import IntentClassifier
@@ -19,6 +18,7 @@ class Preprocessor:
 class FastTextPreproc(Preprocessor):
     def __init__(self, model_path, normalized=True):
         self.k = 'normal' if normalized else '_text'
+        from gensim.models.wrappers import FastText
         self.model = FastText.load(model_path)
         self.zero = np.zeros(self.model.vector_size)
 
