@@ -43,10 +43,7 @@ def oversample_data(X, y, verbose=False, seed=23):
         y_new = np.hstack((y_new, [label] * offset))
         tmp = X[np.array(y) == label]
         sampled = random_state.choice(np.arange(len(tmp)), size=offset)
-        # if isinstance(X[0][0], dict):
         sampled_data.extend(tmp[sampled])
-        # else:
-        #     sampled_data.extend()X_new = np.vstack((X_new, tmp[sampled]))
 
         if verbose:
             print("offset: {} for label: {}".format(offset, label))
@@ -293,6 +290,8 @@ class SentenceClassifier:
                 weights = sorted(list(zip(names, line)), key=lambda x: x[1], reverse=True)
                 results.append(weights)
             return results
+        else:
+            return None
 
     def get_description(self):
         descr = str(type(self.clf))
