@@ -88,7 +88,7 @@ class Dialog:
                 response = ['CHIT-CHAT ERROR: {}'.format(e)]
 
         if self.debug:
-            debug_message = html.escape('DEBUG\nnlu: {nlu}\n\npolicy: {policy}\n\nfaq: {faq}\n\nchit-chat: {chat}')
+            debug_message = 'DEBUG\nnlu: {nlu}\n\npolicy: {policy}\n\nfaq: {faq}\n\nchit-chat: {chat}'
             debug_message = debug_message.format(nlu=repr(nlu_result),
                                                  policy=repr({
                                                      'intent_name': self.policy_model.intent_name,
@@ -99,7 +99,7 @@ class Dialog:
                                                      'faq_response': faq_response
                                                  }),
                                                  chat=chat_response)
-            response.insert(0, debug_message)
+            response.insert(0, html.escape(debug_message))
 
         for msg in response:
             self.logger.info("{user.id}:{user.name} <<< {msg}".format(user=self.user, msg=repr(msg)))
