@@ -7,6 +7,8 @@ from services import faq, init_chat, chat
 
 from concurrent.futures import ThreadPoolExecutor
 
+import html
+
 
 class Dialog:
     def __init__(self, preproc_pipeline, nlu_model, policy_model, user: User, debug=False, patience=3):
@@ -60,7 +62,7 @@ class Dialog:
 
         expect = None
         if faq_answer:
-            response = ["FAQ\n\n" + faq_answer]
+            response = ["FAQ\n\n" + html.escape(faq_answer)]
         elif self.impatience < self.patience:
             try:
                 response, expect = self.policy_model.forward(nlu_result)
@@ -80,13 +82,13 @@ class Dialog:
                         response = response[:name['pos']] + response[name['pos']+name['len']:]
                 response = response.strip(' \t\n\r\x0b\x0c,')
                 response = response[0].upper() + response[1:]
-                response = ["CHIT-CHAT\n" + response]
+                response = ["CHIT-CHAT\n" + html.escape(response)]
             except Exception as e:
                 self.logger.error(e)
                 response = ['CHIT-CHAT ERROR: {}'.format(e)]
 
         if self.debug:
-            debug_message = 'DEBUG\nnlu: {nlu}\n\npolicy: {policy}\n\nfaq: {faq}\n\nchit-chat: {chat}'
+            debug_message = html.escape('DEBUG\nnlu: {nlu}\n\npolicy: {policy}\n\nfaq: {faq}\n\nchit-chat: {chat}')
             debug_message = debug_message.format(nlu=repr(nlu_result),
                                                  policy=repr({
                                                      'intent_name': self.policy_model.intent_name,

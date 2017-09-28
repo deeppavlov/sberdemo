@@ -95,7 +95,11 @@ def main():
 
     def send_delayed(bot: Bot, chat_id, messages: list, interval=0.7):
         m = messages.pop(0)
-        bot.send_message(chat_id=chat_id, text=m, parse_mode='HTML')
+        try:
+            bot.send_message(chat_id=chat_id, text=m, parse_mode='HTML')
+        except Exception as e:
+            get_logger().error(e)
+            bot.send_message(chat_id=chat_id, text='bot.send ERROR: ' + str(e))
         if messages:
             threading.Timer(interval, send_delayed, [bot, chat_id, messages, interval]).start()
 
