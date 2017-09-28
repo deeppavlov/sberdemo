@@ -138,3 +138,5 @@
 1	хочу узнать расписание этих офисов	show_schedule	search_bank
 1	где мне найти офис, чтобы открыть там счет в иностранной валюте?	search_vsp	search_bank
 1	офис найти поблизости я хочу	search_vsp	search_bank
+1   Где Сбербанк?   search_vsp  search_bank
+1   Хорошо, тогда подскажите, пожалуйста, ближайшее отделение, которое работает по выходным.    show_schedule,search_vsp    search_bank
