@@ -4,10 +4,12 @@ from random import sample
 
 import os
 
-from nlu import create_pipe, read_slots_from_tsv
+from nlu import create_pipe
 import re
 
 import argparse
+
+from slots import read_slots_from_tsv
 
 PARAPHRASE_DELIM = '~'
 

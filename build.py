@@ -56,7 +56,7 @@ def main():
     args = ['--output', dataset, '--templates', templates]
     generate_from_templates(args)
 
-    args = ['--folder', directory, '--data', dataset, '--slot_path', slot_definitions, '--slot_train', '--intent_train', '--oversample']
+    args = ['--folder', directory, '--data', dataset, '--slot_path', slot_definitions, '--slot_train', '--intent_train']
     train_svm(args)
 
     print('Everything build in {:.0f} seconds'.format(time()-time_start))
