@@ -119,27 +119,19 @@ class StatisticalNLUModel:
             res['name'] = name
             self.expect_name = False
 
-        if self.expect is None:
-            if message_type == 'text':
-                res['intent'] = self.intent_classifier.predict_single(message)
-            else:
-                res['intent'] = 'no_intent'
-
-            for slot in self.slots.values():
-                val = slot.infer_from_compositional_request(message, message_type)
-                if isinstance(val, dict):
-                    res['slots'].update(val)
-                elif val is not None:
-                    res['slots'][slot.id] = val
+        if message_type == 'text':
+            res['intent'] = self.intent_classifier.predict_single(message)
         else:
+            res['intent'] = 'no_intent'
 
-            for slot in self.slots.values():
-                val = slot.infer_from_compositional_request(message, message_type)
-                if isinstance(val, dict):
-                    res['slots'].update(val)
-                elif val is not None:
-                    res['slots'][slot.id] = val
+        for slot in self.slots.values():
+            val = slot.infer_from_compositional_request(message, message_type)
+            if isinstance(val, dict):
+                res['slots'].update(val)
+            elif val is not None:
+                res['slots'][slot.id] = val
 
+        if self.expect is not None:
             slot = self.slots[self.expect]
             val = slot.infer_from_single_slot(message, message_type)
             if isinstance(val, dict):

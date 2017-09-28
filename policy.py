@@ -63,7 +63,8 @@ class GraphBasedSberdemoPolicy(object):
         return actions, done
 
     def forward(self, client_nlu):
-        if 'intent' in client_nlu:
+        if 'intent' in client_nlu and\
+                (self.intent is None or client_nlu['intent'] != 'no_intent'):
             self.set_intent(client_nlu['intent'])
 
         self.slots.update(client_nlu['slots'])
