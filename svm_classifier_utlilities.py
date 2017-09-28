@@ -5,10 +5,8 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.base import TransformerMixin, clone
 from sklearn.linear_model.base import LinearClassifierMixin
 from sklearn.multiclass import OneVsRestClassifier
-from sklearn.svm import LinearSVC
 from sklearn.base import BaseEstimator
 from sklearn.externals import joblib
-from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
 from typing import Dict, List, Any, Union
 from copy import deepcopy

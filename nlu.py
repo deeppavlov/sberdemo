@@ -3,8 +3,7 @@ from functools import lru_cache
 import pymorphy2
 from typing import List, Dict, Callable
 
-from intent_classifier import IntentClassifier
-from slots import read_slots_from_tsv, DictionarySlot
+from slots import DictionarySlot
 from nltk.tokenize import sent_tokenize, word_tokenize
 from svm_classifier_utlilities import *
 from tomita.name_parser import NameParser
@@ -100,7 +99,7 @@ class PreprocessorPipeline:
 
 
 class StatisticalNLUModel:
-    def __init__(self, slots: List[DictionarySlot], intent_classifier: IntentClassifier, name_parser: NameParser):
+    def __init__(self, slots: List[DictionarySlot], intent_classifier: SentenceClassifier, name_parser: NameParser):
         self.slots = {s.id: s for s in slots}  # type: Dict[str, DictionarySlot]
         self.intent_classifier = intent_classifier
         self.expect = None

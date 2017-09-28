@@ -1,20 +1,13 @@
 import pandas as pd
 from sklearn.linear_model import ElasticNet
-from sklearn.multiclass import OneVsRestClassifier
-
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.tree import DecisionTreeClassifier
 
 from nlu import *
-from intent_classifier import IntentClassifier
 from collections import defaultdict
 from sklearn.metrics import classification_report, f1_score, precision_recall_fscore_support
 from sklearn.model_selection import GroupKFold
-from sklearn.externals import joblib
 from svm_classifier_utlilities import oversample_data
-from sklearn.svm import LinearSVC, SVC
 from slots import read_slots_from_tsv, ClassifierSlot
-from sklearn.ensemble import VotingClassifier
+
 import os
 import argparse
 
@@ -38,24 +31,12 @@ STOP_WORDS_SLOTS = {'online_reserving':['открыть', 'счет', 'возм�
 
                     'show_schedule':['телефон', 'работа', 'ряд', 'офис'],
 
-                    'search_vsp':[],
+                    'search_vsp':['открыть', 'счет'],
 
-                    'not_first':['открыть', 'что', 'заявление', 'мочь', 'необходимый', 'комплект документ']}
+                    'not_first':['открыть', 'что', 'заявление', 'мочь', 'необходимый', 'комплект', 'документ', 'счет']}
 
-# clf1 = DecisionTreeClassifier(max_depth=4)
-# clf2 = KNeighborsClassifier(n_neighbors=7)
-# clf3 = SVC(probability=True)
-# BASE_CLF = VotingClassifier(estimators=[('dt', clf1), ('knn', clf2), ('svc', clf3)], voting='soft')
-#
-# # BASE_CLF = LinearSVC(C=1)
-# BASE_CLF_INTENT = BASE_CLF
-# BASE_CLF_SLOTS = BASE_CLF
-
-
-# BASE_CLF_INTENT = LinearSVC(C=1)
 BASE_CLF_INTENT = OneVsRestClassifier(ElasticNet(alpha=0.0001, l1_ratio=0.1))
-# BASE_CLF_SLOTS = LinearSVC(C=1)
-BASE_CLF_SLOTS = OneVsRestClassifier(ElasticNet(alpha=0.01, l1_ratio=0.5))
+BASE_CLF_SLOTS = OneVsRestClassifier(ElasticNet(alpha=0.01, l1_ratio=0.9))
 
 
 def write_to_tsv(fname, headers, data):
@@ -168,12 +149,6 @@ def main(args=None):
     parser.add_argument('--data', dest='data_path', type=str, default='./generated_dataset.tsv',
                         help='The path of generated dataset')
 
-    parser.add_argument('--dump', dest='dump', action='store_true', default=DUMP_DEFAULT,
-                        help='Use flag to dump trained svm')
-
-    parser.add_argument('--oversample', dest='oversample', action='store_true', default=False,
-                        help='Use flag to test and dump models with oversample')
-
     parser.add_argument('--use_char', dest='use_char', action='store_true', default=USE_CHAR_DEFAULT,
                         help='Use flag to use char features in svm')
 
@@ -196,10 +171,8 @@ def main(args=None):
     params = vars(args)
 
     MODEL_FOLDER = params['model_folder']
-    DUMP = params['dump']  # True to save model for each slot
     DATA_PATH = params['data_path']
     NO_INTENT = params['trash_intent']
-    OVERSAMPLE = params['oversample']
     SLOT_PATH = params['slot_path']
     USE_CHAR = params['use_char']
     INTENT_TRAIN = params['intent_train']
@@ -240,7 +213,7 @@ def main(args=None):
     X = [pipe.feed(s) for s in sents]
 
     trash_sents = trash_data[:len(y_intents)]
-    X_intents = list(X) + [pipe.feed(s) for s in trash_data[:len(y_intents)]]
+    X_intents = list(X) + [pipe.feed(s) for s in trash_sents]
 
     X_intents = np.array(X_intents)
 
@@ -252,12 +225,13 @@ def main(args=None):
 
     if INTENT_TRAIN:
         intent_stop_words = STOP_WORDS_INTENT + COMMON_STOP_WORDS
-        intent_clf = IntentClassifier(BASE_CLF_INTENT, labels_list=y_intents, stop_words=intent_stop_words)
+        intent_clf = SentenceClassifier(BASE_CLF_INTENT, labels_list=y_intents, stop_words=intent_stop_words,
+                                        model_name="IntentClassifier.model")
         print("intent_clf.string2idx: ", intent_clf.get_labels())
         print("\n-------\n")
         result = validate_train(intent_clf, X_intents, y_intents,
                                 groups=tmp_groups,
-                                oversample=OVERSAMPLE,
+                                oversample=True,
                                 metric=f1_score,
                                 n_splits=8,
                                 num_importance=NUM_IMPORTANCE)
@@ -278,7 +252,7 @@ def main(args=None):
             result = validate_train(model=slot.classifier,
                                     X=X_intents, y=np.array(targets[slot.id] + ['_'] * len(trash_sents)),
                                     groups=tmp_groups,
-                                    oversample=OVERSAMPLE,
+                                    oversample=True,
                                     n_splits=8,
                                     metric=f1_score,
                                     num_importance=NUM_IMPORTANCE)
