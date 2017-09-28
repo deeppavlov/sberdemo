@@ -1,5 +1,4 @@
 import unittest
-from intent_classifier import IntentClassifier
 from nlu import *
 from slots import *
 import pandas as pd
@@ -11,7 +10,7 @@ class TestSVM(unittest.TestCase):
         self.pipe = create_pipe()
         self.model_folder = './models_nlu'
         self.slots = read_slots_serialized(self.model_folder, self.pipe)
-        self.intent_clf = IntentClassifier(folder=self.model_folder)
+        self.intent_clf = SentenceClassifier(model_path=self.model_folder, model_name="IntentClassifier.model")
         self.table = pd.read_csv('generated_dataset.tsv', sep='\t')
 
     def _test_binary_clf(self, predict_single_func, labels, key, map_for_data=None):

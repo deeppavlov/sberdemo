@@ -7,17 +7,8 @@ from itertools import chain
 from typing import Dict, List, Any, Union
 
 from fuzzywuzzy import fuzz
-from sklearn.externals import joblib
-from sklearn.linear_model import LogisticRegression
-from sklearn.pipeline import Pipeline
-from sklearn.svm import LinearSVC
-
 from svm_classifier_utlilities import SentenceClassifier
-# from svm_classifier_utlilities import FeatureExtractor
-# from svm_classifier_utlilities import StickSentence
 from tomita.tomita import Tomita
-
-import importlib
 
 
 class DictionarySlot:

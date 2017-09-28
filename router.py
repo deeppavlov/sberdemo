@@ -1,7 +1,7 @@
 import json
 import logging
 
-from telegram import Update, User, Bot, ChatAction
+from telegram import Update, Bot, ChatAction
 
 from dialog import Dialog
 from nlu import *
@@ -82,7 +82,7 @@ def main():
     humans = {}
 
     def new_dialog(user):
-        return Dialog(pipe, StatisticalNLUModel(slots, IntentClassifier(BASE_CLF_INTENT, folder=models_path), name_parser),
+        return Dialog(pipe, StatisticalNLUModel(slots, SentenceClassifier(BASE_CLF_INTENT, model_path=os.path.join(models_path, "IntentClassifier.model"), model_name="IntentClassifier.model"), name_parser),
                       GraphBasedSberdemoPolicy(data, slots, sayer), user, debug=True)
 
     def start(bot: Bot, update: Update):
