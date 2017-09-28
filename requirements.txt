@@ -10,3 +10,4 @@ python-Levenshtein
 python-telegram-bot>=8.0
 pymorphy2
 gensim>=2.3.0
+pyenchant==1.6.11
