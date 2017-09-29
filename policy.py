@@ -46,7 +46,10 @@ class GraphBasedSberdemoPolicy(object):
                     if not slot_filter(self.slots[branch['slot']], branch.get('value')):
                         break
                 elif 'action' in branch:
-                    if branch.get('executed'):
+                    if 'relevant_slots' in branch\
+                            and all([self.slots.get(k) == v for k, v in branch['relevant_slots'].items()]):
+                        continue
+                    elif branch.get('executed'):
                         continue
                     branch_actions = [[x.strip() for x in action.split(':')] for action in branch['action'].split(';')
                                       if action]
@@ -55,7 +58,10 @@ class GraphBasedSberdemoPolicy(object):
                             done = True
                             break
                     actions += branch_actions
-                    branch['executed'] = True
+                    if 'relevant_slots' in branch:
+                        branch['relevant_slots'] = {k: self.slots.get(k) for k, v in branch['relevant_slots'].items()}
+                    else:
+                        branch['executed'] = True
                     if done:
                         break
                 else:

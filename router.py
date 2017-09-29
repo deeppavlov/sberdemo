@@ -26,7 +26,8 @@ def format_route(route):
             route[i] = {"slot": route[i], "condition": "any"}
         elif isinstance(route[i], dict):
             if "action" in route[i]:
-                pass
+                if "relevant_slots" in route[i]:
+                    route[i]["relevant_slots"] = {slot: None for slot in route[i]["relevant_slots"]}
             elif len(route[i]) == 1:
                 for key, val in route[i].items():
                     route[i] = {"slot": val, "condition": key}

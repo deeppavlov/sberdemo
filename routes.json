@@ -2,6 +2,14 @@
   "open_account": [
     [
       {
+          "slot": "end_talk",
+          "condition": "true",
+          "not_ask": 1
+      },
+      {"action": "goto: bye"}
+    ],
+    [
+      {
         "slot": "currency",
         "condition": "supported_currency"
       },
@@ -84,18 +92,29 @@
 
   "search_bank": [
     [
+      {
+          "slot": "end_talk",
+          "condition": "true",
+          "not_ask": 1
+      },
+      {"action": "goto: bye"}
+    ],
+    [
       {"true": "search_vsp"},
       "method_location",
-      {"action": "say: show_vsp; goto:"}
+      {
+        "action": "say: show_vsp",
+        "relevant_slots": ["method_location", "client_address", "client_geo", "client_metro", "show_schedule", "show_phone"]
+      }
     ],
-    {"action": "say: what_now; goto:"}
+    {"true": "end_talk"}
   ],
 
   "no_intent": [
     {"action": "say: no_intent; goto:"}
   ],
 
-  "no_intent_but_name": [
-    {"action": "say: no_intent; goto:"}
+  "bye": [
+    {"action": "say: bye; goto:"}
   ]
 }
