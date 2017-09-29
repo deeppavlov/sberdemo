@@ -151,3 +151,4 @@
 1	До встречи. Благодарю.	end_talk	no_intent
 1	Это все, прощайте.	end_talk	no_intent
 1	Еще обращусь к вам. Благодарю.	end_talk	no_intent
+1	Хотелось бы ещё телефон узнать и время работы	show_phone,show_schedule	search_bank
