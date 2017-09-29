@@ -30,13 +30,19 @@
         {"true": "show_docs"},
         "resident",
         "client_type",
-        {"action": "say: new_acc_documents_list"}
+        {
+          "action": "say: new_acc_documents_list",
+          "relevant_slots": ["resident", "client_type"]
+        }
       ],
 
       [
         {"true": "cost_of_service"},
         "region",
-        {"action": "say: new_acc_rates_list"}
+        {
+          "action": "say: new_acc_rates_list",
+          "relevant_slots": ["region"]
+        }
       ]
     ],
 
