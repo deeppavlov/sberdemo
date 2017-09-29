@@ -138,5 +138,16 @@
 1	хочу узнать расписание этих офисов	show_schedule	search_bank
 1	где мне найти офис, чтобы открыть там счет в иностранной валюте?	search_vsp	search_bank
 1	офис найти поблизости я хочу	search_vsp	search_bank
-1   Где Сбербанк?   search_vsp  search_bank
-1   Хорошо, тогда подскажите, пожалуйста, ближайшее отделение, которое работает по выходным.    show_schedule,search_vsp    search_bank
+1	Где Сбербанк?	search_vsp	search_bank
+1	Хорошо, тогда подскажите, пожалуйста, ближайшее отделение, которое работает по выходным.	show_schedule,search_vsp	search_bank
+1	Спасибо, до свидания	end_talk	no_intent
+1	Спасибо	end_talk	no_intent
+1	Ничего не нужно больше. До встречи.	end_talk	no_intent
+1	До свидания	end_talk	no_intent
+1	Спасибо, до встречи	end_talk	no_intent
+1	До свидания	end_talk	no_intent
+1	Пока, спасибо	end_talk	no_intent
+1	Мы закончили. Спасибо.	end_talk	no_intent
+1	До встречи. Благодарю.	end_talk	no_intent
+1	Это все, прощайте.	end_talk	no_intent
+1	Еще обращусь к вам. Благодарю.	end_talk	no_intent
