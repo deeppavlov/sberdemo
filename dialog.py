@@ -3,6 +3,7 @@ from telegram import User
 
 import logging
 
+from policy import GraphBasedSberdemoPolicy
 from services import faq, init_chat, chat
 
 from concurrent.futures import ThreadPoolExecutor
@@ -11,7 +12,8 @@ import html
 
 
 class Dialog:
-    def __init__(self, preproc_pipeline, nlu_model, policy_model, user: User, debug=False, patience=3):
+    def __init__(self, preproc_pipeline, nlu_model, policy_model: GraphBasedSberdemoPolicy, user: User,
+                 debug=False, patience=3):
         self.pipeline = preproc_pipeline
         self.nlu_model = nlu_model
         self.policy_model = policy_model
@@ -54,6 +56,11 @@ class Dialog:
         chat_response = chat_future.result()
         self.logger.debug("{user.id}:{user.name} : chit-chat response: `{msg}`".format(user=self.user,
                                                                                        msg=repr(chat_response)))
+
+        if faq_answer and faq_answer in self.policy_model.routes\
+                and nlu_result.get('intent', 'no_intent') == 'no_intent':
+            self.logger.info('using {} intent from faq'.format(faq_answer))
+            nlu_result['intent'] = faq_answer
 
         if not nlu_result['slots'] and nlu_result.get('intent', 'no_intent') == 'no_intent' and not faq_answer:
             self.impatience += 1
