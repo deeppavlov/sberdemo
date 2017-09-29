@@ -54,7 +54,7 @@
         "condition": "not_eq",
         "value": "rub"
       },
-      {"action": "say: send_to_bank; goto: search_bank"}
+      {"action": "say: send_to_bank_curr; goto: search_bank"}
     ],
 
     [
