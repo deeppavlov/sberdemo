@@ -98,6 +98,7 @@ class GraphBasedSberdemoPolicy(object):
             elif action == 'goto':
                 if not value:
                     self.intent = None
+                    self.intent_name = None
                     continue
                 new_intent_responses, expect = self.forward({"slots": {}, "intent": value})
                 responses += new_intent_responses
