@@ -1,12 +1,17 @@
 {
   "резидент": {
-    "юридическое лицо": "урлка для юр. лиц резидентов",
-    "индивидуальный предприниматель": "урлка для ИП резидентов",
-    "default": "урлка для всех остальных резидентов"
+    "юридическое лицо": "https://docs.google.com/spreadsheets/d/19WPmFL9a9cd3PJ84e53K_0lHaTBEFBaZ25Xapl6nQSw/edit#gid=1575117707&range=B1:C1",
+    "индивидуальный предприниматель": "https://docs.google.com/spreadsheets/d/19WPmFL9a9cd3PJ84e53K_0lHaTBEFBaZ25Xapl6nQSw/edit#gid=1930938326&range=B1:C1",
+    "нотариус": "https://docs.google.com/spreadsheets/d/19WPmFL9a9cd3PJ84e53K_0lHaTBEFBaZ25Xapl6nQSw/edit#gid=1174597433&range=B1:C1",
+    "адвокат": "https://docs.google.com/spreadsheets/d/19WPmFL9a9cd3PJ84e53K_0lHaTBEFBaZ25Xapl6nQSw/edit#gid=332018978&range=B1:C1",
+    "хозяйственное партнерство": "https://docs.google.com/spreadsheets/d/19WPmFL9a9cd3PJ84e53K_0lHaTBEFBaZ25Xapl6nQSw/edit#gid=1545960873&range=B1:C1",
+    "арбитражный управляющий": "https://docs.google.com/spreadsheets/d/19WPmFL9a9cd3PJ84e53K_0lHaTBEFBaZ25Xapl6nQSw/edit#gid=303755732&range=B1:C1",
+    "default": "https://docs.google.com/spreadsheets/d/19WPmFL9a9cd3PJ84e53K_0lHaTBEFBaZ25Xapl6nQSw/edit#gid=812586983&range=B2:E2"
   },
   "не резидент": {
-    "юридическое лицо": "урлка для юр. лиц нерезидентов",
-    "индивидуальный предприниматель": "урлка для ИП нерезидентов",
-    "default": "урлка для остальных нерезидентов"
+    "юридическое лицо": "https://docs.google.com/spreadsheets/d/19WPmFL9a9cd3PJ84e53K_0lHaTBEFBaZ25Xapl6nQSw/edit#gid=1890706490&range=B1:C1",
+    "индивидуальный предприниматель": "https://docs.google.com/spreadsheets/d/19WPmFL9a9cd3PJ84e53K_0lHaTBEFBaZ25Xapl6nQSw/edit#gid=37566186&range=B1:C1",
+    "представительство иностранного государства": "https://docs.google.com/spreadsheets/d/19WPmFL9a9cd3PJ84e53K_0lHaTBEFBaZ25Xapl6nQSw/edit#gid=740842832&range=B1:C1",
+    "default": "https://docs.google.com/spreadsheets/d/19WPmFL9a9cd3PJ84e53K_0lHaTBEFBaZ25Xapl6nQSw/edit#gid=812586983&range=G2:J2"
   }
 }
