@@ -111,6 +111,14 @@
   ],
 
   "no_intent": [
+    [
+      {
+          "slot": "end_talk",
+          "condition": "true",
+          "not_ask": 1
+      },
+      {"action": "goto: bye"}
+    ],
     {"action": "say: no_intent; goto:"}
   ],
 
