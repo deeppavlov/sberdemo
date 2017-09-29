@@ -73,7 +73,7 @@
       {
         "slot": "account_type",
         "condition": "in",
-        "value": "Расчетный счет,ГосОбрЗаказ"
+        "value": "расчетный счет,гособрзаказ"
       },
       {"true": "online_reserving"},
       {"action": "say: reserve_new_acc_online; goto:"}
