@@ -79,13 +79,19 @@ class GraphBasedSberdemoPolicy(object):
         if not actions:
             actions = [['say', 'no_intent']]
 
-        if 'name' in client_nlu and client_nlu['name']:
-            self.persistent_slots['client_name'] = client_nlu['name']
-            self.slots['client_name'] = client_nlu['name']
+        if 'name' in client_nlu:
+            if client_nlu['name']:
+                self.persistent_slots['client_name'] = client_nlu['name']
+                self.slots['client_name'] = client_nlu['name']
 
-            for i in range(len(actions)):
-                if actions[i] == ['say', 'no_intent']:
-                    actions[i] = ['say', 'no_intent_named']
+                for i in range(len(actions)):
+                    if actions[i] == ['say', 'no_intent']:
+                        actions[i] = ['say', 'no_intent_named']
+            else:
+                for i in range(len(actions)):
+                    if actions[i] == ['say', 'no_intent']:
+                        actions[i] = ['say', 'no_intent_no_name']
+
 
         expect = None
         responses = []
