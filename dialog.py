@@ -40,7 +40,7 @@ class Dialog:
         else:
             text = self.pipeline.feed(client_utterance)
 
-        faq_future = self.executor.submit(faq, client_utterance)
+        faq_future = self.executor.submit(faq, client_utterance, 0.)
         chat_future = self.executor.submit(chat, client_utterance, self.user.id)
 
         try:
