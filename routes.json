@@ -45,7 +45,10 @@
         "slot": "currency",
         "condition": "not_supported_currency"
       },
-      {"action": "say: not_supported; goto: "}
+      {
+        "action": "say: not_supported; clear: currency",
+        "always": true
+      }
     ],
 
     [
