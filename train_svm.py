@@ -211,7 +211,7 @@ def main(args=None):
             label = '_' if pd.isnull(row[name]) else slot.true
             targets[name].append(label)
 
-    y_intents = list(data['intent'])
+    y_intents = ['no_intent' if pd.isnull(i) else i for i in data['intent']]
     X = [pipe.feed(s) for s in sents]
 
     trash_sents = trash_data[:len(y_intents)]
