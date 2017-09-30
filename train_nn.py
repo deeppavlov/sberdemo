@@ -1,7 +1,10 @@
+import pickle
 from itertools import chain
+from operator import itemgetter
 
 import pandas as pd
 from scipy.optimize import fmin
+from scipy.sparse import spmatrix
 from sklearn.linear_model import ElasticNet
 from sklearn.metrics import f1_score, precision_recall_fscore_support
 
@@ -13,6 +16,7 @@ import os
 import argparse
 
 import torch
+import torch.sparse
 import torch.tensor as T
 import torch.nn as nn
 import torch.optim as optim
@@ -67,7 +71,6 @@ def joint_oversampling_coefs(targets, verbose=False):
         small_w = w[(w < 1).data]
 
         if small_w.dim() > 0:
-        # if False:
             loss_less_than_one = (1-small_w).sum()
         else:
             loss_less_than_one = Variable(torch.zeros(1))
@@ -96,27 +99,27 @@ class MLPJointClassifier(BaseEstimator):
         self.tol = tol
         self.batch_size = batch_size
 
-
-
     def predict(self, X):
         return self.predict_proba(X) > 0.5
 
     def predict_proba(self, X):
+        X = X.toarray() if isinstance(X, spmatrix) else X
         return self.model.forward(Variable(torch.FloatTensor(X))).data.numpy()
 
-    def fit(self, X: np.ndarray, Y: np.ndarray, class_weights: np.ndarray):
+    def fit(self, X: Union[np.ndarray, spmatrix], Y: np.ndarray, class_weights: np.ndarray=None):
+        if class_weights is None:
+            class_weights = np.ones(Y.shape[1])
+
         assert X.ndim == 2
         assert Y.ndim == 2
         W1 = nn.Linear(X.shape[1], self.hidden_layer_neurons)
         W2 = nn.Linear(self.hidden_layer_neurons, Y.shape[1])
 
-        X = Variable(torch.FloatTensor(X))
+        X = Variable(torch.FloatTensor(X.toarray() if isinstance(X, spmatrix) else X))
         Y = Variable(torch.FloatTensor(Y))
         W = Variable(torch.FloatTensor(class_weights[np.newaxis]))
 
         self.model = nn.Sequential(W1, nn.ReLU(), W2, nn.Sigmoid())
-
-        criterion = nn.BCELoss()
 
         optimizer = optim.Adam(self.model.parameters(), weight_decay=self.l2)
 
@@ -157,8 +160,9 @@ def main(args=None):
     parser.add_argument('--trash_intent', dest='trash_intent', type=str, default="sberdemo_no_intent.tsv.gz",
                         help='The path of file with trash intent examples')
 
-    args = parser.parse_args(args)
-    params = vars(args)
+    parser.add_argument('--cross_validation', action='store_true', default=False)
+
+    params = vars(parser.parse_args(args))
 
     MODEL_FOLDER = params['model_folder']
     DATA_PATH = params['data_path']
@@ -182,10 +186,10 @@ def main(args=None):
 
     # ------------ making train data ---------------#
 
-    trash_data = list(set(pd.read_csv(NO_INTENT, compression='gzip', sep='\t', header=None).ix[:, 0]))[:560]
+    trash_data = sorted(set(pd.read_csv(NO_INTENT, compression='gzip', sep='\t', header=None).ix[:, 0]))[:560]
 
     data = pd.read_csv(DATA_PATH, sep='\t')
-    intents = data['intent'].unique()
+    intents = [i for i in data['intent'].unique() if pd.notnull(i)]
     intents_slots_map = dict(zip(chain(intents, slot_names), range(len(intents) + len(slot_names))))
 
     sents = []
@@ -194,7 +198,8 @@ def main(args=None):
 
     for i, (_, row) in enumerate(data.iterrows()):
         sents.append(row['request'])
-        targets[i, intents_slots_map[row['intent']]] = 1
+        if pd.notnull(row['intent']):
+            targets[i, intents_slots_map[row['intent']]] = 1
         template_ids.append(row['template_id'])
         for slot_name, slot in slots:
             slot_value = row[slot_name]
@@ -219,14 +224,21 @@ def main(args=None):
 
     # ------------ train a model ---------------#
 
-    kf = GroupKFold(n_splits=8)
+    kf = GroupKFold(n_splits=5)
 
     all_predictions = []
     all_test_y = []
 
-    base_estimator = MLPJointClassifier(tol=1e-1, hidden_layer_neurons=200, batch_size=32, l2=0.0001, l1=0.008)
+    filename = 'nn.model'
 
-    if need_cross_validation:
+    if os.path.isfile(filename):
+        os.unlink(filename)
+
+    base_estimator = MLPJointClassifier(tol=1e-2, hidden_layer_neurons=200, batch_size=32, l2=0.0001, l1=0.008)
+    vectorizer = lambda: TfidfVectorizer(stop_words=COMMON_STOP_WORDS, ngram_range=(1, 2))
+    need_cross_validation = False
+
+    if params['cross_validation']:
         for group_id, (train_index, test_index) in enumerate(kf.split(sents, targets, template_ids)):
             print('starting cross validation group {}'.format(group_id))
             train_sents = [sents[i] for i in train_index]
@@ -236,7 +248,7 @@ def main(args=None):
             test_Y = targets[test_index]
 
             joint_classifier = clone(base_estimator)
-            fe = FeatureExtractor(stop_words=COMMON_STOP_WORDS)
+            fe = vectorizer()
             train_X = fe.fit_transform(train_sents)
 
             balancing_idx = joint_oversampling_coefs(train_y)
@@ -268,29 +280,47 @@ def main(args=None):
                       '{:.2f}'.format(fbeta[i]), support[i], sep='\t')
             print()
 
-    joint_classifier = clone(base_estimator)
-    fe = FeatureExtractor(stop_words=COMMON_STOP_WORDS)
-    train_X = fe.fit_transform(sents)
-    #
-    # balancing_idx = joint_oversampling_coefs(targets)
-    # balanced_x = train_X[balancing_idx]
-    # balanced_y = targets[balancing_idx]
-    # joint_classifier.fit(balanced_x, balanced_y, class_weights=class_weights)
-    #
-    # joint_classifier.save('nn.model')
-    #
-    # predicted_y = joint_classifier.predict_proba(train_X)
+    def bce(predicted, true):
+        return -(np.log(predicted)*true+np.log(1-predicted)*(1-true)).mean(0).sum()
 
-    predicted_y = np.load('predictions.ndarr.npy')
+    if os.path.isfile(filename):
+        print('loading model from "{}"'.format(filename))
+        with open(filename, 'rb') as f:
+            p = pickle.load(f)
+    else:
+        joint_classifier = clone(base_estimator)
+        p = Pipeline([('FeatureExtractor', vectorizer()),
+                      ('Classifier', joint_classifier)])
 
-    loaded_model = torch.load('nn.model')
+        balancing_idx = joint_oversampling_coefs(targets)
+        balanced_x = [sents[i] for i in balancing_idx]
+        balanced_y = targets[balancing_idx]
+        p.fit(balanced_x, balanced_y)
 
-    loaded_predicted_y = loaded_model.predict_proba(train_X)
+        with open(filename, 'wb') as f:
+            pickle.dump(p, f)
 
-    np.allclose(loaded_predicted_y, predicted_y)
+    print(p.predict_proba(sents))
+    fe = p.named_steps['FeatureExtractor']
+    c = p.named_steps['Classifier']
+    voc = fe.vocabulary_
+    idf = fe.idf_
+    n = max(voc.values()) + 1
+    words = []
+    vec = np.zeros((len(voc), n))
+    for i, (word, w_idx) in enumerate(voc.items()):
+        words.append(word)
+        # vec[i, w_idx] = -np.log(1+idf[w_idx])  # normalization turns to 1 anyway
+        vec[i, w_idx] = 1
+    importances = c.predict_proba(vec)
 
-    # np.save('predictions.ndarr', predicted_y)
-
+    for name, idx in intents_slots_map.items():
+        print(name)
+        for w, imp in sorted(zip(words, importances[:, idx]), key=itemgetter(1), reverse=True):
+            if imp < 0.5:
+                break
+            print('{:.3f}'.format(imp), w, sep='\t')
+        print()
 
 
 if __name__ == '__main__':
