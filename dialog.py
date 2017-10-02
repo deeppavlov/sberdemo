@@ -89,8 +89,8 @@ class Dialog:
         elif self.impatience < self.patience or not chat_response:
             try:
                 response, expect = self.policy_model.forward(nlu_result)
-                for i in range(len(response)):
-                    response[i] = "GOAL-ORIENTED\n" + response[i]
+                # for i in range(len(response)):
+                #     response[i] = "GOAL-ORIENTED\n" + response[i]
             except Exception as e:
                 self.logger.error(e)
                 return ['ERROR: {}'.format(str(e))]
