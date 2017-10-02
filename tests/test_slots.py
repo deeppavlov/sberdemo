@@ -4,6 +4,8 @@ from time import time
 from nlu import *
 from collections import defaultdict
 
+from slots import read_slots_from_tsv
+
 
 class TestSlots(unittest.TestCase):
     def setUp(self):
