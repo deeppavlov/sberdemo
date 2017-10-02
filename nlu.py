@@ -2,6 +2,7 @@ from functools import lru_cache
 
 import pymorphy2
 from typing import List, Dict, Callable
+import enchant
 
 from slots import DictionarySlot
 from nltk.tokenize import sent_tokenize, word_tokenize
@@ -58,6 +59,29 @@ class Lower(Preprocessor):
         res = []
         for w in words:
             w['_text'] = w['_text'].lower()
+            res.append(w)
+        return res
+
+
+class SpellChecker(Preprocessor):
+    """
+    A replacer of misspelled words with corrected words.
+    Attributes:
+        d (obj): a dictionary of words
+    """
+
+    def __init__(self):
+        self.d = enchant.DictWithPWL('ru_Ru', "sber_voc.txt")
+
+    def process(self, words):
+        res = []
+        for w in words:
+            text = w['_text']
+            if not self.d.check(text):
+                try:
+                    w['_text'] = self.d.suggest(text)[0]
+                except IndexError:
+                    pass
             res.append(w)
         return res
 
@@ -146,7 +170,7 @@ class StatisticalNLUModel:
 
 
 def create_pipe(fasttext_model_path=None):
-    preprocessors = [Replacer(('ё', 'е')), PyMorphyPreproc(), Lower()]
+    preprocessors = [Lower(), Replacer(('ё', 'е')), SpellChecker(), PyMorphyPreproc()]
     if fasttext_model_path:
         preprocessors.append(FastTextPreproc(model_path=fasttext_model_path))
 

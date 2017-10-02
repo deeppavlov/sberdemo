@@ -46,7 +46,9 @@ class GraphBasedSberdemoPolicy(object):
                     if not slot_filter(self.slots[branch['slot']], branch.get('value')):
                         break
                 elif 'action' in branch:
-                    if 'relevant_slots' in branch\
+                    if branch.get('always', False):
+                        pass
+                    elif 'relevant_slots' in branch\
                             and all([self.slots.get(k) == v for k, v in branch['relevant_slots'].items()]):
                         continue
                     elif branch.get('executed'):
@@ -79,13 +81,19 @@ class GraphBasedSberdemoPolicy(object):
         if not actions:
             actions = [['say', 'no_intent']]
 
-        if 'name' in client_nlu and client_nlu['name']:
-            self.persistent_slots['client_name'] = client_nlu['name']
-            self.slots['client_name'] = client_nlu['name']
+        if 'name' in client_nlu:
+            if client_nlu['name']:
+                self.persistent_slots['client_name'] = client_nlu['name']
+                self.slots['client_name'] = client_nlu['name']
 
-            for i in range(len(actions)):
-                if actions[i] == ['say', 'no_intent']:
-                    actions[i] = ['say', 'no_intent_named']
+                for i in range(len(actions)):
+                    if actions[i] == ['say', 'no_intent']:
+                        actions[i] = ['say', 'no_intent_named']
+            else:
+                for i in range(len(actions)):
+                    if actions[i] == ['say', 'no_intent']:
+                        actions[i] = ['say', 'no_intent_no_name']
+
 
         expect = None
         responses = []
@@ -93,11 +101,14 @@ class GraphBasedSberdemoPolicy(object):
             if action == 'ask':
                 expect = value
                 responses.append(self.slots_objects[value].ask())
+            elif action == 'clear':
+                del self.slots[value]
             elif action == 'say':
                 responses.append(self.sayer.say(value, self.slots))
             elif action == 'goto':
                 if not value:
                     self.intent = None
+                    self.intent_name = None
                     continue
                 new_intent_responses, expect = self.forward({"slots": {}, "intent": value})
                 responses += new_intent_responses

@@ -37,3 +37,7 @@ Dom -> AnyWord<wff="(д|(дом))?\\d+((к|/)\\d*)?">;
 
 
 House -> Street (Dom interp (Street.House));
+
+House -> StreetNameNoun<gram="род"> interp (Street.StreetName::not_norm) Dom interp (Street.House);
+House -> StreetNameNoun<gram="им"> interp (Street.StreetName::not_norm) Dom interp (Street.House);
+House -> StreetNameAdj interp (Street.StreetName) Dom interp (Street.House);

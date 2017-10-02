@@ -40,7 +40,7 @@ class Dialog:
         else:
             text = self.pipeline.feed(client_utterance)
 
-        faq_future = self.executor.submit(faq, client_utterance)
+        faq_future = self.executor.submit(faq, client_utterance, 0.)
         chat_future = self.executor.submit(chat, client_utterance, self.user.id)
 
         try:
@@ -57,10 +57,12 @@ class Dialog:
         self.logger.debug("{user.id}:{user.name} : chit-chat response: `{msg}`".format(user=self.user,
                                                                                        msg=repr(chat_response)))
 
-        if faq_answer and faq_answer in self.policy_model.routes\
-                and nlu_result.get('intent', 'no_intent') == 'no_intent':
-            self.logger.info('using {} intent from faq'.format(faq_answer))
-            nlu_result['intent'] = faq_answer
+        faq_intent = False
+        if faq_answer and faq_answer in self.policy_model.routes:
+            faq_intent = True
+            if nlu_result.get('intent', 'no_intent') == 'no_intent':
+                self.logger.info('using {} intent from faq'.format(faq_answer))
+                nlu_result['intent'] = faq_answer
 
         if not nlu_result['slots'] and nlu_result.get('intent', 'no_intent') == 'no_intent' and not faq_answer:
             self.impatience += 1
@@ -68,7 +70,7 @@ class Dialog:
             self.impatience = 0
 
         expect = None
-        if faq_answer:
+        if faq_answer and not faq_intent:
             response = ["FAQ\n\n" + html.escape(faq_answer)]
         elif self.impatience < self.patience:
             try:
