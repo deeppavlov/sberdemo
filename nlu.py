@@ -71,7 +71,7 @@ class SpellChecker(Preprocessor):
     """
 
     def __init__(self):
-        self.d = enchant.DictWithPWL('ru_Ru', "sber_voc.txt")
+        self.d = enchant.DictWithPWL(None, "sber_voc.txt")
 
     def process(self, words):
         res = []
