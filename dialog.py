@@ -64,7 +64,9 @@ class Dialog:
                 self.logger.info('using {} intent from faq'.format(faq_answer))
                 nlu_result['intent'] = faq_answer
 
-        if not nlu_result['slots'] and nlu_result.get('intent', 'no_intent') == 'no_intent' and not faq_answer:
+        if not nlu_result['slots']\
+                and nlu_result.get('intent', 'no_intent') in ['no_intent', self.policy_model.intent_name]\
+                and not faq_answer:
             self.impatience += 1
         else:
             self.impatience = 0
