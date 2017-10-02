@@ -13,8 +13,9 @@ from telegram.ext import CommandHandler, MessageHandler, Filters
 
 import threading
 
-from slots import read_slots_serialized
+from slots import read_slots_serialized, read_slots_from_tsv
 from tomita.name_parser import NameParser
+from train_joint_classifier import joint_intent_and_slot_classifier
 from train_svm import BASE_CLF_INTENT
 
 
@@ -74,7 +75,9 @@ def main():
     pipe = create_pipe()
 
     models_path = './models_nlu'
-    slots = read_slots_serialized(models_path, pipe)
+    slots = read_slots_from_tsv(pipe)
+    slots = joint_intent_and_slot_classifier(slots, models_path)
+    # slots = read_slots_serialized(models_path, pipe)
 
     name_parser = NameParser()
 

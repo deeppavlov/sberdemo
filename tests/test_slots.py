@@ -17,7 +17,7 @@ class TestSlots(unittest.TestCase):
         return self.slots_map[item]
 
     def test_reading_from_definitions(self):
-        self.assertEqual(len(self.slots), 16)
+        self.assertEqual(len(self.slots), 17)
         self.assertIn('евро', self['currency'].gen_dict)
         self.assertIn('библиотека', self['client_metro'].gen_dict)
 

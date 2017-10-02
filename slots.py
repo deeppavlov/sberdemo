@@ -7,7 +7,7 @@ from itertools import chain
 from typing import Dict, List, Any, Union
 
 from fuzzywuzzy import fuzz
-from svm_classifier_utlilities import SentenceClassifier
+from svm_classifier_utlilities import SentenceClassifier, TextClassifier
 from tomita.tomita import Tomita
 
 
@@ -125,7 +125,7 @@ class ClassifierSlot(DictionarySlot):
         super().__init__(slot_id, ask_sentence, generative_dict, nongenerative_dict, values_order, prev_created_slots,
                          *args)
         model_path = os.path.join('models_nlu', self.id + '.model')
-        self.classifier = SentenceClassifier(None, model_path=model_path)
+        self.classifier = SentenceClassifier(None, model_path=model_path)  # type: TextClassifier
 
         self.true = values_order[0]
         self.filters.update({

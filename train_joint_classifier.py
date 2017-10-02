@@ -23,6 +23,10 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.autograd import Variable
 
+THRESHOLD = 0.3
+
+MODEL_FILE = 'nn.model'
+
 DUMP_DEFAULT = True
 MODEL_FOLDER_DEFAULT = './models_nlu'
 USE_CHAR_DEFAULT = False
@@ -91,7 +95,7 @@ def joint_oversampling_coefs(targets, verbose=False):
     return balancing_idx
 
 
-class MLPJointClassifier(BaseEstimator):
+class MLPJointclassifier(BaseEstimator):
     def __init__(self, hidden_layer_neurons=40, l1=0.0, l2=0.0, tol=1e-3, batch_size=1, labels=None):
         super().__init__()
         self.hidden_layer_neurons = hidden_layer_neurons
@@ -151,11 +155,34 @@ class MLPJointClassifier(BaseEstimator):
                 break
 
 
-def joint_intent_and_slot_classifier(slots, joint_model_path):
-    with open(joint_model_path, 'rb') as f:
-        model = pickle.load(f)
+class Jointclassifier(TextClassifier):
+    def __init__(self, joint_model_pipeline, slot):
+        self.pipeline = joint_model_pipeline
+        self.slot = slot
+        classifier = self.pipeline.named_steps['classifier']
+        if slot.id not in classifier.labels:
+            raise NotImplementedError()
+        self.output_index = classifier.labels.index(self.slot.id)
+
+    def predict_single(self, text: List[Dict[str, Any]]):
+        if self.pipeline.predict_proba(text)[0, self.output_index] > THRESHOLD:
+            return self.slot.true
 
 
+def joint_intent_and_slot_classifier(slots: List[ClassifierSlot], models_folder):
+    with open(os.path.join(models_folder, MODEL_FILE), 'rb') as f:
+        joint_model_pipeline = pickle.load(f)
+    for slot in slots:
+        try:
+            slot.classifier = Jointclassifier(joint_model_pipeline, slot)
+        except NotImplementedError:
+            pass
+
+    return slots
+
+
+def bce(predicted, true):
+    return -(np.log(predicted)*true+np.log(1-predicted)*(1-true)).mean(0).sum()
 
 
 def main(*args):
@@ -227,7 +254,7 @@ def main(*args):
         print(name.ljust(16, ' '), class_weights[i])
 
     print('normalizing data...')
-    sents = [' '.join(w['normal'] for w in pipe.feed(s)) for s in sents]
+    sents = [pipe.feed(s) for s in sents]
     print('done!')
 
     max_template_id = max(template_ids)
@@ -240,14 +267,14 @@ def main(*args):
     all_predictions = []
     all_test_y = []
 
-    filename = os.path.join(params['model_folder'], 'nn.model')
+    filename = os.path.join(params['model_folder'], MODEL_FILE)
 
     if os.path.isfile(filename):
         os.unlink(filename)
 
     inv_intents_slots_map = {v: k for k, v in intents_slots_map.items()}
     labels = [inv_intents_slots_map[i] for i in range(len(inv_intents_slots_map))]
-    base_estimator = MLPJointClassifier(tol=1e-2, hidden_layer_neurons=200, batch_size=32, l2=0.0001, l1=0.005,
+    base_estimator = MLPJointclassifier(tol=1e-2, hidden_layer_neurons=200, batch_size=32, l2=0.0001, l1=0.005,
                                         labels=labels)
     vectorizer = lambda: TfidfVectorizer(stop_words=COMMON_STOP_WORDS, ngram_range=(1, 2))
 
@@ -260,19 +287,17 @@ def main(*args):
             test_sents = [sents[i] for i in test_index]
             test_Y = targets[test_index]
 
-            joint_classifier = clone(base_estimator)
-            fe = vectorizer()
-            train_X = fe.fit_transform(train_sents)
+            p = Pipeline([('to_string', StickSentence()),
+                          ('feature_extractor', vectorizer()),
+                          ('classifier', clone(base_estimator))])
 
             balancing_idx = joint_oversampling_coefs(train_y)
-            balanced_x = train_X[balancing_idx]
+            balanced_sents = [train_sents[i] for i in balancing_idx]
             balanced_y = train_y[balancing_idx]
 
-            test_X = fe.transform(test_sents)
+            p.fit(balanced_sents, balanced_y, class_weights=class_weights)
 
-            joint_classifier.fit(balanced_x, balanced_y, class_weights=class_weights)
-
-            predicted_y = joint_classifier.predict_proba(test_X)
+            predicted_y = p.predict_proba(test_sents)
 
             all_predictions.append(predicted_y)
             all_test_y.append(test_Y)
@@ -281,7 +306,7 @@ def main(*args):
         all_test_y = np.vstack(all_test_y)
         all_predictions = np.vstack(all_predictions)
 
-        print(joint_classifier)
+        print(base_estimator)
 
         for threshold in np.linspace(0.25, 0.45, 5):
             print('threshold', threshold)
@@ -293,17 +318,15 @@ def main(*args):
                       '{:.2f}'.format(fbeta[i]), support[i], sep='\t')
             print()
 
-    def bce(predicted, true):
-        return -(np.log(predicted)*true+np.log(1-predicted)*(1-true)).mean(0).sum()
-
     if os.path.isfile(filename):
         print('loading model from "{}"'.format(filename))
         with open(filename, 'rb') as f:
             p = pickle.load(f)
     else:
         joint_classifier = clone(base_estimator)
-        p = Pipeline([('FeatureExtractor', vectorizer()),
-                      ('Classifier', joint_classifier)])
+        p = Pipeline([('to_string', StickSentence()),
+                      ('feature_extractor', vectorizer()),
+                      ('classifier', joint_classifier)])
 
         balancing_idx = joint_oversampling_coefs(targets)
         balanced_x = [sents[i] for i in balancing_idx]
@@ -313,9 +336,8 @@ def main(*args):
         with open(filename, 'wb') as f:
             pickle.dump(p, f)
 
-    print(p.predict_proba(sents))
-    fe = p.named_steps['FeatureExtractor']
-    c = p.named_steps['Classifier']
+    fe = p.named_steps['feature_extractor']
+    c = p.named_steps['classifier']
     voc = fe.vocabulary_
     idf = fe.idf_
     n = max(voc.values()) + 1

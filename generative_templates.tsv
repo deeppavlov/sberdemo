@@ -152,3 +152,4 @@
 1	Это все, прощайте.	end_talk	
 1	Еще обращусь к вам. Благодарю.	end_talk	
 1	Хотелось бы ещё телефон узнать и время работы	show_phone,show_schedule	search_bank
+1	а телефон по которому можно позвонить в это отделение?	show_phone,show_schedule	search_bank

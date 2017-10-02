@@ -4,7 +4,6 @@ from time import time
 from train_joint_classifier import main as train_joint_classifier
 from generate_from_templates import main as generate_from_templates
 from train_svm import main as train_svm
-from train_word_embeddings import main as train_fasttext
 from nlu import create_pipe
 
 import os
@@ -59,9 +58,9 @@ def main():
 
     args = ['--folder', directory, '--data', dataset, '--slot_path', slot_definitions, '--slot_train', '--intent_train']
     train_svm(args)
-    #
-    # train_joint_classifier('--folder', directory, '--data', dataset, '--slot_path', slot_definitions,
-    #                        '--trash_intent', no_intent_dataset)
+
+    train_joint_classifier('--folder', directory, '--data', dataset, '--slot_path', slot_definitions,
+                           '--trash_intent', no_intent_dataset)
 
     print('Everything build in {:.0f} seconds'.format(time()-time_start))
 

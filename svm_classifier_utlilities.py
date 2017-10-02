@@ -176,7 +176,12 @@ class Embedder(TransformerMixin):
         return np.vstack(res)
 
 
-class SentenceClassifier:
+class TextClassifier:
+    def predict_single(self, text: List[Dict[str, Any]]):
+        pass
+
+
+class SentenceClassifier(TextClassifier):
     def __init__(self, base_clf: Union[BaseEstimator, None], stop_words=None, use_chars=False, labels_list=None, model_path=None, model_name=None):
         """
         :param stop_words: list of words to exclude from feature matrix
