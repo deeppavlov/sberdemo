@@ -43,7 +43,10 @@ def generate_dataset_from_templates(output_dataset_fn, generative_templates_fn):
                 if row[0] != '1':
                     continue
                 print(row[1])
-                intent = row[3].strip()
+                if len(row) >= 4:
+                    intent = row[3].strip()
+                else:
+                    intent = ''
                 # assert intent, 'Intent value can not be empty'
                 for template_text in row[1].split(PARAPHRASE_DELIM):
                     slot_vals = {}
