@@ -99,7 +99,7 @@ class Dialog:
             response = chat_response  # type:str
             response = response.replace(' , меня зовут', '')
             try:
-                names = self.nlu_model.name_parser.parse(chat_response)
+                names = self.nlu_model.name_parser.parse(response)
                 if names:
                     for name in reversed(names):
                         response = response[:name['pos']] + response[name['pos']+name['len']:]
