@@ -3,6 +3,7 @@ from itertools import chain
 from operator import itemgetter
 
 import pandas as pd
+import sys
 from scipy.optimize import fmin
 from scipy.sparse import spmatrix
 from sklearn.linear_model import ElasticNet
@@ -91,13 +92,14 @@ def joint_oversampling_coefs(targets, verbose=False):
 
 
 class MLPJointClassifier(BaseEstimator):
-    def __init__(self, hidden_layer_neurons=40, l1=0.0, l2=0.0, tol=1e-3, batch_size=1):
+    def __init__(self, hidden_layer_neurons=40, l1=0.0, l2=0.0, tol=1e-3, batch_size=1, labels=None):
         super().__init__()
         self.hidden_layer_neurons = hidden_layer_neurons
         self.l1 = l1
         self.l2 = l2
         self.tol = tol
         self.batch_size = batch_size
+        self.labels = labels
 
     def predict(self, X):
         return self.predict_proba(X) > 0.5
@@ -107,6 +109,10 @@ class MLPJointClassifier(BaseEstimator):
         return self.model.forward(Variable(torch.FloatTensor(X))).data.numpy()
 
     def fit(self, X: Union[np.ndarray, spmatrix], Y: np.ndarray, class_weights: np.ndarray=None):
+        if self.labels is None:
+            self.labels = [str(i) for i in range(Y.shape[1])]
+        assert len(self.labels) == Y.shape[1]
+
         if class_weights is None:
             class_weights = np.ones(Y.shape[1])
 
@@ -145,7 +151,14 @@ class MLPJointClassifier(BaseEstimator):
                 break
 
 
-def main(args=None):
+def joint_intent_and_slot_classifier(slots, joint_model_path):
+    with open(joint_model_path, 'rb') as f:
+        model = pickle.load(f)
+
+
+
+
+def main(*args):
     parser = argparse.ArgumentParser(description='Train SVM and dump it')
 
     parser.add_argument('--folder', dest='model_folder', type=str, default=MODEL_FOLDER_DEFAULT,
@@ -164,31 +177,30 @@ def main(args=None):
 
     params = vars(parser.parse_args(args))
 
-    MODEL_FOLDER = params['model_folder']
-    DATA_PATH = params['data_path']
-    NO_INTENT = params['trash_intent']
-    SLOT_PATH = params['slot_path']
+    data_path = params['data_path']
+    trash_dialogs_path = params['trash_intent']
+    slot_defs_path = params['slot_path']
 
     # if there's no folder to save model
     # create folder
-    if not os.path.exists(MODEL_FOLDER):
-        os.mkdir(MODEL_FOLDER)
+    if not os.path.exists(params['data_path']):
+        os.mkdir(params['data_path'])
 
-    assert os.path.exists(DATA_PATH), 'File "{}" not found'.format(DATA_PATH)
+    assert os.path.exists(data_path), 'File "{}" not found'.format(data_path)
 
     # ------------ load slots ----------------------#
 
     pipe = create_pipe()
-    slot_list = read_slots_from_tsv(pipeline=pipe, filename=SLOT_PATH)
+    slot_list = read_slots_from_tsv(pipeline=pipe, filename=slot_defs_path)
     slots = [[s.id, s] for s in slot_list if isinstance(s, ClassifierSlot)]
     slot_names = [name for name, slot in slots]
     print("Slot names: ", slot_names)
 
     # ------------ making train data ---------------#
 
-    trash_data = sorted(set(pd.read_csv(NO_INTENT, compression='gzip', sep='\t', header=None).ix[:, 0]))[:560]
+    trash_data = sorted(set(pd.read_csv(trash_dialogs_path, compression='gzip', sep='\t', header=None).ix[:, 0]))[:560]
 
-    data = pd.read_csv(DATA_PATH, sep='\t')
+    data = pd.read_csv(data_path, sep='\t')
     intents = [i for i in data['intent'].unique() if pd.notnull(i)]
     intents_slots_map = dict(zip(chain(intents, slot_names), range(len(intents) + len(slot_names))))
 
@@ -221,7 +233,6 @@ def main(args=None):
     max_template_id = max(template_ids)
     template_ids.extend(range(max_template_id, max_template_id + len(trash_data)))
 
-
     # ------------ train a model ---------------#
 
     kf = GroupKFold(n_splits=5)
@@ -229,14 +240,16 @@ def main(args=None):
     all_predictions = []
     all_test_y = []
 
-    filename = 'nn.model'
+    filename = os.path.join(params['model_folder'], 'nn.model')
 
     if os.path.isfile(filename):
         os.unlink(filename)
 
-    base_estimator = MLPJointClassifier(tol=1e-2, hidden_layer_neurons=200, batch_size=32, l2=0.0001, l1=0.008)
+    inv_intents_slots_map = {v: k for k, v in intents_slots_map.items()}
+    labels = [inv_intents_slots_map[i] for i in range(len(inv_intents_slots_map))]
+    base_estimator = MLPJointClassifier(tol=1e-2, hidden_layer_neurons=200, batch_size=32, l2=0.0001, l1=0.005,
+                                        labels=labels)
     vectorizer = lambda: TfidfVectorizer(stop_words=COMMON_STOP_WORDS, ngram_range=(1, 2))
-    need_cross_validation = False
 
     if params['cross_validation']:
         for group_id, (train_index, test_index) in enumerate(kf.split(sents, targets, template_ids)):
@@ -324,4 +337,4 @@ def main(args=None):
 
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1:])

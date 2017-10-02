@@ -1,6 +1,7 @@
 import urllib.request
 from time import time
 
+from train_joint_classifier import main as train_joint_classifier
 from generate_from_templates import main as generate_from_templates
 from train_svm import main as train_svm
 from train_word_embeddings import main as train_fasttext
@@ -20,6 +21,7 @@ def main():
 
     templates = 'generative_templates.tsv'
     slot_definitions = 'slots_definitions.tsv'
+    no_intent_dataset = 'sberdemo_no_intent.tsv.gz'
 
     dataset = os.path.join(root, 'generated_dataset.tsv')
 
@@ -35,21 +37,20 @@ def main():
     if os.path.isfile(no_intent_preprocessed):
         print('Using old', no_intent_preprocessed)
     else:
-        NO_INTENT = 'sberdemo_no_intent.tsv.gz'
-        if not os.path.isfile(NO_INTENT):
-            url = 'http://share.ipavlov.mipt.ru:8080/repository/datasets/' + os.path.basename(NO_INTENT)
+        if not os.path.isfile(no_intent_dataset):
+            url = 'http://share.ipavlov.mipt.ru:8080/repository/datasets/' + os.path.basename(no_intent_dataset)
             try:
-                urllib.request.urlretrieve(url, NO_INTENT)
+                urllib.request.urlretrieve(url, no_intent_dataset)
             except:
                 pass
 
         pipe = create_pipe(fasttext_model_path=None)
         with open(no_intent_preprocessed, 'w') as out:
-            with gzip.open(NO_INTENT, 'rt', encoding='UTF8') as f:
+            with gzip.open(no_intent_dataset, 'rt', encoding='UTF8') as f:
                 for line in f:
                     words = pipe.feed(line.strip())
                     print(' '.join(w['_text'] for w in words), file=out)
-        print('{} has been preprocessed'.format(NO_INTENT))
+        print('{} has been preprocessed'.format(no_intent_dataset))
 
     print()
 
@@ -58,6 +59,9 @@ def main():
 
     args = ['--folder', directory, '--data', dataset, '--slot_path', slot_definitions, '--slot_train', '--intent_train']
     train_svm(args)
+    #
+    # train_joint_classifier('--folder', directory, '--data', dataset, '--slot_path', slot_definitions,
+    #                        '--trash_intent', no_intent_dataset)
 
     print('Everything build in {:.0f} seconds'.format(time()-time_start))
 
