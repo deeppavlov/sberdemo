@@ -79,7 +79,9 @@ class SpellChecker(Preprocessor):
             text = w['_text']
             if not self.d.check(text):
                 try:
-                    w['_text'] = self.d.suggest(text)[0]
+                    correction = self.d.suggest(text)[0]
+                    if abs(len(correction) - len(text)) < 2:
+                        w['_text'] = correction
                 except IndexError:
                     pass
             res.append(w)
