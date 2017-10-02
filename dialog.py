@@ -97,7 +97,7 @@ class Dialog:
             self.nlu_model.set_expectation(expect)
         else:
             response = chat_response  # type:str
-            response.replace(', меня зовут', '')
+            response = response.replace(' , меня зовут', '')
             try:
                 names = self.nlu_model.name_parser.parse(chat_response)
                 if names:
