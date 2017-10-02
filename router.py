@@ -75,9 +75,9 @@ def main():
     pipe = create_pipe()
 
     models_path = './models_nlu'
-    slots = read_slots_from_tsv(pipe)
-    slots = joint_intent_and_slot_classifier(slots, models_path)
-    # slots = read_slots_serialized(models_path, pipe)
+    # slots = read_slots_from_tsv(pipe)
+    # slots = joint_intent_and_slot_classifier(slots, models_path)
+    slots = read_slots_serialized(models_path, pipe)
 
     name_parser = NameParser()
 
