@@ -6,20 +6,18 @@ import logging
 from policy import GraphBasedSberdemoPolicy
 from services import faq, init_chat, chat
 
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import TimeoutError, ThreadPoolExecutor, wait
 
 import html
 
 
 class Dialog:
     def __init__(self, preproc_pipeline, nlu_model, policy_model: GraphBasedSberdemoPolicy, user: User,
-                 debug=False, patience=3):
+                 debug=False, patience=3, timeout=5):
         self.pipeline = preproc_pipeline
         self.nlu_model = nlu_model
         self.policy_model = policy_model
         self.user = user
-
-        init_chat(self.user.id)
 
         self.logger = logging.getLogger('router')
         self.logger.info("{user.id}:{user.name} : started new dialog".format(user=self.user))
@@ -30,6 +28,12 @@ class Dialog:
 
         self.patience = patience
         self.impatience = 0
+        self.timeout = timeout
+
+        try:
+            init_chat(self.user.id, self.timeout)
+        except:
+            self.logger.error('Could not init CHIT-CHAT')
 
     def generate_response(self, client_utterance: str) -> List[str]:
         self.logger.info("{user.id}:{user.name} >>> {msg}".format(user=self.user, msg=repr(client_utterance)))
@@ -40,8 +44,8 @@ class Dialog:
         else:
             text = self.pipeline.feed(client_utterance)
 
-        faq_future = self.executor.submit(faq, client_utterance, 0.)
-        chat_future = self.executor.submit(chat, client_utterance, self.user.id)
+        faq_future = self.executor.submit(faq, client_utterance, 0., self.timeout)
+        chat_future = self.executor.submit(chat, client_utterance, self.user.id, self.timeout)
 
         try:
             nlu_result = self.nlu_model.forward(text, message_type)
@@ -50,10 +54,18 @@ class Dialog:
             return ['NLU ERROR: {}'.format(str(e))]
         self.logger.debug("{user.id}:{user.name} : nlu parsing result: {msg}".format(user=self.user, msg=nlu_result))
 
-        faq_answer, faq_response = faq_future.result()
+        try:
+            faq_answer, faq_response = faq_future.result()
+        except:
+            self.logger.error('Timeout on FAQ')
+            faq_answer, faq_response = [None, None]
         self.logger.debug("{user.id}:{user.name} : faq response: `{msg}`".format(user=self.user,
                                                                                  msg=repr(faq_response)))
-        chat_response = chat_future.result()
+        try:
+            chat_response = chat_future.result()
+        except:
+            self.logger.error('Timeout on CHIT-CHAT')
+            chat_response = None
         self.logger.debug("{user.id}:{user.name} : chit-chat response: `{msg}`".format(user=self.user,
                                                                                        msg=repr(chat_response)))
 
@@ -64,7 +76,7 @@ class Dialog:
                 self.logger.info('using {} intent from faq'.format(faq_answer))
                 nlu_result['intent'] = faq_answer
 
-        if not nlu_result['slots']\
+        if not nlu_result['slots'] and 'name' not in nlu_result\
                 and nlu_result.get('intent', 'no_intent') in ['no_intent', self.policy_model.intent_name]\
                 and not faq_answer:
             self.impatience += 1
@@ -74,7 +86,7 @@ class Dialog:
         expect = None
         if faq_answer and not faq_intent:
             response = ["FAQ\n\n" + html.escape(faq_answer)]
-        elif self.impatience < self.patience:
+        elif self.impatience < self.patience or not chat_response:
             try:
                 response, expect = self.policy_model.forward(nlu_result)
                 for i in range(len(response)):
