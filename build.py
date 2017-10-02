@@ -59,8 +59,8 @@ def main():
     args = ['--folder', directory, '--data', dataset, '--slot_path', slot_definitions, '--slot_train', '--intent_train']
     train_svm(args)
 
-    train_joint_classifier('--folder', directory, '--data', dataset, '--slot_path', slot_definitions,
-                           '--trash_intent', no_intent_dataset)
+    # train_joint_classifier('--folder', directory, '--data', dataset, '--slot_path', slot_definitions,
+    #                        '--trash_intent', no_intent_dataset)
 
     print('Everything build in {:.0f} seconds'.format(time()-time_start))
 

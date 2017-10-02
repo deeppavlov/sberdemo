@@ -31,13 +31,13 @@
 1	Есть еще один вопрос. Открытие #валютного счета#currency#. возможно это сделать удаленно через сбербанк бизнес онлайн?		open_account
 1	Как в системе Сбербанк Бизнес Онлайн подать заявку на открытие #валютного счета#currency#?		open_account
 1	такой вопрос меня интересует. я могу с СБ бизнес онлайн открыть #валютный счет#currency#?		open_account
-1	Подскажите до скольки работает отделение рядом с метро #Маяковского#client_metro#	show_schedule,search_vsp	search_bank
-1	График работы ближайшего банка ко мне. Я нахожусь по адресу #ул. Первомайская 55#client_address#	show_schedule,search_vsp	search_bank
-1	Когда закрывается отделение, работающее с юр лицами на #улице энтузиастов#client_address#?	show_schedule,search_vsp	search_bank
-1	До скольки у вас работают отделы по работе с юридическими лицами?	show_schedule,search_vsp	search_bank
-1	Режим работы для банка рядом с #Савёловским вокзалом#client_address#	show_schedule,search_vsp	search_bank
-1	Когда открывается банк рядом со мной?	show_schedule,search_vsp	search_bank
-1	Время закрытия банка на #Добрынинской#client_address#	show_schedule,search_vsp	search_bank
+1	Подскажите #до скольки#show_schedule# работает отделение рядом с метро #Маяковского#client_metro#	search_vsp	search_bank
+1	#График#show_schedule# работы ближайшего банка ко мне. Я нахожусь по адресу #ул. Первомайская 55#client_address#	search_vsp	search_bank
+1	#Когда закрывается#show_schedule# отделение, работающее с юр лицами на #улице энтузиастов#client_address#?	search_vsp	search_bank
+1	#До скольки#show_schedule# у вас работают отделы по работе с юридическими лицами?	search_vsp	search_bank
+1	#Режим работы#show_schedule# для банка рядом с #Савёловским вокзалом#client_address#	search_vsp	search_bank
+1	#Когда открывается#show_schedule# банк рядом со мной?	search_vsp	search_bank
+1	#Время закрытия#show_schedule# банка на #Добрынинской#client_address#	search_vsp	search_bank
 1	подскажите пожалуйста где рядом с метро #Маяковская#client_metro# есть отделения где я могу открыть счёт на #юридическое лицо#client_type#	search_vsp	search_bank
 0	как Выбрать отделение ?	search_vsp	search_bank
 1	ближайшее отделение	search_vsp	search_bank
@@ -91,7 +91,7 @@
 1	Куда мне обратиться за открытием счета?	search_vsp	search_bank
 1	В какой офис мне идти?	search_vsp	search_bank
 1	где есть офисы по юр.лицам	search_vsp	search_bank
-1	Какой режим работы офиса~до скольки работает офис	show_schedule,search_vsp	search_bank
+1	Какой #режим работы#show_schedule# офиса~#до скольки#show_schedule# работает офис	search_vsp	search_bank
 1	Какие документы для открытия #ИП#client_type#	show_docs	open_account
 1	В какой валюте можно открыть счет		open_account
 1	В какое отделение в Москве обратиться для открытия р\с?	search_vsp	search_bank
@@ -110,15 +110,14 @@
 1	комиссии за счет	cost_of_service	open_account
 1	стоимость открытия	cost_of_service	open_account
 1	Я хотел бы рассмотреть варианты открытия в Сбербанке #расчетного счета#account_type# как #юридическое лицо#client_type#		open_account
-1	Телефон отделения у #метро Южная#client_metro#	show_phone,search_vsp	search_bank
-1	Как мне связаться с отделением на #улице Победы#client_address#?	show_phone,search_vsp	search_bank
-1	Скажите номера телефонов ближайших ко мне отделений	show_phone,search_vsp	search_bank
-1	Дайте информацию по банку на #улице Труда#client_address#	show_phone,show_schedule,search_vsp	search_bank
-1	График и телефон банка рядом со мной	show_phone,show_schedule,search_vsp	search_bank
-1	Где ближайший банк, работающий с #юридическими лицами#client_type#. График и телефон.	show_phone,show_schedule,search_vsp	search_bank
-1	А телефон этого офиса скажете?	show_phone	search_bank
-1	Можно номер этого офиса, пожалуйста	show_phone	search_bank
-1	Можно номер телефона их	show_phone	search_bank
+1	#телефон#show_phone# отделения у #метро Южная#client_metro#	search_vsp	search_bank
+1	Как мне #связаться#show_phone# с отделением на #улице Победы#client_address#?	search_vsp	search_bank
+1	Скажите номера #телефонов#show_schedule# ближайших ко мне отделений	search_vsp	search_bank
+1	Дайте #информацию по банку#show_schedule# на #улице Труда#client_address#	search_vsp	search_bank
+1	#График#show_schedule# и #телефон#show_phone# банка рядом со мной	search_vsp	search_bank
+1	Где ближайший банк, работающий с #юридическими лицами#client_type#. #График#show_schedule# и #телефон#show_phone#.	search_vsp	search_bank
+1	А #телефон#show_phone# этого офиса скажете?		search_bank
+1	Можно номер #телефона#show_phone# их		search_bank
 1	где найти сбероофис	search_vsp	search_bank
 1	офис хочу найти	search_vsp	search_bank
 1	помогите найти отделение сберовское	search_vsp	search_bank
@@ -132,29 +131,31 @@
 1	покажите адреса ближайших к #м. Савеловская#client_metro# офисов	search_vsp	search_bank
 1	хочу найти офис поблизости ко мне	search_vsp	search_bank
 1	есть ли поблизости к #улице Труда#client_address# офис сбербанка?	search_vsp	search_bank
-1	подскажите номер телефона офиса поблизости ко мне	search_vsp, show_phone	search_bank
-1	подскажите до скольки работает это отделение и его номер телефона, пожалуйста	show_phone,show_schedule	search_bank
-1	можно телефон офиса, пожалуйста	show_phone	search_bank
-1	хочу узнать расписание этих офисов	show_schedule	search_bank
+1	подскажите номер #телефона#show_phone# офиса поблизости ко мне	search_vsp	search_bank
+1	подскажите #до скольки#show_schedule# работает это отделение и его номер #телефона#show_phone#, пожалуйста		search_bank
+1	можно #телефон#show_phone# офиса, пожалуйста		search_bank
+1	хочу узнать #расписание#show_schedule# этих офисов		search_bank
 1	где мне найти офис, чтобы открыть там счет в иностранной валюте?	search_vsp	search_bank
 1	офис найти поблизости я хочу	search_vsp	search_bank
 1	Где Сбербанк?	search_vsp	search_bank
-1	Хорошо, тогда подскажите, пожалуйста, ближайшее отделение, которое работает по выходным.	show_schedule,search_vsp	search_bank
+1	Хорошо, тогда подскажите, пожалуйста, ближайшее отделение, которое #работает по выходным#show_schedule#.	search_vsp	search_bank
 1	Спасибо, до свидания	end_talk	
-1	Ничего не нужно больше. До встречи.	end_talk
+1	Ничего не нужно больше. До встречи.	end_talk	
 1	До свидания	end_talk	
-1	до встречи	end_talk
+1	до встречи	end_talk	
 1	До свидания	end_talk	
-1	Пока	end_talk
-1	Мы закончили.	end_talk
+1	Пока	end_talk	
+1	Мы закончили.	end_talk	
 1	До встречи. Благодарю.	end_talk	
 1	Это все, прощайте.	end_talk	
 1	Еще обращусь к вам. Благодарю.	end_talk	
-1	Хотелось бы ещё телефон узнать и время работы	show_phone,show_schedule	search_bank
-1	я хотел бы узнать телефон ближайшего отделения~я хотел бы узнать контакты ближайшего отделения	search_vsp,show_phone	search_bank
-1	я хотел бы узнать расписание ближайшего отделения.	show_schedule,search_vsp	search_bank
-1	а телефон по которому можно позвонить в это отделение?	show_phone	search_bank
-1	Спасибо, а телефоны этих отделений покажете?	show_phone	search_bank
-1	Благодарю за информацию. А можно узнать расписание работы этих отделений?	show_schedule	search_bank
-1	Спасибо большое, да, покажите тарифы	cost_of_service	
-1	Спасибо. Хотелось бы ещё телефон узнать и время работы	show_phone,show_schedule	search_bank
+1	Хотелось бы ещё #телефон#show_phone# узнать и #время работы#show_schedule#		search_bank
+1	а #телефон#show_phone# по которому можно позвонить в это отделение?		search_bank
+1	Спасибо, а #телефоны#show_phone# этих отделений покажете?		search_bank
+1	Благодарю за информацию. А можно узнать #расписание#show_schedule# работы этих отделений?		search_bank
+1	Спасибо большое, да, покажите тарифы	cost_of_service	open_account
+1	Спасибо. Хотелось бы ещё #телефон#show_phone# узнать и #время работы#show_schedule#		search_bank
+1	#расписание#show_schedule# покажите		search_bank
+1	#график#show_schedule#		search_bank
+1	#как работает#show_schedule# отделение		search_bank
+1	спасибо, и #расписание#show_schedule#		search_bank

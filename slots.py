@@ -23,6 +23,9 @@ class DictionarySlot:
             t = phrase.split()
             self.ngrams[len(t)].append(phrase)
 
+        if values_order:
+            self.true = values_order[0]
+
         self.threshold = 90
         self.input_type = {'text'}
 
@@ -127,7 +130,6 @@ class ClassifierSlot(DictionarySlot):
         model_path = os.path.join('models_nlu', self.id + '.model')
         self.classifier = SentenceClassifier(None, model_path=model_path)  # type: TextClassifier
 
-        self.true = values_order[0]
         self.filters.update({
             'true': lambda x, _: x == self.true,
             'false': lambda x, _: x != self.true
