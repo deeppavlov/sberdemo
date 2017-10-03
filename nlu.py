@@ -77,7 +77,7 @@ class SpellChecker(Preprocessor):
         res = []
         for w in words:
             text = w['_text']
-            if (len(set(text)) >= 1) and (not self.d.check(text)):
+            if (len(set(text)) >= 1) or (not self.d.check(text)):
                 try:
                     correction = self.d.suggest(text)[0]
                     if abs(len(correction) - len(text)) < 2:
@@ -172,8 +172,8 @@ class StatisticalNLUModel:
 
 
 def create_pipe(fasttext_model_path=None):
-    preprocessors = [Lower(), Replacer(('ё', 'е')), SpellChecker(), PyMorphyPreproc()]
-    # preprocessors = [Lower(), Replacer(('ё', 'е')), PyMorphyPreproc()]
+    # preprocessors = [Lower(), Replacer(('ё', 'е')), SpellChecker(), PyMorphyPreproc()]
+    preprocessors = [Lower(), Replacer(('ё', 'е')), PyMorphyPreproc()]
     if fasttext_model_path:
         preprocessors.append(FastTextPreproc(model_path=fasttext_model_path))
 
