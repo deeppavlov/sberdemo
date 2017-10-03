@@ -8,7 +8,7 @@ from typing import Dict, List, Any, Union
 
 from fuzzywuzzy import fuzz
 from svm_classifier_utlilities import SentenceClassifier, TextClassifier
-from tomita.tomita import Tomita
+from tomita.tomita import TomitaPool
 
 
 class DictionarySlot:
@@ -180,7 +180,7 @@ class TomitaSlot(DictionarySlot):
         assert 'TOMITA_PATH' in os.environ, 'Specify path to Tomita binary in $TOMITA_PATH'
         tomita_path = os.environ['TOMITA_PATH']
         logfile = open(os.path.join('.', 'logs', '{}.log'.format(slot_id)), 'wb')
-        self.tomita = Tomita(tomita_path, config_real_path, cwd=wd, logfile=logfile)
+        self.tomita = TomitaPool(tomita_path, config_real_path, cwd=wd, logfile=logfile)
 
     def _infer(self, text: List[Dict[str, Any]]):
         joined_text = ' '.join(w['_orig'] for w in text)

@@ -4,14 +4,14 @@ import unittest
 import os
 
 # from tomita import Tomita
-from tomita.tomita import Tomita
+from tomita.tomita import TomitaPool
 from tomita.name_parser import NameParser
 
 
 class TomitaTestCase(unittest.TestCase):
     def test_tomita(self):
         wd = os.path.realpath(os.path.join('tomita', 'test'))
-        tomita = Tomita(os.environ['TOMITA_PATH'], os.path.join(wd, 'config.proto'), cwd=wd)
+        tomita = TomitaPool(os.environ['TOMITA_PATH'], os.path.join(wd, 'config.proto'), cwd=wd)
 
         r = tomita.communicate('ул. Маяковского, c, пятница, 22 апреля 2014 года').decode('UTF8')
         self.assertTrue(r.startswith('<document'), r)
