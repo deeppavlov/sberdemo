@@ -5,6 +5,7 @@ from train_joint_classifier import main as train_joint_classifier
 from generate_from_templates import main as generate_from_templates
 from train_svm import main as train_svm
 from nlu import create_pipe
+from extend_spell_checker_dict import main as extend_spell_checker
 
 import os
 import shutil
@@ -52,6 +53,8 @@ def main():
         print('{} has been preprocessed'.format(no_intent_dataset))
 
     print()
+
+    extend_spell_checker()
 
     args = ['--output', dataset, '--templates', templates]
     generate_from_templates(args)
