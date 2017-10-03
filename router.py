@@ -18,6 +18,8 @@ from tomita.name_parser import NameParser
 from train_joint_classifier import joint_intent_and_slot_classifier
 from train_svm import BASE_CLF_INTENT
 
+import argparse
+
 
 def format_route(route):
     for i in range(len(route)):
@@ -65,7 +67,14 @@ def get_logger():
     return logging.getLogger('router')
 
 
-def main():
+def main(args=None):
+    parser = argparse.ArgumentParser(description='Run the bot')
+
+    parser.add_argument('--debug', dest='debug', action='store_true', default=False,
+                        help="send debug messages to the user")
+
+    debug = vars(parser.parse_args(args))['debug']
+
     set_logger()
     get_logger().info('Starting...')
 
@@ -87,7 +96,7 @@ def main():
 
     def new_dialog(user):
         return Dialog(pipe, StatisticalNLUModel(slots, SentenceClassifier(BASE_CLF_INTENT, model_path=os.path.join(models_path, "IntentClassifier.model"), model_name="IntentClassifier.model"), name_parser),
-                      GraphBasedSberdemoPolicy(data, slots, sayer), user, debug=True, patience=2)
+                      GraphBasedSberdemoPolicy(data, slots, sayer), user, debug=debug, patience=2)
 
     def start(bot: Bot, update: Update):
         chat_id = update.message.chat_id
