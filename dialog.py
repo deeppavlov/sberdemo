@@ -7,6 +7,7 @@ from policy import GraphBasedSberdemoPolicy
 from services import faq, init_chat, chat
 
 from concurrent.futures import TimeoutError, ThreadPoolExecutor, wait
+from promise import Promise
 
 import html
 
@@ -29,6 +30,8 @@ class Dialog:
         self.patience = patience
         self.impatience = 0
         self.timeout = timeout
+
+        self.promise = Promise.resolve(None)
 
         try:
             init_chat(self.user.id, self.timeout)

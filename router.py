@@ -18,6 +18,8 @@ from tomita.name_parser import NameParser
 from train_joint_classifier import joint_intent_and_slot_classifier
 from train_svm import BASE_CLF_INTENT
 
+from concurrent.futures import ThreadPoolExecutor
+
 
 def format_route(route):
     for i in range(len(route)):
@@ -83,6 +85,8 @@ def main():
 
     sayer = Sayer(slots, pipe)
 
+    executor = ThreadPoolExecutor()
+
     humans = {}
 
     def new_dialog(user):
@@ -117,8 +121,9 @@ def main():
 
         threading.Timer(0.5, bot.send_chat_action, [chat_id, ChatAction.TYPING]).start()
 
-        bot_responses = dialog.generate_response(user_msg)
-        send_delayed(bot, chat_id, bot_responses, 0.7)
+        dialog.promise = dialog.promise\
+            .then(lambda _: executor.submit(dialog.generate_response, user_msg))\
+            .then(lambda bot_responses: send_delayed(bot, chat_id, bot_responses, 0.7))
 
     updater = Updater(token=os.environ['SBER_DEMO_BOT_TOKEN'])
     dispatcher = updater.dispatcher
