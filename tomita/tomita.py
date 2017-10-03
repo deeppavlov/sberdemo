@@ -71,7 +71,11 @@ class TomitaPool(object):
     def communicate(self, text):
         print('communicate', text)
         tomita, f = self.get_tomita()
-        res = tomita.communicate(text)
+        try:
+            res = tomita.communicate(text)
+        except:
+            f.set_result(tomita)
+            raise
 
         f.set_result(tomita)
 
