@@ -1,4 +1,4 @@
-from tomita.tomita import Tomita
+from tomita.tomita import TomitaPool
 import os
 
 
@@ -18,7 +18,7 @@ class NameParser:
         cwd = os.path.join(root, 'proper_name')
         config_path = os.path.join(cwd, 'config_names.proto')
         logfile = open(os.path.join(root, '..', 'logs', 'name_parser.log'), 'wb')
-        self.tomita = Tomita(tomita_path, config_path, cwd, logfile)
+        self.tomita = TomitaPool(tomita_path, config_path, cwd, logfile)
 
     def parse(self, text):
         if isinstance(text, list):
