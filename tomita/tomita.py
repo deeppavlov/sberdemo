@@ -69,7 +69,6 @@ class TomitaPool(object):
         return tomita, f
 
     def communicate(self, text):
-        print('communicate', text)
         tomita, f = self.get_tomita()
         try:
             res = tomita.communicate(text)
@@ -82,7 +81,6 @@ class TomitaPool(object):
         return res
 
     def get_json(self, text):
-        print('get_json', text)
         tomita, f = self.get_tomita()
         res = tomita.get_json(text)
 
