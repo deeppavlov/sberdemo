@@ -172,7 +172,7 @@ class StatisticalNLUModel:
 
 
 def create_pipe(fasttext_model_path=None):
-    # preprocessors = [Lower(), Replacer(('ё', 'е')), SpellChecker(), PyMorphyPreproc()]
+    # preprocessors = [Lower(), Replacer(('ё', 'е')), PyMorphyPreproc(), SpellChecker()]
     preprocessors = [Lower(), Replacer(('ё', 'е')), PyMorphyPreproc()]
     if fasttext_model_path:
         preprocessors.append(FastTextPreproc(model_path=fasttext_model_path))
