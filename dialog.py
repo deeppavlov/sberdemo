@@ -97,15 +97,15 @@ class Dialog:
             self.nlu_model.set_expectation(expect)
         else:
             response = chat_response  # type:str
-            response.replace(', меня зовут', '')
+            response = response.replace(' , меня зовут', '')
             try:
-                names = self.nlu_model.name_parser.parse(chat_response)
+                names = self.nlu_model.name_parser.parse(response)
                 if names:
                     for name in reversed(names):
                         response = response[:name['pos']] + response[name['pos']+name['len']:]
                 response = response.strip(' \t\n\r\x0b\x0c,')
                 response = response[0].upper() + response[1:]
-                response = ["CHIT-CHAT\n" + html.escape(response)]
+                response = ["<i>{}</i>".format(html.escape(response))]
             except Exception as e:
                 self.logger.error(e)
                 response = ['CHIT-CHAT ERROR: {}'.format(e)]
