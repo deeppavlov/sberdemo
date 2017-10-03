@@ -1,7 +1,7 @@
 import urllib.request
 from time import time
 
-from train_joint_classifier import main as train_joint_classifier
+# from train_joint_classifier import main as train_joint_classifier
 from generate_from_templates import main as generate_from_templates
 from train_svm import main as train_svm
 from nlu import create_pipe
