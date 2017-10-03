@@ -75,8 +75,12 @@ def main():
     pipe = create_pipe()
 
     models_path = './models_nlu'
+
+    # use joint model for every slot
     # slots = read_slots_from_tsv(pipe)
     # slots = joint_intent_and_slot_classifier(slots, models_path)
+
+    # use single model for each slot
     slots = read_slots_serialized(models_path, pipe)
 
     name_parser = NameParser()
@@ -87,7 +91,7 @@ def main():
 
     def new_dialog(user):
         return Dialog(pipe, StatisticalNLUModel(slots, SentenceClassifier(BASE_CLF_INTENT, model_path=os.path.join(models_path, "IntentClassifier.model"), model_name="IntentClassifier.model"), name_parser),
-                      GraphBasedSberdemoPolicy(data, slots, sayer), user, debug=True, patience=2)
+                      GraphBasedSberdemoPolicy(data, slots, sayer), user, debug=False, patience=2)
 
     def start(bot: Bot, update: Update):
         chat_id = update.message.chat_id
