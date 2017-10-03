@@ -82,7 +82,11 @@ class TomitaPool(object):
 
     def get_json(self, text):
         tomita, f = self.get_tomita()
-        res = tomita.get_json(text)
+        try:
+            res = tomita.get_json(text)
+        except:
+            f.set_result(tomita)
+            raise
 
         f.set_result(tomita)
 
