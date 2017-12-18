@@ -15,7 +15,7 @@ import threading
 
 from slots import read_slots_serialized, read_slots_from_tsv
 from tomita.name_parser import NameParser
-from train_joint_classifier import joint_intent_and_slot_classifier
+# from train_joint_classifier import joint_intent_and_slot_classifier
 from train_svm import BASE_CLF_INTENT
 
 from concurrent.futures import ThreadPoolExecutor
