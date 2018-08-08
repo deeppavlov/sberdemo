@@ -38,7 +38,7 @@ def main():
         print('Using old', no_intent_preprocessed)
     else:
         if not os.path.isfile(no_intent_dataset):
-            url = 'http://share.ipavlov.mipt.ru:8080/repository/datasets/' + os.path.basename(no_intent_dataset)
+            url = 'ftp://share.ipavlov.mipt.ru/datasets/' + os.path.basename(no_intent_dataset)
             try:
                 urllib.request.urlretrieve(url, no_intent_dataset)
             except:
