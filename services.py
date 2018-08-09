@@ -4,6 +4,7 @@ from urllib.parse import urlencode
 
 
 def faq(text: str, threshold=0.95, timeout=5):
+    raise Exception('Does not work')
     params = {
         "q": text
     }
@@ -15,6 +16,7 @@ def faq(text: str, threshold=0.95, timeout=5):
 
 
 def init_chat(chat_id, timeout=5):
+    raise Exception('Does not work')
     params = {
         "session": chat_id
     }
@@ -24,6 +26,7 @@ def init_chat(chat_id, timeout=5):
 
 
 def chat(text: str, chat_id, timeout=5):
+    raise Exception('Does not work')
     params = {
         "q": text,
         "session": chat_id
